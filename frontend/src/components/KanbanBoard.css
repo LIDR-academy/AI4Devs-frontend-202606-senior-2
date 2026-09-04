@@ -1,0 +1,143 @@
+.position-page {
+  min-height: 100vh;
+  padding: 2rem 0 3rem;
+  background-color: #cfcfcf;
+}
+
+.position-header-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #212529;
+  font-size: 1.5rem;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.position-header-back:hover {
+  color: #000;
+}
+
+.position-header-back:focus-visible {
+  outline: 2px solid #212529;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.position-header-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.kanban-board {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.kanban-column {
+  width: 100%;
+}
+
+.kanban-column-panel {
+  height: 100%;
+  min-height: 16rem;
+  padding: 1rem 1rem 1.25rem;
+  background-color: #e8e8e8;
+  border-radius: 1rem;
+}
+
+.kanban-column-panel--over {
+  background-color: #dcdcdc;
+}
+
+.kanban-column-title {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.kanban-column-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 8rem;
+}
+
+.kanban-column-empty {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.candidate-card {
+  padding: 1rem 1.15rem;
+  background-color: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  cursor: grab;
+}
+
+.candidate-card[draggable='false'] {
+  cursor: default;
+}
+
+.candidate-card-name {
+  margin: 0 0 0.65rem;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.score-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.score-dot {
+  display: block;
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 50%;
+  background-color: #d4d4d4;
+}
+
+.score-dot--filled {
+  background-color: #22c55e;
+}
+
+.candidate-card-move:focus {
+  display: block;
+  width: 100%;
+  margin-top: 0.65rem;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid #adb5bd;
+  border-radius: 0.35rem;
+  background-color: #fff;
+  font-size: 0.85rem;
+}
+
+.candidate-card-move:focus-visible {
+  outline: 2px solid #212529;
+  outline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+  .position-header-title {
+    font-size: 2rem;
+  }
+
+  .kanban-board {
+    flex-direction: row;
+    align-items: stretch;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .kanban-column {
+    flex: 1 1 16rem;
+    min-width: 16rem;
+  }
+}
