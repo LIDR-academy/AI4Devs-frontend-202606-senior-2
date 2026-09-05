@@ -1,0 +1,1 @@
+/opsx:propose "Wire the 'Ver proceso' button on each position card in Positions.tsx to navigate to a new route /positions/:id (position detail view). No new page content yet, just the route registration in App.js and the onClick/Link wiring."
