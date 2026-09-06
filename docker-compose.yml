@@ -1,8 +1,15 @@
-version: "3.1"
+# Runs the whole stack (PostgreSQL + backend + frontend) in containers.
+#
+#   docker compose up
+#
+# Nothing has to be installed or executed on the host. Dependencies live in
+# backend/node_modules and frontend/node_modules and npm's download cache lives
+# in ./.docker-cache/npm, all inside the project root, so rebuilding the images
+# never re-downloads anything.
 
 services:
   db:
-    image: postgres
+    image: postgres:16
     restart: always
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -10,3 +17,56 @@ services:
       POSTGRES_DB: ${DB_NAME}
     ports:
       - ${DB_PORT}:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    # Run as the host user so files written to the bind mounts (uploads, caches)
+    # do not end up owned by root.
+    user: ${DOCKER_USER:-1000:1000}
+    environment:
+      # Overrides the localhost URL in backend/.env; dotenv and the Prisma CLI
+      # both leave already-set environment variables alone.
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    ports:
+      - "3010:3010"
+    volumes:
+      # Whole repo, so `../uploads/` resolves the same way it does locally and
+      # backend/node_modules survives image rebuilds.
+      - .:/app
+      - ./.docker-cache/npm:/npm-cache
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    user: ${DOCKER_USER:-1000:1000}
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      BROWSER: none
+      # Bind mounts do not deliver inotify events reliably, so poll for changes.
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - ./.docker-cache/npm:/npm-cache
+    stdin_open: true
+    depends_on:
+      - backend
+
+volumes:
+  db-data:

@@ -1,0 +1,99 @@
+/*
+ * Board layout.
+ *
+ * The board is a single horizontal track of fixed-width columns that scrolls
+ * sideways when the flow has more phases than fit. Below Bootstrap's `md`
+ * breakpoint that track becomes a vertical stack — see the media query at the
+ * foot of the layout rules (requirement *Phases stack vertically on mobile*).
+ */
+
+.pipeline-board {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+}
+
+.pipeline-column {
+    flex: 0 0 16rem;
+    max-width: 16rem;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+}
+
+.pipeline-column__title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Drop target: keeps a usable height even when the phase is empty. */
+.pipeline-column__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 4rem;
+}
+
+/*
+ * Narrow viewports: one column per row instead of one track of columns.
+ *
+ * 767.98px is Bootstrap 5's `md` boundary (`max-width` half-pixel below 768px),
+ * so the board breaks where the rest of the app does. Above it the horizontal
+ * kanban track is untouched — deliberate behaviour, not an overflow bug.
+ *
+ * `flex-direction: column` keeps the source order, so the phases stack in the
+ * same order they sit in across the track. The width caps have to go with it:
+ * `flex-basis`/`max-width: 16rem` are cross-axis sizes once the main axis is
+ * vertical, and would leave narrow columns rather than full-width ones.
+ * `align-items: stretch` overrides the `flex-start` above so each column fills
+ * the content area, and dropping `overflow-x` means nothing scrolls sideways.
+ *
+ * The card list keeps its `min-height`, so an empty phase is still a drop
+ * target, and each list is still a vertical droppable — the drag wiring needs
+ * no change.
+ */
+@media (max-width: 767.98px) {
+    .pipeline-board {
+        flex-direction: column;
+        align-items: stretch;
+        overflow-x: visible;
+    }
+
+    .pipeline-column {
+        flex: 0 0 auto;
+        max-width: none;
+    }
+}
+
+/* The whole card is the drag handle, so it advertises itself as one. */
+.candidate-card {
+    cursor: grab;
+    user-select: none;
+}
+
+.candidate-card:active {
+    cursor: grabbing;
+}
+
+.candidate-score__dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.candidate-score__dot {
+    display: inline-block;
+    width: 0.6rem;
+    height: 0.6rem;
+    border: 1px solid #adb5bd;
+    border-radius: 50%;
+    background-color: transparent;
+}
+
+.candidate-score__dot--filled {
+    border-color: #0d6efd;
+    background-color: #0d6efd;
+}

@@ -1,7 +1,8 @@
 # Ignore in all directories
 **/.DS_Store
-#**/.env
-**/.env.example
+# Never commit real credentials; commit the .env.example templates instead.
+**/.env
+!**/.env.example
 **/node_modules
 **/prompts_master.md
 
@@ -25,4 +26,11 @@ yarn-error.log*
 .idea
 .vscode
 
-# .env
+
+# docker compose npm cache (the dir is tracked, its contents are not)
+.docker-cache/npm/*
+!.docker-cache/npm/.gitkeep
+
+# uploaded files
+uploads/*
+!uploads/.gitkeep
