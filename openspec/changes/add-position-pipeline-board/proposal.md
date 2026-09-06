@@ -26,12 +26,16 @@ and nothing else:
   the stages of the hiring process, and allowing you to update the stage a candidate is in simply
   by dragging their card."*
 
-That yields **eight requirements**. Deliberately excluded, with reasons recorded in
-[the PRD](../../../docs/prds/position-kanban-board.md) §9: WCAG 2.2 AA conformance and a non-drag
-path to every move, loading/error/empty states, optimistic updates with rollback, unit tests,
-environment-driven API config, and TypeScript conversion. Each is sound engineering; none is
-requested by the brief. The mobile requirement is marked best-effort because the brief says
-*"if possible"*.
+That yields **eight requirements**. Deliberately excluded: WCAG 2.2 AA conformance and a non-drag
+path to every move, loading/error/empty states, optimistic updates with rollback, environment-driven
+API config, and TypeScript conversion. Each is sound engineering; none is requested by the brief.
+The mobile requirement is marked best-effort because the brief says *"if possible"*.
+
+**Automated tests are in scope**, and are the one thing here the brief does not ask for that is
+included anyway. Requirements do not always descend to the testing level — a baseline of
+engineering quality control is expected regardless of whether a brief names it. Every scenario in
+`specs/` that can be expressed in jsdom is covered by a test; see `design.md` D8 for the three that
+cannot.
 
 The brief also fixes two assumptions this change adopts: *"assume you can find the positions page"*
 (so it stays mock-driven) and *"the overall page structure exists"* (so no app-shell work).

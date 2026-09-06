@@ -21,6 +21,11 @@ it with *"if possible"*.
 - [ ] 2.3 Add position ids to the mock data in `frontend/src/components/Positions.tsx` (Q2)
 - [ ] 2.4 Wire each card's "Ver proceso" control to navigate to `/positions/:id` for its own
       position — satisfies *Open a position's pipeline from the positions list*
+- [ ] 2.5 Repair the test runner (D8): `npm test` invokes `jest --config jest.config.js` and that
+      file does not exist. Switch the script to `react-scripts test` and add `src/setupTests.ts`
+      importing `@testing-library/jest-dom`. No new dependency — jest 27.5.1 and RTL 13.4.0 are
+      already installed
+- [ ] 2.6 Confirm `npm test` runs and reports zero tests rather than erroring
 
 ## 3. Data layer
 
@@ -32,6 +37,10 @@ it with *"if possible"*.
       satisfies *Column order is deterministic when phases share an order index*
 - [ ] 3.4 Build the phase `name → id` map from the interview flow (D3)
 - [ ] 3.5 Group candidates into phases by matching `currentInterviewStep` against the phase name
+- [ ] 3.6 Unit-test phase ordering, including two phases sharing an `orderIndex` — covers *Column
+      order is deterministic when phases share an order index*
+- [ ] 3.7 Unit-test unwrapping the doubly-nested interview-flow response, the `name → id` map, and
+      grouping candidates by phase name
 
 ## 4. Read-only board
 
@@ -50,6 +59,11 @@ it with *"if possible"*.
       kept visible as text (D7)
 - [ ] 4.7 Verify against the running stack: a position with several phases renders correctly, and
       the position seeded with no candidates renders all its columns empty
+- [ ] 4.8 Component tests for the board — covers *Position title provides context*, *Return to the
+      positions list* (both scenarios), *One column per phase* (count from the flow, and an empty
+      phase still rendered), and *Candidate cards show name and score* (all four scenarios)
+- [ ] 4.9 Component test for navigation from the positions list — covers both scenarios of *Open a
+      position's pipeline from the positions list*
 
 ## 5. Moving a candidate
 
@@ -61,19 +75,29 @@ it with *"if possible"*.
 - [ ] 5.4 Verify persistence: move a card, reload the page, confirm the candidate is in the new
       column — satisfies *The new phase survives a reload*
 - [ ] 5.5 Verify a move to an earlier phase works the same way
+- [ ] 5.6 Test the update against a mocked API: assert the request carries the candidate's
+      `applicationId` and the target phase's step **id** — covers *The move identifies the target
+      phase by id*
+- [ ] 5.7 Test persistence against the running stack: issue the move, re-fetch, assert the
+      candidate's phase changed — covers *The new phase survives a reload*
+- [ ] 5.8 **Manual, browser:** the two drag scenarios cannot be verified in jsdom (D8). Drag a card
+      forward and back in a real browser and record the result
 
 ## 6. Mobile layout (best effort)
 
 - [ ] 6.1 Below the `md` breakpoint, stack the phase columns vertically at full width in the same
       order — satisfies *Phases stack vertically on mobile*
-- [ ] 6.2 Verify at 375px: columns stacked, full width, no horizontal scroll
+- [ ] 6.2 **Manual, browser:** verify at 375px — columns stacked, full width, no horizontal
+      scroll. Not reachable in jsdom, which has no layout engine (D8)
 
 ## 7. Wrap-up
 
-- [ ] 7.1 Run the full stack via `docker compose up` and walk every scenario in `specs/`
-- [ ] 7.2 Confirm no change outside `frontend/` other than the seed fixtures from group 1
-- [ ] 7.3 Add `prompts/prompts-iniciales.md` (brief's submission checklist)
-- [ ] 7.4 Cross-link `docs/prds/position-kanban-board.md` to this change so there is one obvious
+- [ ] 7.1 Run `npm test` and confirm it passes with all 14 jsdom-reachable scenarios covered
+- [ ] 7.2 Run the full stack via `docker compose up` and walk every scenario in `specs/`, including
+      the 3 that are manual-only (5.8, 6.2)
+- [ ] 7.3 Confirm no change outside `frontend/` other than the seed fixtures from group 1
+- [ ] 7.4 Add `prompts/prompts-iniciales.md` (brief's submission checklist)
+- [ ] 7.5 Cross-link `docs/prds/position-kanban-board.md` to this change so there is one obvious
       source of truth
-- [ ] 7.5 Call out the endpoint mismatch in the PR description — three of the brief's four paths
+- [ ] 7.6 Call out the endpoint mismatch in the PR description — three of the brief's four paths
       404 and one response is nested a level deeper (D2)

@@ -69,14 +69,17 @@ The candidate↔position link is the `Application` row, and no runtime path crea
 - Keep the change inside `frontend/`, per the brief's *"Page changes, logic, etc. in the /frontend
   folder"*.
 - Make the board demonstrable despite the assignment gap above.
+- Cover the specs with automated tests to the extent the toolchain allows (D8).
 
 **Non-Goals:**
 
 - Backend changes of any kind, including correcting the endpoint paths to match the brief.
 - Building candidate→position assignment (see D4).
 - Everything listed in the proposal's scope section: accessibility conformance, loading/error/empty
-  states, optimistic updates with rollback, unit tests, env-driven API config, TypeScript
-  conversion. Sound engineering, none of it asked for.
+  states, optimistic updates with rollback, env-driven API config, TypeScript conversion. Sound
+  engineering, none of it asked for.
+- *(Not excluded)* Automated tests. The brief does not ask for them, but baseline quality control
+  is expected regardless — see D8.
 - Making the Positions page functional beyond wiring "Ver proceso".
 
 ## Decisions
@@ -152,6 +155,29 @@ average score is *shown*, so dots are presentation. `averageScore` is a float �
 total by count, so 4.5 occurs — therefore the dot count is the score rounded to nearest and clamped
 to 0–5, with the numeric value kept visible as text so no precision is lost.
 
+### D8 — Test strategy
+
+Automated tests are a deliverable, not just a private harness. Coverage is driven directly by the
+scenarios in `specs/` — each scenario is a test case.
+
+**Runner.** `frontend`'s `npm test` currently invokes `jest --config jest.config.js` and that file
+does not exist, so the script has never run. Switch it to `react-scripts test`, which needs no
+config. Jest 27.5.1 and `@testing-library/react` 13.4.0 are already installed via `react-scripts`,
+so this costs one line plus a `setupTests` file — no new dependency.
+
+**Layers.**
+
+- *Unit* — the pure logic: phase ordering with the duplicate `orderIndex`, unwrapping the
+  doubly-nested interview-flow response, the `name → id` map, and grouping candidates by phase name.
+- *Component (React Testing Library)* — the rendering requirements: title, back control, column
+  count derived from the flow, empty columns, card placement, name and score, and navigation from
+  the positions list.
+
+**What this cannot reach — 3 of the 17 scenarios.** jsdom has no pointer input and no layout
+engine, so it cannot verify the two drag scenarios or the 375px stacking. Simulating a drag against
+`@hello-pangea/dnd` in jsdom is unreliable enough that a passing test would be misleading, which is
+worse than no test. Those three need a real browser; see Q3.
+
 ## Risks / Trade-offs
 
 - **Matching phases by name (D3) breaks if a phase is renamed backend-side or two phases share a
@@ -178,6 +204,10 @@ to 0–5, with the numeric value kept visible as text so no precision is lost.
 
 - **Q2** — Where does the `:id` in the link come from, given `Positions.tsx` is mock data with no
   ids? *Proceeding by adding ids to the mock data and keeping the page mock-driven.*
+- **Q3** — Add Playwright to cover the three scenarios jsdom cannot reach (D8)? It would drive the
+  system Chrome at `/usr/bin/google-chrome` rather than downloading its own, but it is a new
+  dependency against a one-day deadline. *Proceeding without it: those three scenarios are verified
+  manually in a browser and flagged as such.*
 
 ### Resolved
 

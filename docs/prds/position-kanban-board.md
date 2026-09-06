@@ -280,6 +280,13 @@ Each of these would be right in a production build. **None is asked for by the b
 is part of this deliverable. Listed so the decision is on the record and can be revisited if the
 scope is widened.
 
+> **Superseded 2026-09-06 — automated tests.** This table originally excluded unit tests on the
+> grounds that the brief does not ask for them. That reasoning was wrong: requirements do not
+> always descend to the testing level, and a baseline of engineering quality control is expected
+> regardless. Tests are **in scope**, covered by D8 and the task list of the OpenSpec change
+> `add-position-pipeline-board`. Repairing `frontend`'s broken `npm test` script
+> (`jest --config jest.config.js` points at a file that does not exist) is a prerequisite.
+
 | Item | Why it was considered | Why it is out |
 | --- | --- | --- |
 | **WCAG 2.2 AA conformance** — keyboard-operable cards, live-region announcements, labelled columns, accessible name on the back arrow, per-route document title, non-text contrast on the score dots | The course's Módulo 10 material sets WCAG 2.2 AA as the legal minimum under the European Accessibility Act | The brief never mentions accessibility. Worth raising separately — the back arrow's accessible name and the score's text equivalent are near-free and would be sensible to include anyway |
@@ -290,7 +297,6 @@ scope is widened.
 | **Fallback for a candidate whose stage matches no column** | Guards the name-matching in D3 | Not requested; cannot occur with the current data, since `Application.currentInterviewStep` is a foreign key into `InterviewStep` |
 | **API base URL from `REACT_APP_API_URL`** | It is hardcoded in three files today (`CODE_QUALITY.md`) | Pre-existing issue, not caused by this feature |
 | **TypeScript for the new components** | The existing components are mostly untyped `.js` | A code-quality preference, not a requirement. Cheap to do since `.tsx` already works in this project |
-| **Unit tests** (column ordering, name matching, the move) | Normal practice | Not requested. `frontend`'s `npm test` script is also broken — `jest --config jest.config.js` points at a missing file |
 | **Component size / single-responsibility limits** | Keeps the page maintainable | A code-quality preference, not a requirement |
 | **Issuing the two GETs in parallel** | Halves the wait | A performance preference, not a requirement |
 
