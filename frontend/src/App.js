@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import RecruiterDashboard from './components/RecruiterDashboard';
 import AddCandidate from './components/AddCandidateForm'; 
 import Positions from './components/Positions'; 
+import PositionPipelineBoard from './components/PositionPipelineBoard';
 
 const App = () => {
   return (
@@ -12,6 +13,7 @@ const App = () => {
         <Route path="/" element={<RecruiterDashboard />} />
         <Route path="/add-candidate" element={<AddCandidate />} /> {/* Agrega esta línea */}
         <Route path="/positions" element={<Positions />} />
+        <Route path="/positions/:id" element={<PositionPipelineBoard />} />
       </Routes>
     </BrowserRouter>
   );
