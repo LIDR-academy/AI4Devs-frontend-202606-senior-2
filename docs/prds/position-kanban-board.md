@@ -9,8 +9,17 @@
 | **Source brief** | *"Creating the LTI application management interface"* (AI4Devs 2026/06 Seniors II, Lia Carrizo) |
 | **Repo** | `AI4Devs-frontend-202606-senior-2`, branch `frontend-ir` |
 | **Scope** | `frontend/` only |
+| **Implemented by** | OpenSpec change [`add-position-pipeline-board`](../../openspec/changes/add-position-pipeline-board/) |
 
 ---
+
+> **Where this document stops and the specs begin.** This PRD is the scope argument: what the
+> brief asks for, what it does not, and why. The executable requirements derived from it live in the
+> OpenSpec change [`add-position-pipeline-board`](../../openspec/changes/add-position-pipeline-board/)
+> — `proposal.md` for the capability split, `specs/` for the WHEN/THEN scenarios that the tests
+> assert against, `design.md` for the technical decisions, and `tasks.md` for implementation
+> progress. Where the two disagree about a detail of behaviour, `specs/` wins; this document is the
+> record of *why* that behaviour is in scope at all.
 
 ## 1. Context
 
@@ -170,6 +179,19 @@ Response `200`:
   "data": { "id": 1, "positionId": 1, "candidateId": 1, "applicationDate": "…", "currentInterviewStep": 3, "notes": null, "interviews": [] }
 }
 ```
+
+#### Two behaviours the endpoints do not advertise
+
+Both were found while implementing, not while reading the code, and both bite the board directly:
+
+- **`applicationId` and the candidate id must belong together.** `PUT /candidates/:candidateId`
+  looks the application up by *both* ids, so sending a valid `applicationId` that belongs to a
+  different candidate returns `404 {"message":"Application not found"}` rather than updating
+  anything. The board must send each candidate's own `applicationId`.
+- **Neither `GET` has an `ORDER BY`.** `GET /position/:id/candidates` returns a moved candidate
+  **last** after a `PUT`, and `interviewSteps` arrives in whatever order Postgres supplies. Column
+  order therefore comes from sorting client-side (see §6), and card order within a column must not
+  be read from the array or cards will jump after every move.
 
 ### 4.3 Where board data comes from
 
