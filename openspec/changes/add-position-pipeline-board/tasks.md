@@ -92,7 +92,7 @@ it with *"if possible"*.
 
 ## 7. Wrap-up
 
-- [x] 7.1 Run `npm test` and confirm it passes with all 14 jsdom-reachable scenarios covered
+- [x] 7.1 Run `npm test` and confirm it passes with all 20 jsdom-reachable scenarios covered
 - [x] 7.2 Run the full stack via `docker compose up` and walk every scenario in `specs/`, including
       the 3 that are manual-only (5.8, 6.2)
 - [x] 7.3 Confirm no change outside `frontend/` other than the seed fixtures from group 1

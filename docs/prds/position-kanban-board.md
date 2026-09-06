@@ -309,13 +309,19 @@ scope is widened.
 > `add-position-pipeline-board`. Repairing `frontend`'s broken `npm test` script
 > (`jest --config jest.config.js` points at a file that does not exist) is a prerequisite.
 
+> **Superseded 2026-09-07 — three of these shipped.** Loading and error states, rollback of a
+> rejected move, and the no-op on dropping a card back in its own column were all listed here as
+> "not requested". Implementation showed the first two are not refinements but correctness: a board
+> that fetches twice and shows nothing on failure looks broken, and an optimistically-moved card the
+> database rejected is indistinguishable from success until the next reload. They are now
+> requirements in `specs/` (decisions **D6** and **D9**), each covered by tests. The same reasoning
+> as the automated-tests note above: "the brief does not ask for it" is not the same as "out of
+> scope".
+
 | Item | Why it was considered | Why it is out |
 | --- | --- | --- |
 | **WCAG 2.2 AA conformance** — keyboard-operable cards, live-region announcements, labelled columns, accessible name on the back arrow, per-route document title, non-text contrast on the score dots | The course's Módulo 10 material sets WCAG 2.2 AA as the legal minimum under the European Accessibility Act | The brief never mentions accessibility. Worth raising separately — the back arrow's accessible name and the score's text equivalent are near-free and would be sensible to include anyway |
 | **A non-drag path to every move** (WCAG 2.5.7 Dragging Movements) | Drag-only interaction is the feature's biggest accessibility gap | Directly contrary to the brief, which specifies the interaction as *"simply by dragging their card"* |
-| **Loading, error and empty states** | A page that fetches twice will visibly need them | Not in the eight requirements |
-| **Optimistic update with rollback on failure** | Makes the board feel responsive and prevents showing an unpersisted stage | Not requested; M-3 only requires the change to persist |
-| **No-op on dropping a card into its own column** | Avoids a pointless request | Not requested |
 | **Fallback for a candidate whose stage matches no column** | Guards the name-matching in D3 | Not requested; cannot occur with the current data, since `Application.currentInterviewStep` is a foreign key into `InterviewStep` |
 | **API base URL from `REACT_APP_API_URL`** | It is hardcoded in three files today (`CODE_QUALITY.md`) | Pre-existing issue, not caused by this feature |
 | **TypeScript for the new components** | The existing components are mostly untyped `.js` | A code-quality preference, not a requirement. Cheap to do since `.tsx` already works in this project |

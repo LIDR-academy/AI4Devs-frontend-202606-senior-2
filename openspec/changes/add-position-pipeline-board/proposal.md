@@ -26,7 +26,10 @@ and nothing else:
   the stages of the hiring process, and allowing you to update the stage a candidate is in simply
   by dragging their card."*
 
-That yields **eight requirements**. Deliberately excluded: WCAG 2.2 AA conformance and a non-drag
+That yields **eight requirements**. Two more were added during implementation, where the
+brief's own behaviour could not be delivered correctly without them: the page reporting its
+loading and failure states, and a rejected move being undone rather than left on screen.
+Both are recorded as decisions in `design.md` (D6, D9). Deliberately excluded: WCAG 2.2 AA conformance and a non-drag
 path to every move, loading/error/empty states, optimistic updates with rollback, environment-driven
 API config, and TypeScript conversion. Each is sound engineering; none is requested by the brief.
 The mobile requirement is marked best-effort because the brief says *"if possible"*.

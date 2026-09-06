@@ -69,6 +69,7 @@ const mockUpdateCandidateStage = updateCandidateStage as jest.MockedFunction<
  */
 const INITIAL_SCREENING = 1;
 const TECHNICAL_INTERVIEW = 2;
+const MANAGER_INTERVIEW = 3;
 
 const CARLOS = { candidateId: 3, applicationId: 4 };
 const JOHN = { candidateId: 1, applicationId: 1 };
@@ -322,11 +323,7 @@ describe('Requirement: A completed move is persisted', () => {
         expect(cardNamesIn('Initial Screening')).toEqual([]);
     });
 
-    /*
-     * Not a scenario of the spec, but the other half of persisting a move: the board is
-     * updated before the request resolves, so a rejected request has to be undone or the
-     * page would go on showing a phase the database never accepted.
-     */
+    // Scenario: The card returns to its original phase when the update is rejected
     it('returns the card to the phase it came from, and reports it, when the update is rejected', async () => {
         mockUpdateCandidateStage.mockRejectedValue(
             new Error('PUT http://localhost:3010/candidates/3 failed with 404'),
@@ -348,5 +345,64 @@ describe('Requirement: A completed move is persisted', () => {
         const alert = screen.getByTestId('pipeline-move-error');
         expect(alert).toHaveTextContent('No se ha podido mover a Carlos García');
         expect(alert).toHaveTextContent('404');
+    });
+
+    // Scenario: An undone move does not discard a later move
+    it('undoes only the rejected move, keeping one made while its request was in flight', async () => {
+        let rejectCarlosUpdate!: (reason: Error) => void;
+
+        mockUpdateCandidateStage.mockImplementation((update: CandidateStageUpdate) => {
+            // Carlos's update never settles until the test says so, which is the window in
+            // which the second move happens.
+            if (update.candidateId === CARLOS.candidateId) {
+                return new Promise((_resolve, reject) => {
+                    rejectCarlosUpdate = reject;
+                });
+            }
+            return Promise.resolve({
+                message: 'Candidate stage updated successfully',
+                data: {
+                    id: update.applicationId,
+                    positionId: 1,
+                    candidateId: update.candidateId,
+                    applicationDate: '2026-01-01T00:00:00.000Z',
+                    currentInterviewStep: update.interviewStepId,
+                    notes: null,
+                    interviews: [],
+                },
+            });
+        });
+
+        await renderPage();
+
+        await finishDrag(
+            dropOn(
+                CARLOS.candidateId,
+                { phaseId: INITIAL_SCREENING, index: 0 },
+                { phaseId: TECHNICAL_INTERVIEW, index: 0 },
+            ),
+        );
+        // Carlos now leads the column, so John has been pushed to index 1.
+        await finishDrag(
+            dropOn(
+                JOHN.candidateId,
+                { phaseId: TECHNICAL_INTERVIEW, index: 1 },
+                { phaseId: MANAGER_INTERVIEW, index: 0 },
+            ),
+        );
+        expect(cardNamesIn('Manager Interview')).toEqual(['John Doe']);
+
+        await act(async () => {
+            rejectCarlosUpdate(
+                new Error('PUT http://localhost:3010/candidates/3 failed with 404'),
+            );
+        });
+
+        // Rolling Carlos back must not take the board's state back to before John moved.
+        expect(cardNamesIn('Initial Screening')).toEqual(['Carlos García']);
+        expect(cardNamesIn('Manager Interview')).toEqual(['John Doe']);
+        expect(screen.getByTestId('pipeline-move-error')).toHaveTextContent(
+            'No se ha podido mover a Carlos García',
+        );
     });
 });

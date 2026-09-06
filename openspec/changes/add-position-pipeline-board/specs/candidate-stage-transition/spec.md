@@ -17,6 +17,19 @@ column to another. On completing the drag, the card MUST be shown in the target 
 - **WHEN** a recruiter drags a candidate's card onto a column earlier in the process
 - **THEN** the card is shown in that earlier column
 
+#### Scenario: An abandoned drag changes nothing
+
+- **WHEN** a recruiter begins dragging a candidate's card and releases it outside any column, or
+  cancels the drag
+- **THEN** the card stays in the column it started in
+- **AND** no update is sent to the backend
+
+#### Scenario: Dropping a card back on its own phase changes nothing
+
+- **WHEN** a recruiter drops a candidate's card on the column it was already in
+- **THEN** the card stays where it was
+- **AND** no update is sent to the backend
+
 ### Requirement: A completed move is persisted
 
 Completing a move SHALL persist the candidate's new phase, so the change survives leaving and
@@ -34,3 +47,23 @@ its interview step id.
 - **WHEN** a candidate's card is dropped on a column
 - **THEN** the update sent to the backend carries that candidate's application identifier and the
   interview step **id** of the target column
+
+### Requirement: A rejected move is undone and reported
+
+If the backend rejects a move, the board MUST NOT keep showing the candidate in a phase that was
+never persisted. The system SHALL return the card to the phase and position it came from, and MUST
+tell the recruiter that the move did not take effect.
+
+#### Scenario: The card returns to its original phase when the update is rejected
+
+- **WHEN** a recruiter drops a candidate's card on another column
+- **AND** the update sent to the backend fails
+- **THEN** the card is shown again in the phase it was dragged from
+- **AND** a message naming the candidate reports that the move did not take effect
+
+#### Scenario: An undone move does not discard a later move
+
+- **WHEN** a recruiter moves a second candidate while the first move's update is still in flight
+- **AND** the first update is then rejected
+- **THEN** only the first candidate returns to their original phase
+- **AND** the second candidate stays where they were moved to

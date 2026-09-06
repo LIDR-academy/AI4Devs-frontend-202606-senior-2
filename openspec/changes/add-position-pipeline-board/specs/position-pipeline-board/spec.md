@@ -92,6 +92,24 @@ score**.
 - **WHEN** a position has no candidates in its pipeline
 - **THEN** the board still renders one column per phase, all of them empty
 
+### Requirement: The page reports loading and failure
+
+The board depends on two requests. Until both resolve the page SHALL show that it is loading, and
+if either fails it MUST say so rather than presenting an empty or partial board as if it were the
+real state. The back arrow MUST remain usable in every state, so a recruiter is never stranded.
+
+#### Scenario: The pipeline is still loading
+
+- **WHEN** a recruiter opens a position's pipeline
+- **AND** the interview flow and candidate requests have not both resolved
+- **THEN** the page shows that it is loading
+
+#### Scenario: The pipeline cannot be loaded
+
+- **WHEN** either request fails
+- **THEN** the page shows a message saying the pipeline could not be loaded
+- **AND** the back arrow to the positions list is still available
+
 ### Requirement: Phases stack vertically on mobile
 
 On a narrow viewport the board SHALL stack the phases vertically, each occupying the full width, in

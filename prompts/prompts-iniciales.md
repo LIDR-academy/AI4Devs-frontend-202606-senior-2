@@ -62,8 +62,9 @@ have re-derived requirements from a one-line description and thrown away the sco
 1. Feeding the PRD in kept the traceability: the generated specs contain exactly `DTR-1..5` plus
 `M-1..3`, no more.
 
-Result: `proposal.md`, two spec files (17 WHEN/THEN scenarios), `design.md` (nine decisions), and
-`tasks.md` (43 tasks in 7 groups, ordered so a working read-only board exists by the end of group 4).
+Result: `proposal.md`, two spec files (17 WHEN/THEN scenarios, later 23 — see §7),
+`design.md` (nine decisions), and `tasks.md` (43 tasks in 7 groups, ordered so a working
+read-only board exists by the end of group 4).
 
 ## 4. Resolving an open question
 
@@ -106,6 +107,30 @@ Two instructions did most of the work:
 - **A named scope boundary per agent** ("do not implement drag-and-drop, group 5 owns it"). Without
   it, agents helpfully implement their neighbours' tasks and collide.
 
+## 7. Before opening the PR
+
+> What should I do about OpenSpec flow before opening the PR? Should archive be executed?
+
+Another question rather than an instruction, and it turned up the last real defect. `openspec
+archive` folds a change's delta specs into `openspec/specs/` as the project's canonical record, so
+it is worth asking what would be enshrined.
+
+Checking that produced two answers. **Don't archive before merge** — the change is not delivered
+until the PR lands, `changes/` is where in-flight work belongs, and archiving would triple the same
+spec text in the diff a reviewer needs for the code. But also: **six behaviours had been built and
+tested with no scenario backing them** — the loading and error states, rollback of a rejected move,
+a drag that is cancelled or dropped outside a column, and a card dropped back on its own phase.
+Archiving as-is would have written a canonical spec describing a smaller feature than the one that
+exists.
+
+Adding them took the specs from 17 scenarios to 23. One of the six had no test either — the
+guarantee that undoing a rejected move does not also discard a move made while the first request
+was in flight — so that got a test as well, 70 to 71.
+
+The lesson is that "is this ready to archive?" is a better question than it sounds. It forces a
+comparison between what the specs claim and what the code does, and that is the only point in the
+process where the two are checked against each other directly.
+
 ---
 
 ## What the process caught
@@ -122,6 +147,7 @@ Things that would have shipped broken without a stage that questioned the previo
 | Re-seeding on boot silently reverted dragged cards | Reviewing a trade-off an agent flagged in passing |
 | A failed `PUT` left the board showing a phase the database rejected | Asking each agent what happens on failure |
 | The mobile breakpoint breaks cross-column *keyboard* drag | An agent comparing key sequences at two viewport widths |
+| Six behaviours implemented and tested but never written into the specs | Asking what `openspec archive` would enshrine (§7) |
 
 The last four came from agents reporting inconvenient facts rather than declaring success — which
 is a property of how they were prompted, not luck.
@@ -137,7 +163,7 @@ is a property of how they were prompted, not luck.
 
 ## Verification
 
-70 automated tests (jest + React Testing Library) covering 14 of the 17 scenarios. The other three —
+71 automated tests (jest + React Testing Library) covering 20 of the 23 scenarios. The other three —
 two drag gestures and the 375px layout — are unreachable in jsdom, which has no pointer input and no
 layout engine. Rather than write tests that would pass for the wrong reasons, they are verified
 against real Chrome over the DevTools Protocol: trusted mouse events for the drags, measured

@@ -65,7 +65,9 @@ The candidate↔position link is the `Application` row, and no runtime path crea
 
 **Goals:**
 
-- Implement the eight requirements in `specs/`, and only those.
+- Implement the requirements in `specs/`, and only those. Eight came from the brief; two more
+  (D6, D9) were added during implementation where the brief's behaviour could not be delivered
+  correctly without them.
 - Keep the change inside `frontend/`, per the brief's *"Page changes, logic, etc. in the /frontend
   folder"*.
 - Make the board demonstrable despite the assignment gap above.
@@ -174,7 +176,7 @@ so this costs one line plus a `setupTests` file — no new dependency.
   count derived from the flow, empty columns, card placement, name and score, and navigation from
   the positions list.
 
-**What the jest suite cannot reach — 3 of the 17 scenarios.** jsdom has no pointer input and no
+**What the jest suite cannot reach — 3 of the 23 scenarios.** jsdom has no pointer input and no
 layout engine, so it cannot verify the two drag scenarios or the 375px stacking. Simulating a drag
 against `@hello-pangea/dnd` in jsdom is unreliable enough that a passing test would be misleading,
 which is worse than no test. **These three are therefore deliberately absent from `npm test`.**
