@@ -19,12 +19,13 @@ This project is a full-stack application with a React frontend and an Express ba
   - `src/`: Contains the source code for the frontend.
   - `public/`: Contains static files such as the HTML file and images.
   - `build/`: Contains the production-ready build of the frontend.
-- `.env`: Contains the environment variables.
+- `.env.example`: Template for the environment variables. Copy to `.env`, which is gitignored.
 - `docker-compose.yml`: Docker Compose configuration for the whole stack (database, backend, frontend).
 - `backend/Dockerfile`, `frontend/Dockerfile`: Dev images for each service.
 - `backend/docker-entrypoint.sh`, `frontend/docker-entrypoint.sh`: Container startup scripts (dependency install, migrations, seeding).
 - `.docker-cache/npm/`: npm's download cache, kept in the project root so image rebuilds never re-download packages.
 - `uploads/`: Destination for files uploaded through the API.
+- `CODE_QUALITY.md`: Review of the frontend against the Módulo 10 best-practices guide.
 - `README.md`: This file contains information about the project and instructions on how to run it.
 
 ## Project Structure
@@ -55,7 +56,14 @@ Everything runs in containers &mdash; you only need Docker with the Compose plug
 Nothing is installed or executed directly on your machine.
 
 1. Clone the repo.
-2. Start the whole stack:
+2. Create your local environment files from the templates:
+```sh
+cp .env.example .env
+cp backend/.env.example backend/.env
+```
+Then set `DB_PASSWORD` to the same value in both (e.g. `openssl rand -hex 16`).
+Neither `.env` is tracked by git — never commit real credentials.
+3. Start the whole stack:
 ```sh
 docker compose up
 ```
@@ -107,7 +115,7 @@ the stack again.
 ### Configuration
 
 Ports, database credentials and the uid:gid the containers run as all come from
-the `.env` file in the project root:
+the `.env` file in the project root, created from `.env.example`:
 
 ```
 DB_PASSWORD=...
@@ -207,12 +215,13 @@ Este proyecto es una aplicación full-stack con un frontend en React y un backen
   - `src/`: Contiene el código fuente para el frontend.
   - `public/`: Contiene archivos estáticos como el archivo HTML e imágenes.
   - `build/`: Contiene la construcción lista para producción del frontend.
-- `.env`: Contiene las variables de entorno.
+- `.env.example`: Plantilla de las variables de entorno. Cópiala a `.env`, que está en el gitignore.
 - `docker-compose.yml`: Configuración de Docker Compose para todo el stack (base de datos, backend, frontend).
 - `backend/Dockerfile`, `frontend/Dockerfile`: Imágenes de desarrollo de cada servicio.
 - `backend/docker-entrypoint.sh`, `frontend/docker-entrypoint.sh`: Scripts de arranque de los contenedores (instalación de dependencias, migraciones, seeding).
 - `.docker-cache/npm/`: Caché de descargas de npm, dentro de la raíz del proyecto para que reconstruir las imágenes nunca vuelva a descargar paquetes.
 - `uploads/`: Destino de los ficheros subidos a través de la API.
+- `CODE_QUALITY.md`: Revisión del frontend frente a la guía de buenas prácticas del Módulo 10.
 - `README.md`: Este archivo, contiene información sobre el proyecto e instrucciones sobre cómo ejecutarlo.
 
 ## Estructura del Proyecto
@@ -249,7 +258,14 @@ Todo se ejecuta en contenedores: solo necesitas Docker con el plugin Compose.
 No se instala ni se ejecuta nada directamente en tu máquina.
 
 1. Clona el repositorio.
-2. Levanta el stack completo:
+2. Crea tus ficheros de entorno locales a partir de las plantillas:
+```sh
+cp .env.example .env
+cp backend/.env.example backend/.env
+```
+Después pon el mismo `DB_PASSWORD` en ambos (por ejemplo `openssl rand -hex 16`).
+Ninguno de los `.env` está en git: nunca subas credenciales reales.
+3. Levanta el stack completo:
 ```sh
 docker compose up
 ```
@@ -303,7 +319,8 @@ vuelve a levantar el stack.
 ### Configuración
 
 Los puertos, las credenciales de la base de datos y el uid:gid con el que se
-ejecutan los contenedores salen del fichero `.env` en la raíz del proyecto:
+ejecutan los contenedores salen del fichero `.env` en la raíz del proyecto, creado
+a partir de `.env.example`:
 
 ```
 DB_PASSWORD=...
