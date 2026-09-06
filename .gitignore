@@ -26,3 +26,11 @@ yarn-error.log*
 .vscode
 
 # .env
+
+# docker compose npm cache (the dir is tracked, its contents are not)
+.docker-cache/npm/*
+!.docker-cache/npm/.gitkeep
+
+# uploaded files
+uploads/*
+!uploads/.gitkeep

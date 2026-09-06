@@ -20,7 +20,11 @@ This project is a full-stack application with a React frontend and an Express ba
   - `public/`: Contains static files such as the HTML file and images.
   - `build/`: Contains the production-ready build of the frontend.
 - `.env`: Contains the environment variables.
-- `docker-compose.yml`: Contains the Docker Compose configuration to manage your application's services.
+- `docker-compose.yml`: Docker Compose configuration for the whole stack (database, backend, frontend).
+- `backend/Dockerfile`, `frontend/Dockerfile`: Dev images for each service.
+- `backend/docker-entrypoint.sh`, `frontend/docker-entrypoint.sh`: Container startup scripts (dependency install, migrations, seeding).
+- `.docker-cache/npm/`: npm's download cache, kept in the project root so image rebuilds never re-download packages.
+- `uploads/`: Destination for files uploaded through the API.
 - `README.md`: This file contains information about the project and instructions on how to run it.
 
 ## Project Structure
@@ -45,85 +49,108 @@ The backend is an Express application written in TypeScript. The `src` directory
 
 The `prisma` directory contains the Prisma schema.
 
-## First steps
+## Getting started
 
-To get started with this project, follow these steps:
+Everything runs in containers &mdash; you only need Docker with the Compose plugin.
+Nothing is installed or executed directly on your machine.
 
-1. Clone the repo
-2. install the dependencias for frontend and backend
+1. Clone the repo.
+2. Start the whole stack:
 ```sh
-cd frontend
-npm install
-
-cd ../backend
-npm install
-```
-3. Build the backend server
-```
-cd backend
-npm run build
-````
-4. Run the backend server
-```
-cd backend
-npm start
-```
-5. In a new terminal window, build the frontend server:
-```
-cd frontend
-npm run build
-```
-6. Start the frontend server
-```
-cd frontend
-npm start
+docker compose up
 ```
 
-The backend server will be running at http://localhost:3010, and the frontend will be available at http://localhost:3000.
+That single command brings up three services:
 
-## Docker y PostgreSQL
+| Service    | What it runs                          | Available at            |
+| ---------- | ------------------------------------- | ----------------------- |
+| `db`       | PostgreSQL 16                         | `localhost:5432`        |
+| `backend`  | Express + Prisma (`npm run dev`)      | http://localhost:3010   |
+| `frontend` | Create React App dev server           | http://localhost:3000   |
 
-This project uses Docker to run a PostgreSQL database. Here's how to get it up and running:
+On first start the `backend` container installs its dependencies, generates the
+Prisma client, applies all migrations and seeds the database with example data.
+Later starts skip whatever is already done, so they take a few seconds.
 
-Install Docker on your machine if you haven't done so already. You can download it here.
-Navigate to the root directory of the project in your terminal.
-Run the following command to start the Docker container:
+Both `backend` and `frontend` mount the source tree, so edits on your machine are
+picked up by the running dev servers without a rebuild.
+
+To stop everything:
+```sh
+docker compose down
 ```
-docker-compose up -d
+
+Add `-v` to also drop the database volume, which makes the next `docker compose up`
+re-run migrations and re-seed from scratch:
+```sh
+docker compose down -v
 ```
 
-This will start a PostgreSQL database in a Docker container. The -d flag runs the container in detached mode, meaning it runs in the background.
+### Dependency caching
 
-To access the PostgreSQL database, you can use any PostgreSQL client with the following connection details:
+npm packages are cached inside the project root, so rebuilding an image never
+re-downloads them:
+
+```
+.docker-cache/npm/       # npm's download cache, shared by both services
+backend/node_modules/    # backend dependencies
+frontend/node_modules/   # frontend dependencies
+```
+
+The images themselves contain no `npm install` step at all. Dependencies are
+installed by each container's entrypoint into the mounted project directory, and
+reinstalled only when the corresponding `package-lock.json` changes &mdash; and
+even then they are unpacked from `.docker-cache/npm` rather than downloaded. To
+force a clean install, delete the relevant `node_modules` directory and start
+the stack again.
+
+### Configuration
+
+Ports, database credentials and the uid:gid the containers run as all come from
+the `.env` file in the project root:
+
+```
+DB_PASSWORD=...
+DB_USER=...
+DB_NAME=...
+DB_PORT=5432
+DOCKER_USER=1000:1000   # set to `id -u`:`id -g` if yours differs
+```
+
+`DOCKER_USER` keeps files the containers write to the mounted project directory
+(uploads, caches, build output) owned by you rather than by root.
+
+### Running commands inside the containers
+
+Use `docker compose exec` for a running service, or `docker compose run --rm` for
+a one-off:
+
+```sh
+docker compose exec backend npm test          # backend test suite
+docker compose exec backend npx prisma studio # inspect the data
+docker compose exec db psql -U "$DB_USER" -d "$DB_NAME"
+docker compose run --rm backend npx prisma migrate dev --name my_migration
+```
+
+## Database
+
+The `db` service stores its data in the `db-data` named volume, so it survives
+`docker compose down`. To connect with an external PostgreSQL client, use the
+credentials from `.env`:
 
 - Host: localhost
 - Port: 5432
-- User: postgres
-- Password: password
-- Database: mydatabase
+- User: the value of `DB_USER`
+- Password: the value of `DB_PASSWORD`
+- Database: the value of `DB_NAME`
 
-Please replace User, Password, and Database with the actual user, password, and database name specified in your .env file.
+Migrations and seeding are handled automatically by the backend entrypoint
+(`backend/docker-entrypoint.sh`). The seed script is not idempotent, so it only
+runs against a database that has never been seeded.
 
-To stop the Docker container, run the following command:
-```
-docker-compose down
-```
+## API example
 
-To generate the database using Prisma, follow these steps:
-
-Make sure the `.env` file in the root directory of the backend contains the `DATABASE_URL` variable with the correct connection string to your PostgreSQL database. If it doesn't work, try replacing the full URL directly in `schema.prisma`, in the `url` variable.
-
-Open a terminal and navigate to the backend directory where the schema.prisma and seed.ts files are located.
-
-Run the following commands to generate the Prisma structure, apply migrations to your database, and populate it with example data:
-
-```
-npx prisma generate
-npx prisma migrate dev
-ts-node seed.ts
-```
-
-Once you have completed all the steps, you should be able to save new candidates, both via the web and API, view them in the database, and retrieve them via GET by ID.
+Once the stack is up, you should be able to save new candidates, both via the web and API, view them in the database, and retrieve them via GET by ID.
 
 ```
 POST http://localhost:3010/candidates
@@ -181,7 +208,11 @@ Este proyecto es una aplicación full-stack con un frontend en React y un backen
   - `public/`: Contiene archivos estáticos como el archivo HTML e imágenes.
   - `build/`: Contiene la construcción lista para producción del frontend.
 - `.env`: Contiene las variables de entorno.
-- `docker-compose.yml`: Contiene la configuración de Docker Compose para gestionar los servicios de tu aplicación.
+- `docker-compose.yml`: Configuración de Docker Compose para todo el stack (base de datos, backend, frontend).
+- `backend/Dockerfile`, `frontend/Dockerfile`: Imágenes de desarrollo de cada servicio.
+- `backend/docker-entrypoint.sh`, `frontend/docker-entrypoint.sh`: Scripts de arranque de los contenedores (instalación de dependencias, migraciones, seeding).
+- `.docker-cache/npm/`: Caché de descargas de npm, dentro de la raíz del proyecto para que reconstruir las imágenes nunca vuelva a descargar paquetes.
+- `uploads/`: Destino de los ficheros subidos a través de la API.
 - `README.md`: Este archivo, contiene información sobre el proyecto e instrucciones sobre cómo ejecutarlo.
 
 ## Estructura del Proyecto
@@ -214,80 +245,109 @@ La descripción y diagrama del modelo de datos los tienes en [ModeloDatos.md](./
 
 ## Primeros Pasos
 
-Para comenzar con este proyecto, sigue estos pasos:
+Todo se ejecuta en contenedores: solo necesitas Docker con el plugin Compose.
+No se instala ni se ejecuta nada directamente en tu máquina.
 
 1. Clona el repositorio.
-2. Instala las dependencias para el frontend y el backend:
+2. Levanta el stack completo:
 ```sh
-cd frontend
-npm install
-
-cd ../backend
-npm install
-```
-3. Construye el servidor backend:
-```
-cd backend
-npm run build
-````
-4. Inicia el servidor backend:
-```
-cd backend
-npm start
-```
-5. En una nueva ventana de terminal, construye el servidor frontend:
-```
-cd frontend
-npm run build
-```
-6. Inicia el servidor frontend:
-```
-cd frontend
-npm start
+docker compose up
 ```
 
-El servidor backend estará corriendo en http://localhost:3010 y el frontend estará disponible en http://localhost:3000.
+Ese único comando arranca tres servicios:
 
-## Docker y PostgreSQL
+| Servicio   | Qué ejecuta                           | Disponible en           |
+| ---------- | ------------------------------------- | ----------------------- |
+| `db`       | PostgreSQL 16                         | `localhost:5432`        |
+| `backend`  | Express + Prisma (`npm run dev`)      | http://localhost:3010   |
+| `frontend` | Servidor de desarrollo de CRA         | http://localhost:3000   |
 
-Este proyecto usa Docker para ejecutar una base de datos PostgreSQL. Así es cómo ponerlo en marcha:
+En el primer arranque, el contenedor `backend` instala sus dependencias, genera
+el cliente de Prisma, aplica todas las migraciones y puebla la base de datos con
+datos de ejemplo. Los arranques posteriores omiten lo que ya está hecho, así que
+tardan unos pocos segundos.
 
-Instala Docker en tu máquina si aún no lo has hecho. Puedes descargarlo desde aquí.
-Navega al directorio raíz del proyecto en tu terminal.
-Ejecuta el siguiente comando para iniciar el contenedor Docker:
-```
-docker-compose up -d
-```
-Esto iniciará una base de datos PostgreSQL en un contenedor Docker. La bandera -d corre el contenedor en modo separado, lo que significa que se ejecuta en segundo plano.
+Tanto `backend` como `frontend` montan el código fuente, de modo que los cambios
+que hagas en tu máquina los recogen los servidores de desarrollo sin reconstruir
+la imagen.
 
-Para acceder a la base de datos PostgreSQL, puedes usar cualquier cliente PostgreSQL con los siguientes detalles de conexión:
- - Host: localhost
- - Port: 5432
- - User: postgres
- - Password: password
- - Database: mydatabase
-
-Por favor, reemplaza User, Password y Database con el usuario, la contraseña y el nombre de la base de datos reales especificados en tu archivo .env.
-
-Para detener el contenedor Docker, ejecuta el siguiente comando:
-```
-docker-compose down
+Para detenerlo todo:
+```sh
+docker compose down
 ```
 
-Para generar la base de datos utilizando Prisma, sigue estos pasos:
-
-1. Asegúrate de que el archivo `.env` en el directorio raíz del backend contenga la variable `DATABASE_URL` con la cadena de conexión correcta a tu base de datos PostgreSQL. Si no te funciona, prueba a reemplazar la URL completa directamente en `schema.prisma`, en la variable `url`.
-
-2. Abre una terminal y navega al directorio del backend donde se encuentra el archivo `schema.prisma` y `seed.ts`.
-
-3. Ejecuta los siguientes comandos para generar la estructura de prisma, las migraciones a tu base de datos y poblarla con datos de ejemplo:
-```
-npx prisma generate
-npx prisma migrate dev
-ts-node seed.ts
+Añade `-v` para eliminar también el volumen de la base de datos, lo que hará que
+el siguiente `docker compose up` vuelva a migrar y poblar desde cero:
+```sh
+docker compose down -v
 ```
 
-Una vez has dado todos los pasos, deberías poder guardar nuevos candidatos, tanto via web, como via API, verlos en la base de datos y obtenerlos mediante GET por id. 
+### Caché de dependencias
+
+Los paquetes npm se cachean dentro de la raíz del proyecto, de forma que
+reconstruir una imagen nunca vuelve a descargarlos:
+
+```
+.docker-cache/npm/       # caché de descargas de npm, compartida por ambos servicios
+backend/node_modules/    # dependencias del backend
+frontend/node_modules/   # dependencias del frontend
+```
+
+Las imágenes no contienen ningún paso `npm install`. Las dependencias las instala
+el entrypoint de cada contenedor en el directorio montado del proyecto, y solo se
+reinstalan cuando cambia el `package-lock.json` correspondiente &mdash; y aun así
+se desempaquetan desde `.docker-cache/npm` en lugar de descargarse. Para forzar
+una instalación limpia, borra el directorio `node_modules` correspondiente y
+vuelve a levantar el stack.
+
+### Configuración
+
+Los puertos, las credenciales de la base de datos y el uid:gid con el que se
+ejecutan los contenedores salen del fichero `.env` en la raíz del proyecto:
+
+```
+DB_PASSWORD=...
+DB_USER=...
+DB_NAME=...
+DB_PORT=5432
+DOCKER_USER=1000:1000   # pon `id -u`:`id -g` si el tuyo es distinto
+```
+
+`DOCKER_USER` hace que los ficheros que los contenedores escriben en el
+directorio montado del proyecto (subidas, cachés, build) sigan siendo tuyos y no
+de root.
+
+### Ejecutar comandos dentro de los contenedores
+
+Usa `docker compose exec` para un servicio en marcha, o `docker compose run --rm`
+para algo puntual:
+
+```sh
+docker compose exec backend npm test          # tests del backend
+docker compose exec backend npx prisma studio # inspeccionar los datos
+docker compose exec db psql -U "$DB_USER" -d "$DB_NAME"
+docker compose run --rm backend npx prisma migrate dev --name mi_migracion
+```
+
+## Base de datos
+
+El servicio `db` guarda sus datos en el volumen con nombre `db-data`, así que
+sobreviven a `docker compose down`. Para conectarte con un cliente PostgreSQL
+externo, usa las credenciales de `.env`:
+
+- Host: localhost
+- Puerto: 5432
+- Usuario: el valor de `DB_USER`
+- Contraseña: el valor de `DB_PASSWORD`
+- Base de datos: el valor de `DB_NAME`
+
+Las migraciones y el seeding los gestiona automáticamente el entrypoint del
+backend (`backend/docker-entrypoint.sh`). El script de seed no es idempotente,
+por lo que solo se ejecuta contra una base de datos que nunca se ha poblado.
+
+## Ejemplo de API
+
+Una vez levantado el stack, deberías poder guardar nuevos candidatos, tanto via web, como via API, verlos en la base de datos y obtenerlos mediante GET por id. 
 
 ```
 POST http://localhost:3010/candidates
