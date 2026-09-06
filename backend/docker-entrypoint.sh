@@ -21,15 +21,18 @@ npx --no-install prisma generate
 echo "==> backend: applying migrations"
 npx --no-install prisma migrate deploy
 
-# prisma/seed.ts uses create() throughout, so it is not idempotent: only run it
-# against a database that has never been seeded.
-companies=$(node -e 'const {PrismaClient} = require("@prisma/client"); const p = new PrismaClient(); p.company.count().then(n => console.log(n)).catch(() => console.log("?")).finally(() => p.$disconnect())')
-if [ "$companies" = "0" ]; then
-    echo "==> backend: seeding database"
-    npx --no-install ts-node prisma/seed.ts
-else
-    echo "==> backend: database already seeded (${companies} companies)"
-fi
+# prisma/seed.ts is idempotent: every row is upserted by the fields that
+# identify it, so running it against an already-seeded database updates the
+# fixtures in place instead of duplicating them. That means it can run on every
+# boot, which is what keeps an existing dev database in step with the fixtures
+# without having to drop the volume.
+#
+# It only ever touches rows it owns; data created through the API (candidates
+# and their applications) is left alone. An application's current phase is
+# written only when the seed first creates it, so a candidate dragged to another
+# column stays there across restarts rather than snapping back.
+echo "==> backend: seeding database (idempotent)"
+npx --no-install ts-node prisma/seed.ts
 
 echo "==> backend: starting $*"
 exec "$@"
