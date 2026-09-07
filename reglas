@@ -1,0 +1,242 @@
+En esta sección encontrarás un recorrido de alto nivel por las buenas prácticas que hoy —en 2026— definen un frontend de calidad: rendimiento, accesibilidad, mantenibilidad, seguridad y experiencia de usuario. Son la semilla desde la que podrás profundizar en cada herramienta o concepto que aparece marcado.
+
+💡 Enfoque AI4Devs: cada práctica de esta página es algo que tu copiloto (Claude Code, Cursor) puede aplicar, verificar o corregir automáticamente si sabes pedírselo. Al final del tema tienes una sección dedicada a esto.
+
+1. Estructura del proyecto y mantenibilidad
+Organización clara del código
+Estructura de carpetas por feature o por capa (componentes, vistas, servicios, hooks, utilidades, estilos). En React moderno la convención más extendida es app/ (Next.js App Router), components/, lib/, hooks/, types/.
+
+Modularidad y componentes pequeños
+Componentes de responsabilidad única, testeables y componibles. La regla de oro: si un componente pasa de ~150 líneas o maneja más de un concepto, divide.
+
+TypeScript como default
+En 2026 TypeScript es el estándar para proyectos nuevos React/Vue/Svelte. Atrapa errores en compile-time, mejora el autocomplete, documenta contratos de componentes y —muy relevante— los LLMs generan código mucho más preciso cuando leen tipos. TypeScript v6 actual; v7 (compilador en Go, ~10× más rápido) prevista para mediados de 2026.
+
+Patrones de diseño útiles en frontend
+Custom hooks para lógica reusable, compound components para APIs componibles, render props puntualmente, y provider pattern para estado compartido. Evita sobre-patronear: YAGNI primero.
+
+2. Calidad del código
+Linter y formateador
+Las dos opciones serias en 2026:
+
+ESLint + Prettier: el estándar histórico. ESLint 9+ con flat config. Sigue siendo el más completo en reglas especializadas (accessibility plugin, react-hooks, etc.).
+
+Biome: alternativa todo-en-uno escrita en Rust, ~35× más rápida que Prettier y con 450+ reglas que cubren gran parte de ESLint. Adoptado por Vercel, Google, Cloudflare, Discord. Un único biome.json reemplaza .eslintrc + .prettierrc + plugins. Versión actual estable: v2.x (2025–2026).
+
+Patrón híbrido emergente: Oxlint (también Rust, de Vercel) como pre-pass rápido + ESLint para reglas type-aware.
+
+🧪 Prueba esto ahora → npx @biomejs/biome migrate eslint --write genera automáticamente un biome.json equivalente a tu configuración de ESLint.
+
+Comentarios y documentación
+Documenta el por qué, no el qué. Mantén JSDoc / TSDoc en funciones públicas. Tus docstrings son además el principal prompt que Claude Code o Cursor leen cuando tocan ese código: invertir ahí paga doble.
+
+3. Rendimiento
+Core Web Vitals: los 3 números que importan
+Google mide rendimiento real con tres métricas en producción (datos CrUX, percentil 75):
+
+LCP (Largest Contentful Paint) — tiempo hasta el elemento visible más grande. Objetivo: < 2.5s.
+
+INP (Interaction to Next Paint) — responsividad ante clics/teclas. Objetivo: < 200ms. Reemplazó a FID en marzo 2024.
+
+CLS (Cumulative Layout Shift) — estabilidad visual (saltos inesperados). Objetivo: < 0.1.
+
+Según el Web Almanac 2025, solo ~48% de sitios móviles pasan los tres.
+
+Carga perezosa (Lazy Loading)
+Carga diferida de componentes pesados (React.lazy, next/dynamic), rutas (code-splitting automático con Next.js / Vite) e imágenes con loading="lazy". Para la imagen LCP, lo opuesto: fetchpriority="high" y preload.
+
+
+
+
+Optimización de imágenes
+Los sprites de imágenes ya no tienen sentido desde que HTTP/2 y HTTP/3 multiplexan peticiones. Lo moderno:
+
+Formatos WebP / AVIF (30–50% más pequeños que JPEG).
+
+<picture> con srcset responsive para servir tamaños por dispositivo.
+
+Componentes <Image> de Next.js y <Image> de Astro hacen esto automáticamente.
+
+Bundlers modernos
+Vite es el estándar de facto para casi todo (Astro, SvelteKit, Nuxt, SolidStart). Next.js migró a Turbopack por defecto en v16 (Rust, 5–10× más rápido que webpack). Olvídate de minificar manualmente: los bundlers lo hacen.
+
+CDN y edge
+Sigue siendo clave. Vercel, Cloudflare y Netlify sirven assets desde el edge automáticamente. Para librerías externas usa un CDN establecido (jsdelivr, unpkg) solo si justifica la dependencia externa.
+
+Herramientas para medir
+PageSpeed Insights (pagespeed.web.dev) — combina datos reales CrUX + lab Lighthouse. Primera parada obligada.
+
+Lighthouse (DevTools de Chrome) — auditoría local.
+
+WebPageTest — análisis profundo waterfall, filmstrip, multi-ubicación.
+
+Vercel Speed Insights / Cloudflare Web Analytics / Sentry — Real User Monitoring (RUM) en producción para ver CWV reales de usuarios, no simulados.
+
+GTmetrix (gtmetrix.com) — sigue siendo útil como complemento.
+
+
+ 
+
+
+
+
+4. Seguridad
+Sanitización de entrada
+Librerías maduras en lugar de regex caseras: DOMPurify para HTML, validación con Zod / Valibot para inputs de formularios, escape automático de React/JSX para variables (nunca uses dangerouslySetInnerHTML sin sanitizar).
+
+HTTPS y security headers 🔒
+HTTPS es el mínimo. Añade:
+
+CSP (Content Security Policy) para bloquear scripts no autorizados.
+
+SRI (Subresource Integrity) para assets de CDN externos.
+
+Cabeceras Strict-Transport-Security, X-Frame-Options, Referrer-Policy.
+
+Herramientas para auditar: securityheaders.com, Mozilla Observatory.
+
+Validación cliente y servidor
+La validación cliente es UX; la del servidor es seguridad. Siempre ambas. Zod o Valibot permiten compartir schemas entre front y back (Node), eliminando divergencias.
+
+Nunca secretos en el cliente
+API keys, tokens y credenciales: jamás en variables que terminen en el bundle. En Next.js, solo variables con prefijo NEXT_PUBLIC_ son públicas; todo lo demás debe quedarse server-side.
+
+OWASP Top 10 aplicado al frontend
+XSS, CSRF, clickjacking, dependencias inseguras (npm audit, Snyk, Dependabot). La ofuscación de código no es seguridad real: cualquier atacante con DevTools la revierte en minutos. Protege el servidor, no el JS.
+
+5. Experiencia del usuario
+Diseño responsivo + Container Queries
+El media query clásico (@media (min-width: ...)) sigue siendo válido para layout de página. Pero desde 2023 las container queries son baseline en todos los navegadores modernos: permiten que un componente se adapte al tamaño de su contenedor padre, no del viewport. Son la clave para design systems realmente reutilizables.
+
+.card { container-type: inline-size; }
+@container (min-width: 400px) {
+  .card-body { display: flex; }
+}
+Tailwind CSS v4 lo expone como @container y variantes @md:, @lg:, etc.
+
+
+
+
+Mobile First
+El 60%+ del tráfico web es móvil. Empieza siempre por el layout pequeño y amplía hacia arriba. Fuente recomendada: Responsive Web Design Basics (web.dev).
+
+Accesibilidad (a11y) — ya no es opcional
+Desde el 28 de junio de 2025 la European Accessibility Act es de obligado cumplimiento para muchos productos digitales B2C en la UE. Si trabajas en producto para Europa, es responsabilidad directa del equipo frontend.
+
+WCAG 2.2 nivel AA como mínimo legal.
+
+Semántica HTML antes que ARIA. ARIA solo cuando no exista elemento nativo equivalente.
+
+Contraste mínimo 4.5:1 para texto normal.
+
+Navegación completa por teclado y foco visible.
+
+Labels en formularios, alt en imágenes, landmarks (<nav>, <main>, <aside>).
+
+Testing automatizado: axe-core, eslint-plugin-jsx-a11y, Lighthouse a11y. Detectan ~30% de issues; el resto requiere testing manual con lector de pantalla (VoiceOver, NVDA).
+
+🧪 Prueba esto ahora → abre DevTools en cualquier web pública, pestaña Accessibility, y busca issues. También puedes lanzar npx @axe-core/cli <https://tu-sitio.com>.
+
+Navegación intuitiva
+Jerarquía visible, enlaces descriptivos, breadcrumbs en flujos largos, skip-links para teclado.
+
+Feedback visual
+Hover/focus states, loading skeletons, optimistic UI, toasts no intrusivos (Sonner es el estándar en el ecosistema shadcn). Respeta prefers-reduced-motion para usuarios sensibles al movimiento.
+
+6. Mantente simple (Keep It Simple, Stupid — KISS)
+Uno de los errores más comunes del frontend novato es sobre-construir: demasiadas animaciones, demasiados componentes, demasiado estado global. Un sitio simple, rápido y accesible gana siempre en conversión y mantenimiento: Principio KISS.
+
+Corolario 2026: los generadores de UI con IA (v0, Lovable, Bolt) tienden a producir interfaces visualmente elaboradas por defecto. Revisa críticamente: ¿necesitas esas 6 cards con hover 3D, o basta una lista? La IA no sabe decir "menos" sin que se lo pidas.
+
+7. Librerías de componentes y frameworks
+No reinventes la rueda, pero elige con criterio: cada dependencia es deuda futura.
+
+Meta-frameworks (estado 2026)
+Next.js v16 (React) — dominante en uso (~58% de meta-frameworks). Turbopack por defecto, React Server Components estables, Server Actions, ISR.
+
+Astro 6 (multi-framework, Islands Architecture) — adquirido por Cloudflare en enero 2026. Rey para sitios de contenido, docs y marketing. Envía cero JS por defecto.
+
+SvelteKit (Svelte 5 con Runes) — bundles más pequeños del mercado, excelente developer satisfaction.
+
+Nuxt 4 (Vue) — la opción sólida en el ecosistema Vue.
+
+React Router v7 (antes Remix) — full-stack React con enfoque en web standards.
+
+Librerías de componentes React
+shadcn/ui — el stack dominante en 2026. No es una librería instalable: copia componentes (Radix + Tailwind) en tu repo, los posees y modificas. Usado por Vercel, Supabase, Linear.
+
+Tailwind Plus (antes Tailwind UI) — componentes premium oficiales del equipo de Tailwind.
+
+MUI (Material UI) — sigue siendo la opción enterprise con el catálogo más amplio.
+
+HeroUI (antes NextUI) — ligero, sobre Tailwind + React Aria.
+
+Chakra UI v3 — mantiene base instalada, pero v3 rompió API respecto a v2.
+
+Flowbite (flowbite.com) — útil si trabajas con Tailwind y quieres componentes listos.
+
+Estilado
+Tailwind CSS v4.1 (2025) es la elección dominante: config CSS-first, container queries en el core, motor Oxide (~5× más rápido), paleta P3. Alternativas: CSS Modules, vanilla-extract, Panda CSS.
+
+🧪 Prueba esto ahora → npx shadcn@latest init en un proyecto Next.js: tendrás design system tipado, accesible y completamente personalizable en menos de 2 minutos.
+
+8. Internacionalización de los textos (i18n)
+Prever i18n desde el inicio separa contenido de estructura y mejora la mantenibilidad incluso con un solo idioma. Las librerías i18n son estándar, están muy optimizadas y cubren muchísimos casos límite (plurales, fechas, monedas, direcciones RTL…).
+
+Opciones estándar en 2026:
+
+next-intl — para Next.js App Router.
+
+react-i18next / i18next — agnóstica, la más madura del ecosistema.
+
+Paraglide (Inlang) — type-safe, bundle ultra-ligero, tree-shakeable.
+
+FormatJS (react-intl) — formato ICU, fuerte en plurales y fechas.
+
+Referencia con casos reales: guía de i18n de Shopify.
+
+9. IA aplicada a estas prácticas
+Esta página tiene un tema transversal que ya habrás notado: casi todas las prácticas anteriores son verificables o aplicables con ayuda de un copiloto AI. En AI4Devs el objetivo no es que memorices reglas, sino que sepas operar el flujo "buena práctica + IA" para ir más rápido sin sacrificar calidad. Cuatro patrones concretos:
+
+9.1 Refactor guiado por principios — con Claude Code
+Abre un componente grande (200+ líneas) y pídele:
+
+Refactoriza este componente siguiendo:
+- Responsabilidad única (extrae subcomponentes si hay más de un concepto)
+- Custom hooks para lógica que se repita o sea testeable por separado
+- Tipos TypeScript estrictos (ningún any)
+Muestra el plan antes de aplicar los cambios y mantén el comportamiento idéntico.
+Claude Code propondrá un plan, lo discutes, y ejecuta. El "muestra el plan antes" es el patrón más importante: evita refactors ciegos.
+
+9.2 Auditoría de Core Web Vitals — human + AI loop
+Flujo reproducible:
+
+Lanza tu sitio en pagespeed.web.dev y copia los oportunidades y diagnósticos.
+
+Pega el informe a Claude Code con: "Dado este informe de PageSpeed, ¿qué cambios concretos en el repo mejorarían LCP e INP? Prioriza por impacto. Para cada uno, indica el archivo y la modificación."
+
+Aplica cambios uno a uno con el copiloto y re-mide.
+
+Este loop —medir real, priorizar con IA, aplicar, re-medir— es más efectivo que pedirle a la IA que "optimice" sin datos.
+
+9.3 Accesibilidad a la altura de WCAG 2.2 con shadcn + IA
+shadcn/ui ya parte de primitivas Radix accesibles. Pero lo que tú compones por encima puede romperlo. Pide a Claude Code o Cursor:
+
+Audita este componente contra WCAG 2.2 AA:
+- Roles ARIA y landmarks
+- Navegación por teclado (focus trap, tab order)
+- Labels de formularios y mensajes de error asociados
+- Contraste de color mínimo 4.5:1
+Genera un informe con severidad y propuesta de fix para cada hallazgo.
+Combínalo con axe-core en CI para que no se regrese.
+
+9.4 El error inverso: desconfía por defecto de la IA en seguridad
+Un dato crudo de 2026: estudios sobre outputs de v0 / Lovable / Bolt reportan tasas de ~40–45% de vulnerabilidades en código generado sin revisión (API keys en cliente, falta de sanitización, RLS mal configuradas, acceso lateral de recursos). Reglas prácticas:
+
+Nunca despliegues código generado por IA sin un paso explícito de security review.
+
+Pide a Claude Code que explique las decisiones de seguridad: "¿qué asume este código sobre el usuario autenticado?", "¿qué entra por params vs body vs headers?", "¿qué valida el servidor?".
+
+Ejecuta npm audit, Snyk o Socket.dev sobre cualquier generación con dependencias nuevas.
+
+Para schemas de validación, lee línea a línea: un .optional() de más puede abrir un bypass
