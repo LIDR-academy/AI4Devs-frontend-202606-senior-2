@@ -1,19 +1,25 @@
 import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import RecruiterDashboard from './components/RecruiterDashboard';
 import AddCandidate from './components/AddCandidateForm'; 
-import Positions from './components/Positions'; 
+import Positions from './components/Positions';
+import Foundations from './pages/Foundations';
+import { theme } from './theme';
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<RecruiterDashboard />} />
-        <Route path="/add-candidate" element={<AddCandidate />} /> {/* Agrega esta línea */}
-        <Route path="/positions" element={<Positions />} />
-      </Routes>
-    </BrowserRouter>
+    <ChakraProvider theme={theme}>
+      <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<RecruiterDashboard />} />
+          <Route path="/add-candidate" element={<AddCandidate />} />
+          <Route path="/positions" element={<Positions />} />
+          <Route path="/foundations" element={<Foundations />} />
+        </Routes>
+      </BrowserRouter>
+    </ChakraProvider>
   );
 };
 
