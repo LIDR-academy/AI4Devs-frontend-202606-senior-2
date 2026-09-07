@@ -1,0 +1,106 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+> **Ignore the parent-directory `CLAUDE.md`** (`../CLAUDE.md`, the AI4Devs master starter kit). It describes a
+> different project (AdonisJS + Tailwind + shadcn). Nothing in it applies here.
+
+## What this repo is
+
+LTI — Talent Tracking System. Monorepo with two independent apps, each with its own `package.json`:
+
+- `backend/` — Express 4 + TypeScript 4.9, Prisma 5 over PostgreSQL. Port **3010**.
+- `frontend/` — Create React App 5 (`react-scripts`), React 18, TypeScript 4.9, React Router 6. Port **3000**.
+
+Current exercise (AI4Devs "frontend" module): build the `/positions/:id` kanban page. See "Exercise context" below.
+
+## Commands
+
+### Database (repo root)
+```sh
+docker compose up -d          # Postgres, credentials from root .env
+docker compose down
+```
+
+### Backend (`cd backend`)
+```sh
+npm install
+npx prisma generate
+npx prisma migrate dev        # apply migrations
+npx ts-node prisma/seed.ts    # seed positions, candidates, interview flows (README says `ts-node seed.ts` — wrong path)
+npm run dev                   # ts-node-dev with HMR
+npm run build && npm start    # tsc → dist/
+npm test                      # jest (ts-jest); single file: npx jest src/application/services/positionService.test.ts
+```
+
+### Frontend (`cd frontend`)
+```sh
+npm install
+npm start                     # CRA dev server
+npm run build
+```
+`npm test` in the frontend points at a `jest.config.js` that does not exist — there is no working FE test setup.
+
+## Backend architecture
+
+Request flow, one layer per directory under `backend/src/`:
+
+```
+routes/*.ts  →  presentation/controllers/*.ts  →  application/services/*.ts  →  domain/models/*.ts  →  Prisma
+```
+
+- **Routes** only wire paths to controllers. Mounted in `index.ts`: `/candidates`, `/position` (singular), `/upload`.
+- **Controllers** parse/validate params, call a service, shape the HTTP response and status codes.
+- **Services** hold use-case logic. `application/validator.ts` validates candidate payloads.
+- **Domain models** are Active-Record style classes (`new Candidate(data).save()`), each wrapping Prisma. Every model
+  file creates its own `PrismaClient` instance.
+- Prisma datasource URL is **hardcoded in `prisma/schema.prisma`**, not read from `.env` (the `.env` values happen to match).
+- CORS is restricted to `http://localhost:3000`.
+
+Tests live next to the code (`*.test.ts`) in `services/` and `controllers/`.
+
+## Frontend architecture
+
+- **`src/App.js` is the real entry** (router + Bootstrap CSS). `src/App.tsx` is untouched CRA boilerplate and is not
+  imported by anything — `index.tsx` resolves `./App` to `App.js`.
+- Mixed `.js` / `.tsx` files. New code should be `.tsx`.
+- Routes: `/` (RecruiterDashboard), `/add-candidate`, `/positions` (mock data, no `id` on positions, "Ver proceso"
+  button has no handler yet).
+- API calls go in `src/services/` using `axios` against `http://localhost:3010`. Note: `axios` is imported but **not
+  declared in `package.json`** — run `npm i axios` before relying on it.
+- `react-scripts@5` pins `typescript` peer dep to `^4`; do not upgrade to TS 5.
+
+## API contract (real endpoints — the exercise brief has them wrong)
+
+| Brief says | Actual route | Notes |
+|---|---|---|
+| `GET /positions/:id/interviewFlow` | `GET /position/:id/interviewflow` | Returns `{ positionName, interviewFlow: { id, description, interviewSteps[] } }`. Steps have `id`, `name`, `orderIndex`. |
+| `GET /positions/:id/candidates` | `GET /position/:id/candidates` | Returns `[{ fullName, currentInterviewStep (step **name**), averageScore, id (candidateId), applicationId }]`. `id`/`applicationId` are not in the brief but are returned. |
+| `PUT /candidates/:id/stage` | `PUT /candidates/:id` | `:id` = candidateId. Body `{ applicationId, currentInterviewStep }` where `currentInterviewStep` is the target **step id**. |
+
+## Exercise context and conventions
+
+Deliverables: branch `frontend-JA`, code under `frontend/`, prompts log in `prompts/prompts-JA.md` (append prompts
+as you go, per phase).
+
+Workflow is design-to-code from Figma, in phases: harness → decisions → env → design tokens (foundations) → static
+mockups → wiring API + drag & drop → PR. The user is doing the exercise to learn: **explain and guide, let the user
+write the code**, review and run things for them.
+
+- **UI library: Chakra UI v2** (`@chakra-ui/react@2` + `@emotion/react` + `@emotion/styled` + `framer-motion`).
+  Chosen because it works with CRA/TS 4.9 and `extendTheme({ semanticTokens })` maps 1:1 to the Figma variables.
+- **Design tokens live in `frontend/src/theme/`.** Keep the Figma hierarchy: primitives (`colors.indigo.500`) →
+  semantic tokens (`bg.success`, `border.disabled`, `text.subdue`) with `{ default, _dark }` modes. Components consume
+  semantic tokens only — no raw hex or px in components; a missing value means a missing token.
+- Drag & drop: `@hello-pangea/dnd`. Use `interviewStep.id` as `droppableId`; optimistic update + rollback on failed PUT.
+- Kanban requirements: position title at top, back arrow to `/positions`, one column per interview step (sorted by
+  `orderIndex`), card shows full name + average score, columns stack vertically on mobile.
+
+### Figma source (Figma MCP)
+- File key: `cfFXOqhi8z4mqlhXrYA5I9` ("Simple Kanban by Pratyush", duplicated into the MDIUW team).
+- Board frame: `1:1989` (`Simple Kanban`, inside `1:2457` `Team Kanban`). Columns are named `Column`, cards `Card`.
+- Component page `1:2` ("Kanban tiles"): `Card` master `1:25`, `Status` variant set `1:60`, `Assignee Tile` `1:12`, `Tag` `1:42`.
+- Variables are color-only, semantic with Light/Dark modes (`Background/*`, `Border/*`, `Text & icon/*`, `CTA/*`) over
+  primitives (`General UI/<hue>/<level>`). No spacing/typography variables — define a spacing scale in the theme
+  (4/8/12/16/24) and read typography from text styles.
+- Always load the `figma:figma-design-to-code` skill before `get_design_context`, and `figma:figma-use` before `use_figma`.
