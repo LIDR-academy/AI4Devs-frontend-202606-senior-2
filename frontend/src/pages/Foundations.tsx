@@ -117,20 +117,38 @@ const Foundations: React.FC = () => {
             ))}
           </HStack>
           <HStack spacing={6} align="flex-start">
-            <Box bg="bg.secondary" borderRadius="column" p={6} w="256px">
+            <Box bg="bg.primary" borderRadius="board" p={6}>
               <Text textStyle="bodyMdEmphasis" mb={3}>
-                Column · radius {radii.column}
+                Board · radius {radii.board}
               </Text>
-              <Box bg="bg.primary" borderRadius="card" boxShadow="card" p={4}>
-                <Text textStyle="bodyMdEmphasis">Card · radius {radii.card}</Text>
-                <Text textStyle="bodySm" color="text.subdue">
-                  shadow.card
+              <Box bg="bg.secondary" borderRadius="column" borderWidth="1px" borderColor="border.subdue" p={6} w="kanbanColumn">
+                <Text textStyle="bodyMdEmphasis" mb={3}>
+                  Column · radius {radii.column}
                 </Text>
+                <Stack spacing={6}>
+                  <Box bg="bg.primary" borderRadius="card" boxShadow="card" p={2}>
+                    <Text textStyle="bodyMdEmphasis">Card · radius {radii.card}</Text>
+                    <Text textStyle="bodySm" color="text.subdue">
+                      shadows.card
+                    </Text>
+                  </Box>
+                  <Box bg="bg.primary" borderRadius="card" boxShadow="elevated" p={2}>
+                    <Text textStyle="bodyMdEmphasis">Card · elevated</Text>
+                    <Text textStyle="bodySm" color="text.subdue">
+                      shadows.elevated (Figma effect style, unused on the board)
+                    </Text>
+                  </Box>
+                </Stack>
               </Box>
             </Box>
-            <Text textStyle="bodyXs" color="text.subdue" maxW="320px">
-              {shadows.card}
-            </Text>
+            <Stack spacing={2} maxW="320px">
+              <Text textStyle="bodyXs" color="text.subdue">
+                card: {shadows.card}
+              </Text>
+              <Text textStyle="bodyXs" color="text.subdue">
+                elevated: {shadows.elevated}
+              </Text>
+            </Stack>
           </HStack>
         </Section>
       </Stack>

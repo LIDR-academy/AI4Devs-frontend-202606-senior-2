@@ -2,6 +2,7 @@ import { extendTheme, type ThemeConfig } from '@chakra-ui/react';
 import { colors } from './foundations/colors';
 import { fonts, fontWeights, textStyles } from './foundations/typography';
 import { space } from './foundations/space';
+import { sizes } from './foundations/sizes';
 import { radii } from './foundations/radii';
 import { shadows } from './foundations/shadows';
 import { semanticTokens } from './semanticTokens';
@@ -18,6 +19,7 @@ export const theme = extendTheme({
   fontWeights,
   textStyles,
   space,
+  sizes,
   radii,
   shadows,
   semanticTokens,
