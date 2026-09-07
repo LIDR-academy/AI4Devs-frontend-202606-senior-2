@@ -27,7 +27,8 @@ docker compose down
 npm install
 npx prisma generate
 npx prisma migrate dev        # apply migrations
-npx ts-node prisma/seed.ts    # seed positions, candidates, interview flows (README says `ts-node seed.ts` — wrong path)
+npx ts-node --transpile-only prisma/seed.ts   # seed positions, candidates, interview flows. README says `ts-node seed.ts` (wrong path);
+                                              # `--transpile-only` is required: ts-node@9 + TS 4.9 crash on type-check (`resolveTypeReferenceDirective`)
 npm run dev                   # ts-node-dev with HMR
 npm run build && npm start    # tsc → dist/
 npm test                      # jest (ts-jest); single file: npx jest src/application/services/positionService.test.ts
@@ -74,7 +75,7 @@ Tests live next to the code (`*.test.ts`) in `services/` and `controllers/`.
 
 | Brief says | Actual route | Notes |
 |---|---|---|
-| `GET /positions/:id/interviewFlow` | `GET /position/:id/interviewflow` | Returns `{ positionName, interviewFlow: { id, description, interviewSteps[] } }`. Steps have `id`, `name`, `orderIndex`. |
+| `GET /positions/:id/interviewFlow` | `GET /position/:id/interviewflow` | **Double-wrapped**: `{ interviewFlow: { positionName, interviewFlow: { id, description, interviewSteps[] } } }` (controller wraps the service result). Steps have `id`, `name`, `orderIndex`; seed has two steps with `orderIndex: 2` — sort by `orderIndex`, then `id`. |
 | `GET /positions/:id/candidates` | `GET /position/:id/candidates` | Returns `[{ fullName, currentInterviewStep (step **name**), averageScore, id (candidateId), applicationId }]`. `id`/`applicationId` are not in the brief but are returned. |
 | `PUT /candidates/:id/stage` | `PUT /candidates/:id` | `:id` = candidateId. Body `{ applicationId, currentInterviewStep }` where `currentInterviewStep` is the target **step id**. |
 
@@ -100,7 +101,9 @@ write the code**, review and run things for them.
 - File key: `cfFXOqhi8z4mqlhXrYA5I9` ("Simple Kanban by Pratyush", duplicated into the MDIUW team).
 - Board frame: `1:1989` (`Simple Kanban`, inside `1:2457` `Team Kanban`). Columns are named `Column`, cards `Card`.
 - Component page `1:2` ("Kanban tiles"): `Card` master `1:25`, `Status` variant set `1:60`, `Assignee Tile` `1:12`, `Tag` `1:42`.
-- Variables are color-only, semantic with Light/Dark modes (`Background/*`, `Border/*`, `Text & icon/*`, `CTA/*`) over
-  primitives (`General UI/<hue>/<level>`). No spacing/typography variables — define a spacing scale in the theme
-  (4/8/12/16/24) and read typography from text styles.
+- The file has **no variable collections**. Colors are **paint styles** named `Light/...` and `Dark/...` (the mode is a
+  name prefix, not a real Figma mode): semantic (`Background/*`, `Border/*`, `Text & icon/*`, `CTA/*`) over primitives
+  (`General UI/<hue>/<Primary|Secondary|Tertiary|Quaternary>`). Typography comes from text styles (IBM Plex Sans for
+  body, Proxima Nova for headings — proprietary, needs a substitute). One effect style `Shadow`. No spacing tokens —
+  define a scale (4/8/12/16/24). Raw export: `frontend/src/theme/figma-export.json`.
 - Always load the `figma:figma-design-to-code` skill before `get_design_context`, and `figma:figma-use` before `use_figma`.
