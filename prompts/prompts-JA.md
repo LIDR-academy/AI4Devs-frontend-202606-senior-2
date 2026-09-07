@@ -40,7 +40,22 @@ Herramienta: Claude Code (Opus / Fable) con MCP de Figma, Context7 y navegador i
 
 ## Fase 2 · Entorno
 
+> estan arriba, creo
+
+> hecho, comprueba los endpoints
+
+
 ## Fase 3 · Foundations (tokens)
+
+> vale, la fuente vamos a Montserrat. Vuelve a presentarme la fase 3. Primero tienes que hablarme de la fase y de su objetivo, luego presentarme los hallazgos, a partir de ahi yo tomo decisiones y cuando esté todo decidido y no haya nada bloqueante ejecutamos
+
+> d1- a · d2- a · d3- si · d4- lo hacemos ya · d5- quitamos ya · d7- Si hacemos el housekeeping, incluido el commit antes de nada.
+> Hay una pregunta sobre esto, porque estamos definiendo todos los foundations en .ts y no en .css? Yo hubiera dicho que todo esto iría a custom properties
+
+> D8- a · D9- No, las huérfanas no generan token. Como dicta la D8 vamos a hacer fidelidad a Figma, si en figma no hay variable, en código se mete el valor tal cual. Ya tendrías todo desbloqueado con esto y podríamos empezar a ejecutar?
+
+**Decisiones:** primitivas por modo con nombres Figma (`light.indigo.primary`); semánticas `{ default, _dark }`; huérfanas → hex literal en `semanticTokens.ts`; Montserrat sustituye a Proxima Nova; Bootstrap fuera desde ya; spacing 4/8/12/16/24.
+
 
 ## Fase 4 · Maquetas
 

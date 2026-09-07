@@ -90,9 +90,18 @@ write the code**, review and run things for them.
 
 - **UI library: Chakra UI v2** (`@chakra-ui/react@2` + `@emotion/react` + `@emotion/styled` + `framer-motion`).
   Chosen because it works with CRA/TS 4.9 and `extendTheme({ semanticTokens })` maps 1:1 to the Figma variables.
-- **Design tokens live in `frontend/src/theme/`.** Keep the Figma hierarchy: primitives (`colors.indigo.500`) →
-  semantic tokens (`bg.success`, `border.disabled`, `text.subdue`) with `{ default, _dark }` modes. Components consume
-  semantic tokens only — no raw hex or px in components; a missing value means a missing token.
+- **Design tokens live in `frontend/src/theme/`** (`foundations/{colors,typography,space,radii,shadows}.ts`,
+  `semanticTokens.ts`, `index.ts` with `extendTheme`). Decisions taken:
+  - Primitives mirror Figma names **per mode**: `colors.light.indigo.primary`, `colors.dark.indigo.primary`
+    (Figma has two primitive palettes; known anti-pattern, kept for fidelity).
+  - Semantic tokens: `bg.*`, `border.*`, `text.*`, `cta.*` as `{ default: 'light.<hue>.<step>', _dark: 'dark.<hue>.<step>' }`.
+    Where Figma's semantic color has no matching primitive (21 cases), the raw hex goes in `semanticTokens.ts` with a
+    `// no Figma primitive` comment — do not invent primitives.
+  - Typography: `fonts.body` = IBM Plex Sans, `fonts.heading` = Montserrat (substitute for Proxima Nova); the 14 Figma
+    text styles become `textStyles`. Fonts loaded via Google Fonts `<link>` in `public/index.html`.
+  - Spacing 4/8/12/16/24, radii card 8 / column 12, one `shadows.card`.
+  - Components consume semantic tokens and textStyles only — no raw hex/px in components.
+  - Bootstrap CSS is removed from `App.js`; legacy pages (`RecruiterDashboard`, `AddCandidateForm`) stay unstyled.
 - Drag & drop: `@hello-pangea/dnd`. Use `interviewStep.id` as `droppableId`; optimistic update + rollback on failed PUT.
 - Kanban requirements: position title at top, back arrow to `/positions`, one column per interview step (sorted by
   `orderIndex`), card shows full name + average score, columns stack vertically on mobile.
