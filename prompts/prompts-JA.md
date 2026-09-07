@@ -75,7 +75,15 @@ Herramienta: Claude Code (Opus / Fable) con MCP de Figma, Context7 y navegador i
 
 **Decisiones:** textStyles del theme (Inter→title/bodyLgEmphasis/bodySm); semántica más cercana para valores sin token; corregir foundations; tarjeta fiel (avatar iniciales + nombre, chip fase, tag puntuación); tinte por ciclo posicional; `Positions` → port a Chakra en 4b.
 
+> sí, preséntame la 4b
+
+> D16 - b · D17 - abierto bg.info, contratado success, resto igual · D18 - a · D19 - si · D20 - no generar pantalla
+
+**Hallazgos 4b:** no hay `GET /positions` (mock permanente); el mock antiguo no tenía `id` ni coincidía con el seed; badge *Cerrado* con el mismo color que *Abierto* (bug); `Positions` vivía en `components/`.
+
 **Resultado 4a:** `components/kanban/{types,mock,tints,CandidateCard,KanbanColumn,KanbanBoard}.tsx`, `pages/PositionDetail.tsx`, ruta `/positions/:id`; `sizes.ts` nuevo; radios/sombras/space corregidos.
+
+**Resultado 4b:** `pages/Positions.tsx` reescrito con Chakra (filtros visuales, grid responsive, tarjeta con badge por tokens, botones CTA primario/secundario), mock alineado con el seed (ids 1, 2 reales + 3 ficticio).
 
 ## Fase 5 · Implementación
 

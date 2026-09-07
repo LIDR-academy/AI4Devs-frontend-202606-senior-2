@@ -67,8 +67,11 @@ Tests live next to the code (`*.test.ts`) in `services/` and `controllers/`.
 - **`src/App.js` is the real entry** (router + Bootstrap CSS). `src/App.tsx` is untouched CRA boilerplate and is not
   imported by anything — `index.tsx` resolves `./App` to `App.js`.
 - Mixed `.js` / `.tsx` files. New code should be `.tsx`.
-- Routes: `/` (RecruiterDashboard), `/add-candidate`, `/positions` (mock data, no `id` on positions, "Ver proceso"
-  button has no handler yet).
+- Routes: `/` (RecruiterDashboard, legacy/unstyled), `/add-candidate` (legacy/unstyled), `/positions`
+  (`pages/Positions.tsx`), `/positions/:id` (`pages/PositionDetail.tsx`), `/foundations` (`pages/Foundations.tsx`).
+  Pages live in `src/pages/`, reusable pieces in `src/components/`.
+- **There is no `GET /positions` endpoint**, so the list in `pages/Positions.tsx` is a permanent mock: ids 1 and 2
+  match the seeded DB, id 3 (`Product Manager`, Borrador) does not exist on purpose (error-state demo).
 - API calls go in `src/services/` using `axios` against `http://localhost:3010`. Note: `axios` is imported but **not
   declared in `package.json`** — run `npm i axios` before relying on it.
 - `react-scripts@5` pins `typescript` peer dep to `^4`; do not upgrade to TS 5.
