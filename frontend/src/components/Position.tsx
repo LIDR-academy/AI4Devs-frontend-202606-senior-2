@@ -17,16 +17,16 @@ type Candidate = {
     averageScore: number;
 };
 
-const MAX_SCORE_DOTS = 5;
+const MAX_SCORE_DOTS = 10;
 
 const ScoreDots: React.FC<{ score: number }> = ({ score }) => {
-    const filled = Math.max(0, Math.min(MAX_SCORE_DOTS, Math.round(score)));
+    const dots = Math.max(0, Math.min(MAX_SCORE_DOTS, Math.round(score)));
     return (
         <div>
-            {Array.from({ length: MAX_SCORE_DOTS }, (_, i) => (
+            {Array.from({ length: dots }, (_, i) => (
                 <span
                     key={i}
-                    className={`d-inline-block rounded-circle me-1 ${i < filled ? 'bg-success' : 'bg-secondary bg-opacity-25'}`}
+                    className="d-inline-block rounded-circle bg-success me-1"
                     style={{ width: '0.75rem', height: '0.75rem' }}
                 />
             ))}
@@ -41,6 +41,8 @@ const Position: React.FC = () => {
     const [candidates, setCandidates] = useState<Candidate[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [movingCandidateId, setMovingCandidateId] = useState<number | null>(null);
+    const [moveError, setMoveError] = useState<string | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -84,13 +86,59 @@ const Position: React.FC = () => {
         };
     }, [id]);
 
+    const moveCandidate = async (candidate: Candidate, targetStep: InterviewStep) => {
+        if (candidate.currentInterviewStep === targetStep.name) return;
+
+        setMovingCandidateId(candidate.id);
+        setMoveError(null);
+        try {
+            const res = await fetch(`http://localhost:3010/candidates/${candidate.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    applicationId: candidate.applicationId,
+                    currentInterviewStep: targetStep.id,
+                }),
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to update candidate stage');
+            }
+
+            setCandidates((prev) =>
+                prev.map((c) => (c.id === candidate.id ? { ...c, currentInterviewStep: targetStep.name } : c)),
+            );
+        } catch (err) {
+            setMoveError('No se pudo mover al candidato a la nueva fase.');
+        } finally {
+            setMovingCandidateId(null);
+        }
+    };
+
+    const handleDragStart = (candidate: Candidate) => (event: React.DragEvent) => {
+        event.dataTransfer.setData('text/plain', String(candidate.id));
+    };
+
+    const handleDragOver = (event: React.DragEvent) => {
+        event.preventDefault();
+    };
+
+    const handleDrop = (targetStep: InterviewStep) => (event: React.DragEvent) => {
+        event.preventDefault();
+        const candidateId = Number(event.dataTransfer.getData('text/plain'));
+        const candidate = candidates.find((c) => c.id === candidateId);
+        if (candidate) {
+            moveCandidate(candidate, targetStep);
+        }
+    };
+
     return (
         <Container className="mt-5">
             <div className="d-flex align-items-center mb-4">
                 <Link to="/positions" className="me-3 text-dark" aria-label="Volver a posiciones">
                     <ArrowLeft size={24} />
                 </Link>
-                <h2 className="mb-0">{positionName}</h2>
+                <h2 className="mb-0 fw-bold">{positionName}</h2>
             </div>
 
             {loading && (
@@ -103,16 +151,32 @@ const Position: React.FC = () => {
 
             {error && <Alert variant="danger">{error}</Alert>}
 
+            {moveError && (
+                <Alert variant="danger" dismissible onClose={() => setMoveError(null)}>
+                    {moveError}
+                </Alert>
+            )}
+
             {!loading && !error && (
                 <Row>
                     {interviewSteps.map((step) => (
                         <Col xs={12} md key={step.id} className="mb-4">
-                            <div className="bg-light rounded p-3 h-100">
+                            <div
+                                className="bg-light rounded p-3 h-100"
+                                onDragOver={handleDragOver}
+                                onDrop={handleDrop(step)}
+                            >
                                 <h5 className="fw-bold">{step.name}</h5>
                                 {candidates
                                     .filter((candidate) => candidate.currentInterviewStep === step.name)
                                     .map((candidate) => (
-                                        <Card key={candidate.id} className="shadow-sm mb-3">
+                                        <Card
+                                            key={candidate.id}
+                                            className="shadow-sm border-0 mb-3"
+                                            draggable={movingCandidateId !== candidate.id}
+                                            onDragStart={handleDragStart(candidate)}
+                                            style={{ opacity: movingCandidateId === candidate.id ? 0.5 : 1 }}
+                                        >
                                             <Card.Body>
                                                 <Card.Title as="p" className="fw-bold mb-2">
                                                     {candidate.fullName}
