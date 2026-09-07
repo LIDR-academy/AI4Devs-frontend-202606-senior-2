@@ -56,6 +56,11 @@ Herramienta: Claude Code (Opus / Fable) con MCP de Figma, Context7 y navegador i
 
 **Decisiones:** primitivas por modo con nombres Figma (`light.indigo.primary`); semánticas `{ default, _dark }`; huérfanas → hex literal en `semanticTokens.ts`; Montserrat sustituye a Proxima Nova; Bootstrap fuera desde ya; spacing 4/8/12/16/24.
 
+> Te he pasado al modo plan. Yo no voy a escribir código, el desarrollo es todo agéntico, yo solo tomo decisiones. Crea un plan para hacerlo y luego ejecutamos
+> (plan mode: alcance = solo Fase 3; la página /foundations se queda en el repo)
+
+**Resultado:** `scripts/figma-to-tokens.mjs` genera `foundations/colors.ts` e imprime el cruce semántico (21 huérfanas); `typography/space/radii/shadows`, `semanticTokens.ts`, `theme/index.ts`; `ChakraProvider` en `App.js` sin Bootstrap; página `/foundations`. Hallazgo en ejecución: `default` es clave reservada en semantic tokens de Chakra → estado CTA renombrado a `base`.
+
 
 ## Fase 4 · Maquetas
 

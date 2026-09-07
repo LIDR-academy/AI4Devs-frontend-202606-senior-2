@@ -41,6 +41,8 @@ npm start                     # CRA dev server
 npm run build
 ```
 `npm test` in the frontend points at a `jest.config.js` that does not exist — there is no working FE test setup.
+`CI=true npm run build` fails on a pre-existing eslint warning (`InputGroup` unused in `AddCandidateForm.js`); plain
+`npm run build` succeeds.
 
 ## Backend architecture
 
@@ -97,8 +99,16 @@ write the code**, review and run things for them.
   - Semantic tokens: `bg.*`, `border.*`, `text.*`, `cta.*` as `{ default: 'light.<hue>.<step>', _dark: 'dark.<hue>.<step>' }`.
     Where Figma's semantic color has no matching primitive (21 cases), the raw hex goes in `semanticTokens.ts` with a
     `// no Figma primitive` comment — do not invent primitives.
-  - Typography: `fonts.body` = IBM Plex Sans, `fonts.heading` = Montserrat (substitute for Proxima Nova); the 14 Figma
-    text styles become `textStyles`. Fonts loaded via Google Fonts `<link>` in `public/index.html`.
+  - CTA state Figma calls "default" is `cta.<variant>.base` (`default` is Chakra's reserved light-mode condition key
+    inside a semantic token value). Use `bg="cta.primary.base"`, `_hover={{ bg: 'cta.primary.hover' }}`.
+  - Typography: `fonts.body` = IBM Plex Sans, `fonts.heading` = Montserrat (substitute for Proxima Nova). The 14 Figma
+    text styles are `textStyles` with flat camelCase keys: `bodyXs, bodySm, bodySmEmphasis, bodyMd, bodyMdEmphasis,
+    bodyLg, bodyLgEmphasis, subtitle, subtitleDeEmphasis, title, titleDeEmphasis, headline, headlineDeEmphasis, display`
+    (`<Text textStyle="bodyMd">`). Fonts loaded via Google Fonts `<link>` in `public/index.html`.
+  - `foundations/colors.ts` is GENERATED: edit `figma-export.json` and re-run `node scripts/figma-to-tokens.mjs`
+    (also prints the semantic→primitive cross-reference used to maintain `semanticTokens.ts`).
+  - `/foundations` (`src/pages/Foundations.tsx`) is living documentation of all tokens with a Light/Dark toggle — use it
+    to eyeball any token change against Figma.
   - Spacing 4/8/12/16/24, radii card 8 / column 12, one `shadows.card`.
   - Components consume semantic tokens and textStyles only — no raw hex/px in components.
   - Bootstrap CSS is removed from `App.js`; legacy pages (`RecruiterDashboard`, `AddCandidateForm`) stay unstyled.
