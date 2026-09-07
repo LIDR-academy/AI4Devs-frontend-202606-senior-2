@@ -109,12 +109,28 @@ write the code**, review and run things for them.
     (also prints the semantic→primitive cross-reference used to maintain `semanticTokens.ts`).
   - `/foundations` (`src/pages/Foundations.tsx`) is living documentation of all tokens with a Light/Dark toggle — use it
     to eyeball any token change against Figma.
-  - Spacing 4/8/12/16/24, radii card 8 / column 12, one `shadows.card`.
+  - Spacing `2xs`(2) / 1(4) / 2(8) / 3(12) / 4(16) / 6(24) / 10(40) / 12(48); `sizes.kanbanColumn` 256, `sizes.kanbanSwimlane` 480;
+    radii `card` 4 / `column` 8 / `board` 24; `shadows.card` (board card) and `shadows.elevated` (Figma effect style, unused).
+    Borders use Chakra's `border="1px"` token. All values were read from the Figma nodes via `get_design_context`, not measured.
   - Components consume semantic tokens and textStyles only — no raw hex/px in components.
   - Bootstrap CSS is removed from `App.js`; legacy pages (`RecruiterDashboard`, `AddCandidateForm`) stay unstyled.
 - Drag & drop: `@hello-pangea/dnd`. Use `interviewStep.id` as `droppableId`; optimistic update + rollback on failed PUT.
 - Kanban requirements: position title at top, back arrow to `/positions`, one column per interview step (sorted by
   `orderIndex`), card shows full name + average score, columns stack vertically on mobile.
+
+### Kanban components (`src/components/kanban/`)
+- `types.ts` mirrors the API shapes (`InterviewStep`, `CandidateSummary`); `mock.ts` is a verbatim copy of the seeded
+  responses for position 1 — the static mockup in `pages/PositionDetail.tsx` (`/positions/:id`) renders from it.
+- `KanbanBoard` sorts steps by `orderIndex` then `id`, groups candidates by step **name**, lays columns in a row
+  (`md`+) or a column (mobile). `KanbanColumn` = title + tinted swimlane. `CandidateCard` = name, initials avatar
+  (`Avatar size="xs"`), step chip (tinted like its column), score tag.
+- `tints.ts`: column tint cycles by position over `bg.secondary → bg.info → bg.attention → bg.success` (D14); the
+  chip dot uses the matching `border.*` token. Figma tints by task status; steps are dynamic so tint is positional only.
+- Typography mapping from the Figma board (which uses raw Inter, not the file's text styles — D10): Bold 24 → `title`,
+  Medium 16 → `bodyLgEmphasis`, Regular 12 → `bodySm`. Raw board colours without a semantic token map to the closest
+  one (D11): `#D6D8DB`→`border.subdue`, `#6C6C6C`/`#52565C`→`text.subdue`, `#000`→`text.primary`.
+- Token audit: `grep -nE '#[0-9a-fA-F]{3,6}|[0-9]+px' src/components/kanban src/pages/PositionDetail.tsx` must only
+  hit comments and `border="1px"`.
 
 ### Figma source (Figma MCP)
 - File key: `cfFXOqhi8z4mqlhXrYA5I9` ("Simple Kanban by Pratyush", duplicated into the MDIUW team).

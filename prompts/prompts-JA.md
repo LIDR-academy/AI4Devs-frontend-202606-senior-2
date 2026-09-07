@@ -64,6 +64,19 @@ Herramienta: Claude Code (Opus / Fable) con MCP de Figma, Context7 y navegador i
 
 ## Fase 4 · Maquetas
 
+> sí, preséntame la fase 4
+
+> pero no vamos a ir pantalla a pantalla? esto es para hacer las 3 de golpe?
+
+> ok · D10- a · D11- a · D12- si · D13- b · D14- b · D15- b
+> (plan mode: Fase 4a = maqueta `Position`/kanban; 4b = `Positions` después)
+
+**Hallazgos de `get_design_context`:** el tablero usa Inter en crudo (no los text styles del fichero); radios/sombra reales distintos de lo medido en Fase 3 (tarjeta 4/8, swimlane 8, tablero 24; sombra 0 1px 2px); varios colores pintados a mano sin token semántico; assets con URL que caducan; solo diseño desktop.
+
+**Decisiones:** textStyles del theme (Inter→title/bodyLgEmphasis/bodySm); semántica más cercana para valores sin token; corregir foundations; tarjeta fiel (avatar iniciales + nombre, chip fase, tag puntuación); tinte por ciclo posicional; `Positions` → port a Chakra en 4b.
+
+**Resultado 4a:** `components/kanban/{types,mock,tints,CandidateCard,KanbanColumn,KanbanBoard}.tsx`, `pages/PositionDetail.tsx`, ruta `/positions/:id`; `sizes.ts` nuevo; radios/sombras/space corregidos.
+
 ## Fase 5 · Implementación
 
 ## Fase 6 · Entrega
