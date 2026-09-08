@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, Container, Row, Col, Form, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 type Position = {
     title: string;
@@ -15,6 +16,8 @@ const mockPositions: Position[] = [
 ];
 
 const Positions: React.FC = () => {
+    const navigate = useNavigate();
+
     return (
         <Container className="mt-5">
             <h2 className="text-center mb-4">Posiciones</h2>
@@ -57,7 +60,9 @@ const Positions: React.FC = () => {
                                     {position.status}
                                 </span>
                                 <div className="d-flex justify-content-between mt-3">
-                                    <Button variant="primary">Ver proceso</Button>
+                                    <Button variant="primary" onClick={() => navigate(`/position/${index}`)}>
+                                        Ver proceso
+                                    </Button>
                                     <Button variant="secondary">Editar</Button>
                                 </div>
                             </Card.Body>
