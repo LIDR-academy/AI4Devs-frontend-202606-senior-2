@@ -1,0 +1,53 @@
+/* Layout del tablero Kanban: filas horizontales con scroll en desktop,
+   columnas apiladas verticalmente en mobile (mismo breakpoint que Bootstrap 5
+   usa para "md": 768px). */
+.kanban-board {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.kanban-column {
+  flex: 0 0 260px;
+  min-width: 260px;
+}
+
+@media (max-width: 767.98px) {
+  .kanban-board {
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  .kanban-column {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+.kanban-column__body {
+  min-height: 60px;
+}
+
+.candidate-card--dragging {
+  opacity: 0.5;
+}
+
+.candidate-card__score {
+  font-size: 0.9rem;
+}
+
+.score-dot {
+  margin-right: 2px;
+}
+
+.score-dot--full,
+.score-dot--half {
+  color: #198754;
+}
+
+.score-dot--empty {
+  color: #adb5bd;
+}
