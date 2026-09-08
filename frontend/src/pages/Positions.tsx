@@ -1,9 +1,10 @@
 import React from 'react';
 import { Box, Button, HStack, Input, Select, SimpleGrid, Stack, Text } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 
 // Positions list. No Figma design for this screen and no GET /positions in the backend, so the data
 // below is a permanent mock (D16): ids 1 and 2 exist in the seeded DB, id 3 does not (error-state demo).
-// Filters are visual only (D18). "Ver proceso" gets wired to /positions/:id in a later phase.
+// Filters are visual only (D18). "Ver proceso" opens the kanban at /positions/:id.
 
 type PositionStatus = 'Abierto' | 'Contratado' | 'Cerrado' | 'Borrador';
 
@@ -16,9 +17,27 @@ type Position = {
 };
 
 const positions: Position[] = [
-  { id: 1, title: 'Senior Full-Stack Engineer', manager: 'Bob Miller', deadline: '2024-12-31', status: 'Abierto' }, // seed
-  { id: 2, title: 'Data Scientist', manager: 'Bob Miller', deadline: '2024-12-31', status: 'Abierto' }, // seed
-  { id: 3, title: 'Product Manager', manager: 'Alex Jones', deadline: '2024-07-31', status: 'Borrador' }, // not in DB
+  {
+    id: 1,
+    title: 'Senior Full-Stack Engineer',
+    manager: 'Bob Miller',
+    deadline: '2024-12-31',
+    status: 'Abierto',
+  }, // seed
+  {
+    id: 2,
+    title: 'Data Scientist',
+    manager: 'Bob Miller',
+    deadline: '2024-12-31',
+    status: 'Abierto',
+  }, // seed
+  {
+    id: 3,
+    title: 'Product Manager',
+    manager: 'Alex Jones',
+    deadline: '2024-07-31',
+    status: 'Borrador',
+  }, // not in DB
 ];
 
 // D17
@@ -41,7 +60,7 @@ const fieldProps = {
   _placeholder: { color: 'text.subdue' },
 } as const;
 
-const PositionCard: React.FC<{ position: Position }> = ({ position }) => {
+const PositionCard: React.FC<{ position: Position; onOpen: () => void }> = ({ position, onOpen }) => {
   const badge = statusTokens[position.status];
   return (
     <Stack bg="bg.primary" borderRadius="card" boxShadow="card" p={4} spacing={3}>
@@ -62,11 +81,21 @@ const PositionCard: React.FC<{ position: Position }> = ({ position }) => {
           {position.deadline}
         </Text>
       </Stack>
-      <Box as="span" alignSelf="flex-start" px={2} py="2xs" borderRadius="full" bg={badge.bg} color={badge.color} textStyle="bodySm">
+      <Box
+        as="span"
+        alignSelf="flex-start"
+        px={2}
+        py="2xs"
+        borderRadius="full"
+        bg={badge.bg}
+        color={badge.color}
+        textStyle="bodySm"
+      >
         {position.status}
       </Box>
       <HStack justify="space-between" pt={1}>
         <Button
+          onClick={onOpen}
           bg="cta.primary.base"
           color="text.primaryInverse"
           _hover={{ bg: 'cta.primary.hover' }}
@@ -93,37 +122,40 @@ const PositionCard: React.FC<{ position: Position }> = ({ position }) => {
   );
 };
 
-const Positions: React.FC = () => (
-  <Box bg="bg.tertiary" minH="100vh" p={{ base: 4, md: 12 }}>
-    <Text as="h1" textStyle="title" color="text.primary" mb={6}>
-      Posiciones
-    </Text>
+const Positions: React.FC = () => {
+  const navigate = useNavigate();
+  return (
+    <Box bg="bg.tertiary" minH="100vh" p={{ base: 4, md: 12 }}>
+      <Text as="h1" textStyle="title" color="text.primary" mb={6}>
+        Posiciones
+      </Text>
 
-    <SimpleGrid columns={{ base: 1, md: 4 }} spacing={4} mb={6}>
-      <Input placeholder="Buscar por título" {...fieldProps} />
-      <Input type="date" aria-label="Buscar por fecha" {...fieldProps} />
-      <Select placeholder="Estado" {...fieldProps}>
-        {statuses.map((status) => (
-          <option key={status} value={status}>
-            {status}
-          </option>
-        ))}
-      </Select>
-      <Select placeholder="Manager" {...fieldProps}>
-        {managers.map((manager) => (
-          <option key={manager} value={manager}>
-            {manager}
-          </option>
-        ))}
-      </Select>
-    </SimpleGrid>
+      <SimpleGrid columns={{ base: 1, md: 4 }} spacing={4} mb={6}>
+        <Input placeholder="Buscar por título" {...fieldProps} />
+        <Input type="date" aria-label="Buscar por fecha" {...fieldProps} />
+        <Select placeholder="Estado" {...fieldProps}>
+          {statuses.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </Select>
+        <Select placeholder="Manager" {...fieldProps}>
+          {managers.map((manager) => (
+            <option key={manager} value={manager}>
+              {manager}
+            </option>
+          ))}
+        </Select>
+      </SimpleGrid>
 
-    <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-      {positions.map((position) => (
-        <PositionCard key={position.id} position={position} />
-      ))}
-    </SimpleGrid>
-  </Box>
-);
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+        {positions.map((position) => (
+          <PositionCard key={position.id} position={position} onOpen={() => navigate(`/positions/${position.id}`)} />
+        ))}
+      </SimpleGrid>
+    </Box>
+  );
+};
 
 export default Positions;

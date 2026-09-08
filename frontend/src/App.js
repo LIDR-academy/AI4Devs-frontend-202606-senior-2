@@ -10,7 +10,7 @@ import { theme } from './theme';
 
 const App = () => {
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider theme={theme} toastOptions={{ defaultOptions: { variant: 'subtle', position: 'bottom-right' } }}>
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
       <BrowserRouter>
         <Routes>
