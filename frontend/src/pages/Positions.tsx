@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Button, HStack, Input, Select, SimpleGrid, Stack, Text } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 
 // Positions list. No Figma design for this screen and no GET /positions in the backend, so the data
 // below is a permanent mock (D16): ids 1 and 2 exist in the seeded DB, id 3 does not (error-state demo).
@@ -51,20 +51,11 @@ const statusTokens: Record<PositionStatus, { bg: string; color: string }> = {
 const managers = Array.from(new Set(positions.map((p) => p.manager)));
 const statuses: PositionStatus[] = ['Abierto', 'Contratado', 'Cerrado', 'Borrador'];
 
-const fieldProps = {
-  bg: 'bg.primary',
-  borderColor: 'border.subdue',
-  borderRadius: 'card',
-  textStyle: 'bodyMd',
-  color: 'text.primary',
-  _placeholder: { color: 'text.subdue' },
-} as const;
-
-const PositionCard: React.FC<{ position: Position; onOpen: () => void }> = ({ position, onOpen }) => {
+const PositionCard: React.FC<{ position: Position }> = ({ position }) => {
   const badge = statusTokens[position.status];
   return (
     <Stack bg="bg.primary" borderRadius="card" boxShadow="card" p={4} spacing={3}>
-      <Text textStyle="bodyLgEmphasis" color="text.primary">
+      <Text as="h2" textStyle="bodyLgEmphasis" color="text.primary">
         {position.title}
       </Text>
       <Stack spacing={1} textStyle="bodySm" color="text.subdue">
@@ -94,36 +85,16 @@ const PositionCard: React.FC<{ position: Position; onOpen: () => void }> = ({ po
         {position.status}
       </Box>
       <HStack justify="space-between" pt={1}>
-        <Button
-          onClick={onOpen}
-          bg="cta.primary.base"
-          color="text.primaryInverse"
-          _hover={{ bg: 'cta.primary.hover' }}
-          _active={{ bg: 'cta.primary.pressed' }}
-          borderRadius="card"
-          textStyle="bodyMdEmphasis"
-        >
+        <Button as={RouterLink} to={`/positions/${position.id}`} variant="primary">
           Ver proceso
         </Button>
-        <Button
-          variant="outline"
-          bg="cta.secondary.base"
-          borderColor="border.brand"
-          color="text.brand"
-          _hover={{ bg: 'cta.secondary.hover' }}
-          _active={{ bg: 'cta.secondary.pressed' }}
-          borderRadius="card"
-          textStyle="bodyMdEmphasis"
-        >
-          Editar
-        </Button>
+        <Button variant="secondary">Editar</Button>
       </HStack>
     </Stack>
   );
 };
 
 const Positions: React.FC = () => {
-  const navigate = useNavigate();
   return (
     <Box bg="bg.tertiary" minH="100vh" p={{ base: 4, md: 12 }}>
       <Text as="h1" textStyle="title" color="text.primary" mb={6}>
@@ -131,16 +102,16 @@ const Positions: React.FC = () => {
       </Text>
 
       <SimpleGrid columns={{ base: 1, md: 4 }} spacing={4} mb={6}>
-        <Input placeholder="Buscar por título" {...fieldProps} />
-        <Input type="date" aria-label="Buscar por fecha" {...fieldProps} />
-        <Select placeholder="Estado" {...fieldProps}>
+        <Input placeholder="Buscar por título" />
+        <Input type="date" aria-label="Buscar por fecha" />
+        <Select placeholder="Estado">
           {statuses.map((status) => (
             <option key={status} value={status}>
               {status}
             </option>
           ))}
         </Select>
-        <Select placeholder="Manager" {...fieldProps}>
+        <Select placeholder="Manager">
           {managers.map((manager) => (
             <option key={manager} value={manager}>
               {manager}
@@ -151,7 +122,7 @@ const Positions: React.FC = () => {
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
         {positions.map((position) => (
-          <PositionCard key={position.id} position={position} onOpen={() => navigate(`/positions/${position.id}`)} />
+          <PositionCard key={position.id} position={position} />
         ))}
       </SimpleGrid>
     </Box>

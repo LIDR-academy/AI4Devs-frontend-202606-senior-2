@@ -76,7 +76,12 @@ Tests live next to the code (`*.test.ts`) in `services/` and `controllers/`.
   `http://localhost:3010`); `positionService.ts` wraps the three kanban endpoints (typed, unwraps the interviewflow
   response). Legacy `candidateService.js` still hardcodes the URL — untouched.
 - `src/hooks/usePositionBoard.ts` owns the kanban data: `status` (`loading | ready | notFound | error`), steps,
-  candidates and `moveCandidate` (optimistic update, rollback + error toast on failed PUT).
+  candidates and `moveCandidate` (optimistic update, rollback + error toast on failed PUT). A 404 counts as `notFound`
+  only when the body's `error` is `Position not found` (the interviewflow controller answers 404 to *any* thrown error,
+  DB down included); anything else is `error`. A failed PUT rolls back only if no newer move of the same application
+  superseded it (`latestMove` ref).
+- Navigation between pages uses real links (`Button as={RouterLink} to=…`, same for `IconButton`), not `navigate()` in
+  `onClick`, so middle-click/new-tab and the `link` role keep working. Card titles are `Text as="h2"`.
 - `react-scripts@5` pins `typescript` peer dep to `^4`; do not upgrade to TS 5.
 
 ## API contract (real endpoints — the exercise brief has them wrong)
@@ -139,11 +144,15 @@ write the code**, review and run things for them.
   `orderIndex`), card shows full name + average score, columns stack vertically on mobile.
 
 ### Kanban components (`src/components/kanban/`)
-- `types.ts` mirrors the API shapes (`InterviewStep`, `CandidateSummary`); `mock.ts` is a verbatim copy of the seeded
-  responses for position 1 — the static mockup in `pages/PositionDetail.tsx` (`/positions/:id`) renders from it.
-- `KanbanBoard` sorts steps by `orderIndex` then `id`, groups candidates by step **name**, lays columns in a row
-  (`md`+) or a column (mobile). `KanbanColumn` = title + tinted swimlane. `CandidateCard` = name, initials avatar
-  (`Avatar size="xs"`), step chip (tinted like its column), score tag.
+- `types.ts` mirrors the API shapes (`InterviewStep`, `CandidateSummary`); `pages/PositionDetail.tsx` (`/positions/:id`)
+  renders the board from `usePositionBoard`.
+- `KanbanBoard` sorts steps by `orderIndex` then `id`, resolves each candidate's step **name** to the first step with
+  that name (step names are not unique in the schema; a card renders once) and groups by step **id**, lays columns in a
+  row (`md`+) or a column (mobile). Candidates whose step is not in the flow are listed under the board ("Fuera del
+  flujo") and a flow with zero steps shows a message instead of a blank board (seed: `/positions/2`). `KanbanColumn` =
+  title + tinted swimlane; its "Sin candidatos" placeholder stays mounted while a card hovers (only fades) so the
+  droppable's content does not change mid-drag. `CandidateCard` = name, initials avatar (`Avatar size="xs"`), step chip
+  (tinted like its column), score tag.
 - `tints.ts`: column tint cycles by position over `bg.secondary → bg.info → bg.attention → bg.success` (D14); the
   chip dot uses the matching `border.*` token. Figma tints by task status; steps are dynamic so tint is positional only.
 - Typography mapping from the Figma board (which uses raw Inter, not the file's text styles — D10): Bold 24 → `title`,
@@ -156,6 +165,11 @@ write the code**, review and run things for them.
 - `Alert` is themed in `theme/components/alert.ts` (semantic tokens per colorScheme), so `Alert` and `useToast`
   (default variant `subtle`, set in `App.js`) follow the theme without per-call styling. `BoardSkeleton` is the
   loading state.
+- CTA buttons are theme variants in `theme/components/button.ts`: `variant="primary" | "secondary" | "danger"` (Figma
+  CTA/Primary, CTA/Secondary, critical). `Input`/`Select` get the token styling through their default `outline` variant
+  in `theme/components/input.ts`. Both carry `_focusVisible` (`shadows.focus`, a 2px ring on `border.brand`) and
+  `_disabled` (`bg.disabled`/`text.disabled`), so call sites never repeat bg/hover/active/focus props. The theme files
+  import part anatomies from `@chakra-ui/anatomy` (declared in `package.json`, `@chakra-ui/react` does not re-export it).
 - Token audit: `grep -nE '#[0-9a-fA-F]{3,6}|[0-9]+px' src/components/kanban src/pages src/hooks src/theme/components`
   must only hit comments and `border="1px"`.
 - Browser-testing note: `@hello-pangea/dnd` needs `requestAnimationFrame`; with the Claude Browser pane hidden the tab

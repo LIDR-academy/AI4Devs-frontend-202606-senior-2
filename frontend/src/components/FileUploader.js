@@ -49,25 +49,9 @@ const FileUploader = ({ onChange, onUpload }) => {
           type="file"
           onChange={handleFileChange}
           aria-label="File"
-          bg="bg.primary"
-          borderColor="border.subdue"
-          borderRadius="card"
-          textStyle="bodyMd"
-          color="text.primary"
           pt={1}
         />
-        <Button
-          variant="outline"
-          onClick={handleFileUpload}
-          bg="cta.secondary.base"
-          borderColor="border.brand"
-          color="text.brand"
-          _hover={{ bg: 'cta.secondary.hover' }}
-          _active={{ bg: 'cta.secondary.pressed' }}
-          borderRadius="card"
-          textStyle="bodyMdEmphasis"
-          flexShrink={0}
-        >
+        <Button variant="secondary" onClick={handleFileUpload} flexShrink={0}>
           {loading ? (
             <Spinner size="sm" />
           ) : (

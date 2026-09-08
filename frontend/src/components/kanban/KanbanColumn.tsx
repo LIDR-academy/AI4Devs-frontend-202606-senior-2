@@ -34,8 +34,9 @@ const KanbanColumn: React.FC<Props> = ({ step, candidates, tint }) => (
           p={6}
           spacing={6}
         >
-          {candidates.length === 0 && !snapshot.isDraggingOver && (
-            <Text textStyle="bodySm" color="text.subdue">
+          {candidates.length === 0 && (
+            // Stays mounted while a card hovers (only fades) so the droppable's content does not change mid-drag.
+            <Text textStyle="bodySm" color="text.subdue" opacity={snapshot.isDraggingOver ? 0 : 1}>
               Sin candidatos
             </Text>
           )}

@@ -116,3 +116,17 @@ Herramienta: Claude Code (Opus / Fable) con MCP de Figma, Context7 y navegador i
 > (¿popup del datepicker con su propio CSS?) sí
 
 **Resultado:** `pages/AddCandidateForm.js` y `components/FileUploader.js` restilados con Chakra + tokens, bloque de estado/handlers/fetch byte-idéntico (verificado con `diff`); `bootstrap` y `react-bootstrap` desinstalados; `CI=true npm run build` vuelve a pasar. Verificado E2E: alta de candidato con CV → 201 y `Alert` de éxito; error 400 → `Alert` con tokens. Bugs preexistentes del formulario (fechas UTC + Prisma, CV sin subir, `description`, `uploads/` inexistente) documentados como deuda en `CLAUDE.md`, sin tocar.
+
+### Revisión previa al PR
+
+> 1- Sí, ambas [`/code-review frontend-JA high` y `/security-review`] · 2- Yo diría que [la deuda del formulario] está fuera de scope, pero verifica en el enunciado · 3- De momento esperamos para la PR · 4- Eran pruebas, resetea todo al terminar
+
+> antes de ponerte a ejecutar nada genera un plan
+
+> y no arregles nada que no sea de código que hayamos escrito nosotros
+
+> Apply these 10 code-review findings with the minimal edits [desde la UI de la revisión]
+
+**Hallazgos:** security review sin vulnerabilidades. Code review (8 ángulos, 16 candidatos verificados, 0 refutados, 10 reportados): `/positions/2` (flujo sin fases) quedaba en blanco y los candidatos con fase desconocida desaparecían; cualquier 404 del backend se mostraba como "no existe"; un PUT antiguo fallido podía deshacer un movimiento posterior; agrupación por *nombre* de fase (no único en el esquema) → tarjetas duplicadas; swatches de `space` en `/foundations` resolvían contra `sizes` (`2xs` = 256px); `@chakra-ui/anatomy` sin declarar; "Sin candidatos" se desmontaba en mitad del drag; enlaces convertidos en `onClick={navigate}` y títulos sin jerarquía; estilos de CTA y de campos copiados en 7 y 3 sitios, sin focus/disabled tokenizados; px crudos en `Foundations.tsx`.
+
+**Resultado (solo código nuestro, backend y lógica heredada sin tocar):** `KanbanBoard` agrupa por id resolviendo cada nombre a su primera fase, lista los candidatos "Fuera del flujo" y avisa si no hay fases; `usePositionBoard` solo mapea a `notFound` el 404 con `error: "Position not found"` y descarta el rollback de un movimiento superado (`latestMove`); `theme/components/button.ts` (`primary | secondary | danger`) e `input.ts` (`Input`/`Select` `outline`) con `shadows.focus` y estados disabled, aplicados en todas las páginas (en el formulario heredado solo cambian props de estilo); enlaces reales con `Button as={RouterLink}`; `Foundations` sin px crudos y con swatches por valor; `@chakra-ui/anatomy` declarado. Verificado: `tsc`, `CI=true npm run build`, auditoría de tokens limpia, `/positions/2` muestra el aviso, enlaces con `href`, anillo de foco 2px brand; guard del hook, mapeo 404 y agrupación cubiertos con un test Jest temporal (4/4, eliminado después: CRA no resuelve los `exports` de Chakra sin mocks). DnD no verificable en el navegador con el panel oculto (rAF parado). BD intacta (seed).

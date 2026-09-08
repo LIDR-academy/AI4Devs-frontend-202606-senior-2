@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Flex } from '@chakra-ui/react';
+import { Flex, Stack, Text } from '@chakra-ui/react';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
 import KanbanColumn from './KanbanColumn';
 import { CandidateSummary, InterviewStep } from './types';
@@ -24,15 +24,23 @@ const byScore = (a: CandidateSummary, b: CandidateSummary) =>
 const KanbanBoard: React.FC<Props> = ({ steps, candidates, onMove }) => {
   const orderedSteps = useMemo(() => [...steps].sort(byOrder), [steps]);
 
-  // The API identifies a candidate's step by name, so grouping is by step name.
-  const candidatesByStep = useMemo(() => {
-    const groups = candidates.reduce<Record<string, CandidateSummary[]>>((acc, candidate) => {
-      (acc[candidate.currentInterviewStep] ??= []).push(candidate);
-      return acc;
-    }, {});
+  // The API identifies a candidate's step by name while columns (and the PUT) use the step id, so each name is
+  // resolved to the first step carrying it: a candidate lands in exactly one column even if names repeat.
+  const { candidatesByStep, unassigned } = useMemo(() => {
+    const stepIdByName = new Map<string, number>();
+    orderedSteps.forEach((step) => {
+      if (!stepIdByName.has(step.name)) stepIdByName.set(step.name, step.id);
+    });
+    const groups: Record<number, CandidateSummary[]> = {};
+    const unmatched: CandidateSummary[] = [];
+    candidates.forEach((candidate) => {
+      const stepId = stepIdByName.get(candidate.currentInterviewStep);
+      if (stepId === undefined) unmatched.push(candidate);
+      else (groups[stepId] ??= []).push(candidate);
+    });
     Object.values(groups).forEach((group) => group.sort(byScore));
-    return groups;
-  }, [candidates]);
+    return { candidatesByStep: groups, unassigned: unmatched.sort(byScore) };
+  }, [orderedSteps, candidates]);
 
   const onDragEnd = useCallback(
     ({ source, destination, draggableId }: DropResult) => {
@@ -42,24 +50,42 @@ const KanbanBoard: React.FC<Props> = ({ steps, candidates, onMove }) => {
       const toStep = steps.find((s) => String(s.id) === destination.droppableId);
       if (candidate && toStep) onMove(candidate, toStep);
     },
-    [candidates, steps, onMove]
+    [candidates, steps, onMove],
   );
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <Flex
-        bg="bg.primary"
-        borderRadius="board"
-        p={{ base: 4, md: 10 }}
-        gap={6}
-        direction={{ base: 'column', md: 'row' }}
-        align="stretch"
-        overflowX={{ md: 'auto' }}
-      >
-        {orderedSteps.map((step, index) => (
-          <KanbanColumn key={step.id} step={step} candidates={candidatesByStep[step.name] ?? []} tint={tintFor(index)} />
-        ))}
-      </Flex>
+      <Stack spacing={4}>
+        <Flex
+          bg="bg.primary"
+          borderRadius="board"
+          p={{ base: 4, md: 10 }}
+          gap={6}
+          direction={{ base: 'column', md: 'row' }}
+          align="stretch"
+          overflowX={{ md: 'auto' }}
+        >
+          {orderedSteps.length === 0 && (
+            <Text textStyle="bodyMd" color="text.subdue">
+              Esta posición no tiene fases de entrevista definidas.
+            </Text>
+          )}
+          {orderedSteps.map((step, index) => (
+            <KanbanColumn
+              key={step.id}
+              step={step}
+              candidates={candidatesByStep[step.id] ?? []}
+              tint={tintFor(index)}
+            />
+          ))}
+        </Flex>
+        {unassigned.length > 0 && (
+          <Text textStyle="bodySm" color="text.attention">
+            Fuera del flujo (fase no reconocida):{' '}
+            {unassigned.map((c) => `${c.fullName} · ${c.currentInterviewStep}`).join(', ')}
+          </Text>
+        )}
+      </Stack>
     </DragDropContext>
   );
 };

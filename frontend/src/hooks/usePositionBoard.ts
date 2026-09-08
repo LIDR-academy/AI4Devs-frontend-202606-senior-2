@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useToast } from '@chakra-ui/react';
 import axios from 'axios';
 import { CandidateSummary, InterviewStep } from '../components/kanban/types';
@@ -14,6 +14,8 @@ export const usePositionBoard = (positionId: number | null) => {
   const [steps, setSteps] = useState<InterviewStep[]>([]);
   const [candidates, setCandidates] = useState<CandidateSummary[]>([]);
   const toast = useToast();
+  // Latest move per application: a failed PUT only rolls back if no newer move superseded it.
+  const latestMove = useRef<Record<number, number>>({});
 
   useEffect(() => {
     if (positionId === null) {
@@ -32,7 +34,13 @@ export const usePositionBoard = (positionId: number | null) => {
       })
       .catch((error: unknown) => {
         if (cancelled) return;
-        setStatus(axios.isAxiosError(error) && error.response?.status === 404 ? 'notFound' : 'error');
+        // The interviewflow controller answers 404 to *any* thrown error (DB down included), echoing the error
+        // message in `error`; only the service's own "Position not found" means the position does not exist.
+        const isNotFound =
+          axios.isAxiosError(error) &&
+          error.response?.status === 404 &&
+          (error.response.data as { error?: string } | undefined)?.error === 'Position not found';
+        setStatus(isNotFound ? 'notFound' : 'error');
       });
     return () => {
       cancelled = true;
@@ -43,15 +51,18 @@ export const usePositionBoard = (positionId: number | null) => {
   const moveCandidate = useCallback(
     async (candidate: CandidateSummary, toStep: InterviewStep) => {
       const previousStep = candidate.currentInterviewStep;
+      const moveId = (latestMove.current[candidate.applicationId] ?? 0) + 1;
+      latestMove.current[candidate.applicationId] = moveId;
       const setStep = (stepName: string) =>
         setCandidates((list) =>
-          list.map((c) => (c.applicationId === candidate.applicationId ? { ...c, currentInterviewStep: stepName } : c))
+          list.map((c) => (c.applicationId === candidate.applicationId ? { ...c, currentInterviewStep: stepName } : c)),
         );
 
       setStep(toStep.name);
       try {
         await updateCandidateStage(candidate.id, candidate.applicationId, toStep.id);
       } catch {
+        if (latestMove.current[candidate.applicationId] !== moveId) return;
         setStep(previousStep);
         toast({
           status: 'error',
@@ -61,7 +72,7 @@ export const usePositionBoard = (positionId: number | null) => {
         });
       }
     },
-    [toast]
+    [toast],
   );
 
   return { status, positionName, steps, candidates, moveCandidate };

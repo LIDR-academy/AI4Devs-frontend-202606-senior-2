@@ -1,7 +1,18 @@
 import React from 'react';
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Button, HStack, IconButton, Stack, Text } from '@chakra-ui/react';
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Box,
+  Button,
+  HStack,
+  IconButton,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { ArrowLeft } from 'react-bootstrap-icons';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link as RouterLink, useParams } from 'react-router-dom';
 import KanbanBoard from '../components/kanban/KanbanBoard';
 import BoardSkeleton from '../components/kanban/BoardSkeleton';
 import { usePositionBoard } from '../hooks/usePositionBoard';
@@ -15,10 +26,8 @@ const parsePositionId = (raw: string | undefined): number | null => {
 };
 
 const PositionDetail: React.FC = () => {
-  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { status, positionName, steps, candidates, moveCandidate } = usePositionBoard(parsePositionId(id));
-  const goBack = () => navigate('/positions');
 
   return (
     <Box bg="bg.tertiary" minH="100vh" p={{ base: 4, md: 12 }}>
@@ -29,7 +38,9 @@ const PositionDetail: React.FC = () => {
           <Alert status="error">
             <AlertIcon />
             <Box>
-              <AlertTitle>{status === 'notFound' ? 'Posición no encontrada' : 'No se pudo cargar la posición'}</AlertTitle>
+              <AlertTitle>
+                {status === 'notFound' ? 'Posición no encontrada' : 'No se pudo cargar la posición'}
+              </AlertTitle>
               <AlertDescription>
                 {status === 'notFound'
                   ? `No existe ninguna posición con id ${id}.`
@@ -37,16 +48,7 @@ const PositionDetail: React.FC = () => {
               </AlertDescription>
             </Box>
           </Alert>
-          <Button
-            leftIcon={<ArrowLeft />}
-            onClick={goBack}
-            bg="cta.primary.base"
-            color="text.primaryInverse"
-            _hover={{ bg: 'cta.primary.hover' }}
-            _active={{ bg: 'cta.primary.pressed' }}
-            borderRadius="card"
-            textStyle="bodyMdEmphasis"
-          >
+          <Button as={RouterLink} to="/positions" leftIcon={<ArrowLeft />} variant="primary">
             Volver a posiciones
           </Button>
         </Stack>
@@ -56,11 +58,12 @@ const PositionDetail: React.FC = () => {
         <>
           <HStack as="header" spacing={3} mb={4}>
             <IconButton
+              as={RouterLink}
+              to="/positions"
               aria-label="Volver a posiciones"
               icon={<ArrowLeft size={24} />}
               variant="ghost"
               color="text.primary"
-              onClick={goBack}
             />
             <Text as="h1" textStyle="title" color="text.primary">
               {positionName}

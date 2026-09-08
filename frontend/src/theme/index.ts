@@ -7,6 +7,8 @@ import { radii } from './foundations/radii';
 import { shadows } from './foundations/shadows';
 import { semanticTokens } from './semanticTokens';
 import { Alert } from './components/alert';
+import { Button } from './components/button';
+import { Input, Select } from './components/input';
 
 const config: ThemeConfig = {
   initialColorMode: 'light',
@@ -24,7 +26,7 @@ export const theme = extendTheme({
   radii,
   shadows,
   semanticTokens,
-  components: { Alert },
+  components: { Alert, Button, Input, Select },
   styles: {
     global: {
       body: {

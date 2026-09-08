@@ -19,24 +19,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 // Restyled from react-bootstrap to Chakra + theme tokens. State, handlers and the fetch call are unchanged
 // (see CLAUDE.md > "Known debt" for the behaviours deliberately left as they were).
 
-const fieldProps = {
-    bg: 'bg.primary',
-    borderColor: 'border.subdue',
-    borderRadius: 'card',
-    textStyle: 'bodyMd',
-    color: 'text.primary',
-    _placeholder: { color: 'text.subdue' },
-};
-
-const primaryButtonProps = {
-    bg: 'cta.primary.base',
-    color: 'text.primaryInverse',
-    _hover: { bg: 'cta.primary.hover' },
-    _active: { bg: 'cta.primary.pressed' },
-    borderRadius: 'card',
-    textStyle: 'bodyMdEmphasis',
-};
-
 const AddCandidateForm = () => {
     const [candidate, setCandidate] = useState({
         firstName: '',
@@ -136,7 +118,7 @@ const AddCandidateForm = () => {
             onChange={onChange}
             dateFormat="yyyy-MM-dd"
             placeholderText={placeholderText}
-            customInput={<Input {...fieldProps} />}
+            customInput={<Input />}
         />
     );
 
@@ -154,7 +136,6 @@ const AddCandidateForm = () => {
                                 type="text"
                                 name="firstName"
                                 onChange={(e) => setCandidate({ ...candidate, firstName: e.target.value })}
-                                {...fieldProps}
                             />
                         </FormControl>
                         <FormControl id="lastName" isRequired>
@@ -163,7 +144,6 @@ const AddCandidateForm = () => {
                                 type="text"
                                 name="lastName"
                                 onChange={(e) => setCandidate({ ...candidate, lastName: e.target.value })}
-                                {...fieldProps}
                             />
                         </FormControl>
                         <FormControl id="email" isRequired>
@@ -172,7 +152,6 @@ const AddCandidateForm = () => {
                                 type="email"
                                 name="email"
                                 onChange={(e) => setCandidate({ ...candidate, email: e.target.value })}
-                                {...fieldProps}
                             />
                         </FormControl>
                         <FormControl id="phone">
@@ -181,7 +160,6 @@ const AddCandidateForm = () => {
                                 type="tel"
                                 name="phone"
                                 onChange={(e) => setCandidate({ ...candidate, phone: e.target.value })}
-                                {...fieldProps}
                             />
                         </FormControl>
                         <FormControl id="address">
@@ -190,7 +168,6 @@ const AddCandidateForm = () => {
                                 type="text"
                                 name="address"
                                 onChange={(e) => setCandidate({ ...candidate, address: e.target.value })}
-                                {...fieldProps}
                             />
                         </FormControl>
                     </Stack>
@@ -202,7 +179,7 @@ const AddCandidateForm = () => {
                                 onUpload={handleCVUpload}
                             />
                         </FormControl>
-                        <Button size="sm" onClick={() => handleAddSection('educations')} {...primaryButtonProps}>Añadir Educación</Button>
+                        <Button size="sm" onClick={() => handleAddSection('educations')} variant="primary">Añadir Educación</Button>
                         {candidate.educations.map((education, index) => (
                             <Stack key={index} spacing={2} w="full" align="flex-start">
                                 <Input
@@ -210,25 +187,23 @@ const AddCandidateForm = () => {
                                     name="institution"
                                     value={education.institution}
                                     onChange={(e) => handleInputChange(e, index, 'educations')}
-                                    {...fieldProps}
                                 />
                                 <Input
                                     placeholder="Título"
                                     name="title"
                                     value={education.title}
                                     onChange={(e) => handleInputChange(e, index, 'educations')}
-                                    {...fieldProps}
                                 />
                                 <SimpleGrid columns={2} spacing={2} w="full">
                                     {renderDatePicker(education.startDate, (date) => handleDateChange(date, index, 'educations', 'startDate'), 'Fecha de Inicio')}
                                     {renderDatePicker(education.endDate, (date) => handleDateChange(date, index, 'educations', 'endDate'), 'Fecha de Fin')}
                                 </SimpleGrid>
-                                <Button size="sm" leftIcon={<Trash />} bg="bg.critical" color="text.critical" borderRadius="card" textStyle="bodyMdEmphasis" onClick={() => handleRemoveSection(index, 'educations')}>
+                                <Button size="sm" leftIcon={<Trash />} variant="danger" onClick={() => handleRemoveSection(index, 'educations')}>
                                     Eliminar
                                 </Button>
                             </Stack>
                         ))}
-                        <Button size="sm" onClick={() => handleAddSection('workExperiences')} {...primaryButtonProps}>Añadir Experiencia Laboral</Button>
+                        <Button size="sm" onClick={() => handleAddSection('workExperiences')} variant="primary">Añadir Experiencia Laboral</Button>
                         {candidate.workExperiences.map((experience, index) => (
                             <Stack key={index} spacing={2} w="full" align="flex-start">
                                 <Input
@@ -236,27 +211,25 @@ const AddCandidateForm = () => {
                                     name="company"
                                     value={experience.company}
                                     onChange={(e) => handleInputChange(e, index, 'workExperiences')}
-                                    {...fieldProps}
                                 />
                                 <Input
                                     placeholder="Puesto"
                                     name="position"
                                     value={experience.position}
                                     onChange={(e) => handleInputChange(e, index, 'workExperiences')}
-                                    {...fieldProps}
                                 />
                                 <SimpleGrid columns={2} spacing={2} w="full">
                                     {renderDatePicker(experience.startDate, (date) => handleDateChange(date, index, 'workExperiences', 'startDate'), 'Fecha de Inicio')}
                                     {renderDatePicker(experience.endDate, (date) => handleDateChange(date, index, 'workExperiences', 'endDate'), 'Fecha de Fin')}
                                 </SimpleGrid>
-                                <Button size="sm" leftIcon={<Trash />} bg="bg.critical" color="text.critical" borderRadius="card" textStyle="bodyMdEmphasis" onClick={() => handleRemoveSection(index, 'workExperiences')}>
+                                <Button size="sm" leftIcon={<Trash />} variant="danger" onClick={() => handleRemoveSection(index, 'workExperiences')}>
                                     Eliminar
                                 </Button>
                             </Stack>
                         ))}
                     </Stack>
                 </SimpleGrid>
-                <Button type="submit" w="full" mt={6} {...primaryButtonProps}>Enviar</Button>
+                <Button type="submit" w="full" mt={6} variant="primary">Enviar</Button>
                 {error && <Alert status="error" mt={4}><AlertIcon />{error}</Alert>}
                 {successMessage && <Alert status="success" mt={4}><AlertIcon />{successMessage}</Alert>}
             </Box>
