@@ -52,7 +52,7 @@ const lines = [
 ];
 for (const m of Object.keys(palette)) {
   lines.push(`  ${m}: {`);
-  for (const hue of Object.keys(palette[m]).sort()) {
+  for (const hue of Object.keys(palette[m]).sort((a, b) => a.localeCompare(b))) {
     lines.push(`    ${hue}: {`);
     const steps = Object.keys(palette[m][hue]).sort((a, b) => STEP_ORDER.indexOf(a) - STEP_ORDER.indexOf(b));
     for (const step of steps) {

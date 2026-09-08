@@ -35,11 +35,18 @@ const KanbanBoard: React.FC<Props> = ({ steps, candidates, onMove }) => {
     const unmatched: CandidateSummary[] = [];
     candidates.forEach((candidate) => {
       const stepId = stepIdByName.get(candidate.currentInterviewStep);
-      if (stepId === undefined) unmatched.push(candidate);
-      else (groups[stepId] ??= []).push(candidate);
+      if (stepId === undefined) {
+        unmatched.push(candidate);
+      } else {
+        groups[stepId] ??= [];
+        groups[stepId].push(candidate);
+      }
     });
-    Object.values(groups).forEach((group) => group.sort(byScore));
-    return { candidatesByStep: groups, unassigned: unmatched.sort(byScore) };
+    Object.values(groups).forEach((group) => {
+      group.sort(byScore);
+    });
+    unmatched.sort(byScore);
+    return { candidatesByStep: groups, unassigned: unmatched };
   }, [orderedSteps, candidates]);
 
   const onDragEnd = useCallback(
