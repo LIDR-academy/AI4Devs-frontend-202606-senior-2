@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+const API_BASE_URL = 'http://localhost:3010';
+
 export const uploadCV = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -22,5 +24,17 @@ export const sendCandidateData = async (candidateData) => {
         return response.data;
     } catch (error) {
         throw new Error('Error al enviar datos del candidato:', error.response.data);
+    }
+};
+
+export const updateCandidateStage = async (candidateId, applicationId, currentInterviewStep) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/candidates/${candidateId}`, {
+            applicationId,
+            currentInterviewStep
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error('Error al actualizar el estado del candidato:', error.response?.data);
     }
 };
