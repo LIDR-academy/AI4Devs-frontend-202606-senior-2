@@ -130,3 +130,13 @@ Herramienta: Claude Code (Opus / Fable) con MCP de Figma, Context7 y navegador i
 **Hallazgos:** security review sin vulnerabilidades. Code review (8 ángulos, 16 candidatos verificados, 0 refutados, 10 reportados): `/positions/2` (flujo sin fases) quedaba en blanco y los candidatos con fase desconocida desaparecían; cualquier 404 del backend se mostraba como "no existe"; un PUT antiguo fallido podía deshacer un movimiento posterior; agrupación por *nombre* de fase (no único en el esquema) → tarjetas duplicadas; swatches de `space` en `/foundations` resolvían contra `sizes` (`2xs` = 256px); `@chakra-ui/anatomy` sin declarar; "Sin candidatos" se desmontaba en mitad del drag; enlaces convertidos en `onClick={navigate}` y títulos sin jerarquía; estilos de CTA y de campos copiados en 7 y 3 sitios, sin focus/disabled tokenizados; px crudos en `Foundations.tsx`.
 
 **Resultado (solo código nuestro, backend y lógica heredada sin tocar):** `KanbanBoard` agrupa por id resolviendo cada nombre a su primera fase, lista los candidatos "Fuera del flujo" y avisa si no hay fases; `usePositionBoard` solo mapea a `notFound` el 404 con `error: "Position not found"` y descarta el rollback de un movimiento superado (`latestMove`); `theme/components/button.ts` (`primary | secondary | danger`) e `input.ts` (`Input`/`Select` `outline`) con `shadows.focus` y estados disabled, aplicados en todas las páginas (en el formulario heredado solo cambian props de estilo); enlaces reales con `Button as={RouterLink}`; `Foundations` sin px crudos y con swatches por valor; `@chakra-ui/anatomy` declarado. Verificado: `tsc`, `CI=true npm run build`, auditoría de tokens limpia, `/positions/2` muestra el aviso, enlaces con `href`, anillo de foco 2px brand; guard del hook, mapeo 404 y agrupación cubiertos con un test Jest temporal (4/4, eliminado después: CRA no resuelve los `exports` de Chakra sin mocks). DnD no verificable en el navegador con el panel oculto (rAF parado). BD intacta (seed).
+
+### PR
+
+> ya he verificado yo el drag and drop
+
+> vamos a hacer la PR. Hay que mencionar que hemos querido aumentar el scope a hacer un flujo de Figma -> React y por eso hemos quitado Bootstrap y hemos metido Chakra
+
+> No, la PR tiene que ser de mi fork hacia el repo principal
+
+**Resultado:** PR desde `7daysofrain:frontend-JA` hacia `LIDR-academy:main` con `gh pr create`, explicando la ampliación de alcance (flujo Figma → tokens → React, Chakra en lugar de Bootstrap), el contrato real de la API, la verificación y la deuda conocida.
