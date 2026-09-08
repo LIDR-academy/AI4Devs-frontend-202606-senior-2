@@ -110,3 +110,9 @@ Herramienta: Claude Code (Opus / Fable) con MCP de Figma, Context7 y navegador i
 **Hallazgos:** `/` y `/add-candidate` (384 líneas) quedaron sin estilo tras D5; recargar Bootstrap global rompe la geometría de las pantallas Chakra (reboot: `p { margin-bottom: 1rem }`); Bootstrap 5.3 permite theming por CSS vars pero con menos granularidad que `semanticTokens`.
 
 **Decisión:** (b) migrar a Chakra; primero la home (`pages/RecruiterDashboard.tsx`, tokens, `sizes.logo`), formulario de alta pendiente.
+
+> La idea en este último paso es reestilar tocándolo funcionalmente lo mínimo posible. Teniendo esto en cuenta vuelve a replantearlo porque veo muchas preguntas que son de ámbito funcional
+
+> (¿popup del datepicker con su propio CSS?) sí
+
+**Resultado:** `pages/AddCandidateForm.js` y `components/FileUploader.js` restilados con Chakra + tokens, bloque de estado/handlers/fetch byte-idéntico (verificado con `diff`); `bootstrap` y `react-bootstrap` desinstalados; `CI=true npm run build` vuelve a pasar. Verificado E2E: alta de candidato con CV → 201 y `Alert` de éxito; error 400 → `Alert` con tokens. Bugs preexistentes del formulario (fechas UTC + Prisma, CV sin subir, `description`, `uploads/` inexistente) documentados como deuda en `CLAUDE.md`, sin tocar.

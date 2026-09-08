@@ -67,7 +67,7 @@ Tests live next to the code (`*.test.ts`) in `services/` and `controllers/`.
 - **`src/App.js` is the real entry** (router + Bootstrap CSS). `src/App.tsx` is untouched CRA boilerplate and is not
   imported by anything — `index.tsx` resolves `./App` to `App.js`.
 - Mixed `.js` / `.tsx` files. New code should be `.tsx`.
-- Routes: `/` (`pages/RecruiterDashboard.tsx`), `/add-candidate` (legacy react-bootstrap, unstyled — pending port), `/positions`
+- Routes: `/` (`pages/RecruiterDashboard.tsx`), `/add-candidate` (`pages/AddCandidateForm.js`, restyled, logic untouched), `/positions`
   (`pages/Positions.tsx`), `/positions/:id` (`pages/PositionDetail.tsx`), `/foundations` (`pages/Foundations.tsx`).
   Pages live in `src/pages/`, reusable pieces in `src/components/`.
 - **There is no `GET /positions` endpoint**, so the list in `pages/Positions.tsx` is a permanent mock: ids 1 and 2
@@ -119,9 +119,21 @@ write the code**, review and run things for them.
     radii `card` 4 / `column` 8 / `board` 24; `shadows.card` (board card) and `shadows.elevated` (Figma effect style, unused).
     Borders use Chakra's `border="1px"` token. All values were read from the Figma nodes via `get_design_context`, not measured.
   - Components consume semantic tokens and textStyles only — no raw hex/px in components.
-  - Bootstrap CSS is removed from `App.js`. Decision (Sep 2026): migrate everything to Chakra rather than re-adding
-    Bootstrap (its reboot breaks Chakra spacing) — `RecruiterDashboard` ported; `AddCandidateForm`/`FileUploader` still
-    on react-bootstrap and unstyled until ported.
+  - `bootstrap` and `react-bootstrap` are **uninstalled** (Sep 2026): every page is Chakra. `react-bootstrap-icons`
+    stays (icons only). `AddCandidateForm.js` / `FileUploader.js` were restyled with **zero logic changes** and kept in
+    `.js` on purpose (typing the state would mean touching logic); `react-datepicker` stays with its own popup CSS.
+
+### Known debt in `/add-candidate` (pre-existing, deliberately not fixed during the restyle)
+- Education/experience dates: `Date.toISOString().slice(0,10)` shifts the day in UTC+ zones (typed `2020-09-01` →
+  sent `2020-08-31`), and the backend passes the date-only string straight to Prisma, which rejects it
+  (`Expected ISO-8601 DateTime`). An empty `endDate: ""` is rejected the same way. Net effect: submitting with any
+  education/experience block fails with 400; without them the form works.
+- `FileUploader` calls `onChange` (raw `File`) and `onUpload` (`{filePath, fileType}`) but the form wires both to the
+  same handler: selecting a file without pressing "Subir Archivo" sends `cv: {}`.
+- Work experience state has a `description` field with no input.
+- The form uses `fetch` directly; `services/candidateService.js` (axios) exists but is unused.
+- Backend `POST /upload` writes to `../uploads` relative to the backend process cwd → the repo-root `uploads/`
+  directory must exist (create it; empty dirs are not tracked by git) or uploads fail with ENOENT/500.
 - Drag & drop: `@hello-pangea/dnd`. Use `interviewStep.id` as `droppableId`; optimistic update + rollback on failed PUT.
 - Kanban requirements: position title at top, back arrow to `/positions`, one column per interview step (sorted by
   `orderIndex`), card shows full name + average score, columns stack vertically on mobile.
