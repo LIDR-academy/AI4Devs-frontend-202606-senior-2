@@ -1,0 +1,28 @@
+.kanban-column {
+    min-width: 260px;
+    flex: 1 1 0;
+}
+
+@media (max-width: 767.98px) {
+    .kanban-column {
+        min-width: 100%;
+    }
+}
+
+.kanban-column-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.kanban-column-body.is-drop-target {
+    background-color: rgba(25, 135, 84, 0.08);
+    outline: 2px dashed #198754;
+}
+
+.kanban-card {
+    cursor: grab;
+}
+
+.kanban-card:active {
+    cursor: grabbing;
+}
