@@ -1,0 +1,187 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+> **Ignore the parent-directory `CLAUDE.md`** (`../CLAUDE.md`, the AI4Devs master starter kit). It describes a
+> different project (AdonisJS + Tailwind + shadcn). Nothing in it applies here.
+
+## What this repo is
+
+LTI — Talent Tracking System. Monorepo with two independent apps, each with its own `package.json`:
+
+- `backend/` — Express 4 + TypeScript 4.9, Prisma 5 over PostgreSQL. Port **3010**.
+- `frontend/` — Create React App 5 (`react-scripts`), React 18, TypeScript 4.9, React Router 6. Port **3000**.
+
+Current exercise (AI4Devs "frontend" module): build the `/positions/:id` kanban page. See "Exercise context" below.
+
+## Commands
+
+### Database (repo root)
+```sh
+docker compose up -d          # Postgres, credentials from root .env
+docker compose down
+```
+
+### Backend (`cd backend`)
+```sh
+npm install
+npx prisma generate
+npx prisma migrate dev        # apply migrations
+npx ts-node --transpile-only prisma/seed.ts   # seed positions, candidates, interview flows. README says `ts-node seed.ts` (wrong path);
+                                              # `--transpile-only` is required: ts-node@9 + TS 4.9 crash on type-check (`resolveTypeReferenceDirective`)
+npm run dev                   # ts-node-dev with HMR
+npm run build && npm start    # tsc → dist/
+npm test                      # jest (ts-jest); single file: npx jest src/application/services/positionService.test.ts
+```
+
+### Frontend (`cd frontend`)
+```sh
+npm install
+npm start                     # CRA dev server
+npm run build
+```
+`npm test` in the frontend points at a `jest.config.js` that does not exist — there is no working FE test setup.
+`CI=true npm run build` fails on a pre-existing eslint warning (`InputGroup` unused in `AddCandidateForm.js`); plain
+`npm run build` succeeds.
+
+## Backend architecture
+
+Request flow, one layer per directory under `backend/src/`:
+
+```
+routes/*.ts  →  presentation/controllers/*.ts  →  application/services/*.ts  →  domain/models/*.ts  →  Prisma
+```
+
+- **Routes** only wire paths to controllers. Mounted in `index.ts`: `/candidates`, `/position` (singular), `/upload`.
+- **Controllers** parse/validate params, call a service, shape the HTTP response and status codes.
+- **Services** hold use-case logic. `application/validator.ts` validates candidate payloads.
+- **Domain models** are Active-Record style classes (`new Candidate(data).save()`), each wrapping Prisma. Every model
+  file creates its own `PrismaClient` instance.
+- Prisma datasource URL is **hardcoded in `prisma/schema.prisma`**, not read from `.env` (the `.env` values happen to match).
+- CORS is restricted to `http://localhost:3000`.
+
+Tests live next to the code (`*.test.ts`) in `services/` and `controllers/`.
+
+## Frontend architecture
+
+- **`src/App.js` is the real entry** (router + Bootstrap CSS). `src/App.tsx` is untouched CRA boilerplate and is not
+  imported by anything — `index.tsx` resolves `./App` to `App.js`.
+- Mixed `.js` / `.tsx` files. New code should be `.tsx`.
+- Routes: `/` (`pages/RecruiterDashboard.tsx`), `/add-candidate` (`pages/AddCandidateForm.js`, restyled, logic untouched), `/positions`
+  (`pages/Positions.tsx`), `/positions/:id` (`pages/PositionDetail.tsx`), `/foundations` (`pages/Foundations.tsx`).
+  Pages live in `src/pages/`, reusable pieces in `src/components/`.
+- **There is no `GET /positions` endpoint**, so the list in `pages/Positions.tsx` is a permanent mock: ids 1 and 2
+  match the seeded DB, id 3 (`Product Manager`, Borrador) does not exist on purpose (error-state demo).
+- API calls go in `src/services/`: `api.ts` is the shared axios instance (`REACT_APP_API_URL`, default
+  `http://localhost:3010`); `positionService.ts` wraps the three kanban endpoints (typed, unwraps the interviewflow
+  response). Legacy `candidateService.js` still hardcodes the URL — untouched.
+- `src/hooks/usePositionBoard.ts` owns the kanban data: `status` (`loading | ready | notFound | error`), steps,
+  candidates and `moveCandidate` (optimistic update, rollback + error toast on failed PUT). A 404 counts as `notFound`
+  only when the body's `error` is `Position not found` (the interviewflow controller answers 404 to *any* thrown error,
+  DB down included); anything else is `error`. A failed PUT rolls back only if no newer move of the same application
+  superseded it (`latestMove` ref).
+- Navigation between pages uses real links (`Button as={RouterLink} to=…`, same for `IconButton`), not `navigate()` in
+  `onClick`, so middle-click/new-tab and the `link` role keep working. Card titles are `Text as="h2"`.
+- `react-scripts@5` pins `typescript` peer dep to `^4`; do not upgrade to TS 5.
+
+## API contract (real endpoints — the exercise brief has them wrong)
+
+| Brief says | Actual route | Notes |
+|---|---|---|
+| `GET /positions/:id/interviewFlow` | `GET /position/:id/interviewflow` | **Double-wrapped**: `{ interviewFlow: { positionName, interviewFlow: { id, description, interviewSteps[] } } }` (controller wraps the service result). Steps have `id`, `name`, `orderIndex`; seed has two steps with `orderIndex: 2` — sort by `orderIndex`, then `id`. |
+| `GET /positions/:id/candidates` | `GET /position/:id/candidates` | Returns `[{ fullName, currentInterviewStep (step **name**), averageScore, id (candidateId), applicationId }]`. `id`/`applicationId` are not in the brief but are returned. |
+| `PUT /candidates/:id/stage` | `PUT /candidates/:id` | `:id` = candidateId. Body `{ applicationId, currentInterviewStep }` where `currentInterviewStep` is the target **step id**. |
+
+## Exercise context and conventions
+
+Deliverables: branch `frontend-JA`, code under `frontend/`, prompts log in `prompts/prompts-JA.md` (append prompts
+as you go, per phase).
+
+Workflow is design-to-code from Figma, in phases: harness → decisions → env → design tokens (foundations) → static
+mockups → wiring API + drag & drop → PR. The user is doing the exercise to learn: **explain and guide, let the user
+write the code**, review and run things for them.
+
+- **UI library: Chakra UI v2** (`@chakra-ui/react@2` + `@emotion/react` + `@emotion/styled` + `framer-motion`).
+  Chosen because it works with CRA/TS 4.9 and `extendTheme({ semanticTokens })` maps 1:1 to the Figma variables.
+- **Design tokens live in `frontend/src/theme/`** (`foundations/{colors,typography,space,radii,shadows}.ts`,
+  `semanticTokens.ts`, `index.ts` with `extendTheme`). Decisions taken:
+  - Primitives mirror Figma names **per mode**: `colors.light.indigo.primary`, `colors.dark.indigo.primary`
+    (Figma has two primitive palettes; known anti-pattern, kept for fidelity).
+  - Semantic tokens: `bg.*`, `border.*`, `text.*`, `cta.*` as `{ default: 'light.<hue>.<step>', _dark: 'dark.<hue>.<step>' }`.
+    Where Figma's semantic color has no matching primitive (21 cases), the raw hex goes in `semanticTokens.ts` with a
+    `// no Figma primitive` comment — do not invent primitives.
+  - CTA state Figma calls "default" is `cta.<variant>.base` (`default` is Chakra's reserved light-mode condition key
+    inside a semantic token value). Use `bg="cta.primary.base"`, `_hover={{ bg: 'cta.primary.hover' }}`.
+  - Typography: `fonts.body` = IBM Plex Sans, `fonts.heading` = Montserrat (substitute for Proxima Nova). The 14 Figma
+    text styles are `textStyles` with flat camelCase keys: `bodyXs, bodySm, bodySmEmphasis, bodyMd, bodyMdEmphasis,
+    bodyLg, bodyLgEmphasis, subtitle, subtitleDeEmphasis, title, titleDeEmphasis, headline, headlineDeEmphasis, display`
+    (`<Text textStyle="bodyMd">`). Fonts loaded via Google Fonts `<link>` in `public/index.html`.
+  - `foundations/colors.ts` is GENERATED: edit `figma-export.json` and re-run `node scripts/figma-to-tokens.mjs`
+    (also prints the semantic→primitive cross-reference used to maintain `semanticTokens.ts`).
+  - `/foundations` (`src/pages/Foundations.tsx`) is living documentation of all tokens with a Light/Dark toggle — use it
+    to eyeball any token change against Figma.
+  - Spacing `2xs`(2) / 1(4) / 2(8) / 3(12) / 4(16) / 6(24) / 10(40) / 12(48); `sizes.kanbanColumn` 256, `sizes.kanbanSwimlane` 480;
+    radii `card` 4 / `column` 8 / `board` 24; `shadows.card` (board card) and `shadows.elevated` (Figma effect style, unused).
+    Borders use Chakra's `border="1px"` token. All values were read from the Figma nodes via `get_design_context`, not measured.
+  - Components consume semantic tokens and textStyles only — no raw hex/px in components.
+  - `bootstrap` and `react-bootstrap` are **uninstalled** (Sep 2026): every page is Chakra. `react-bootstrap-icons`
+    stays (icons only). `AddCandidateForm.js` / `FileUploader.js` were restyled with **zero logic changes** and kept in
+    `.js` on purpose (typing the state would mean touching logic); `react-datepicker` stays with its own popup CSS.
+
+### Known debt in `/add-candidate` (pre-existing, deliberately not fixed during the restyle)
+- Education/experience dates: `Date.toISOString().slice(0,10)` shifts the day in UTC+ zones (typed `2020-09-01` →
+  sent `2020-08-31`), and the backend passes the date-only string straight to Prisma, which rejects it
+  (`Expected ISO-8601 DateTime`). An empty `endDate: ""` is rejected the same way. Net effect: submitting with any
+  education/experience block fails with 400; without them the form works.
+- `FileUploader` calls `onChange` (raw `File`) and `onUpload` (`{filePath, fileType}`) but the form wires both to the
+  same handler: selecting a file without pressing "Subir Archivo" sends `cv: {}`.
+- Work experience state has a `description` field with no input.
+- The form uses `fetch` directly; `services/candidateService.js` (axios) exists but is unused.
+- Backend `POST /upload` writes to `../uploads` relative to the backend process cwd → the repo-root `uploads/`
+  directory must exist (create it; empty dirs are not tracked by git) or uploads fail with ENOENT/500.
+- Drag & drop: `@hello-pangea/dnd`. Use `interviewStep.id` as `droppableId`; optimistic update + rollback on failed PUT.
+- Kanban requirements: position title at top, back arrow to `/positions`, one column per interview step (sorted by
+  `orderIndex`), card shows full name + average score, columns stack vertically on mobile.
+
+### Kanban components (`src/components/kanban/`)
+- `types.ts` mirrors the API shapes (`InterviewStep`, `CandidateSummary`); `pages/PositionDetail.tsx` (`/positions/:id`)
+  renders the board from `usePositionBoard`.
+- `KanbanBoard` sorts steps by `orderIndex` then `id`, resolves each candidate's step **name** to the first step with
+  that name (step names are not unique in the schema; a card renders once) and groups by step **id**, lays columns in a
+  row (`md`+) or a column (mobile). Candidates whose step is not in the flow are listed under the board ("Fuera del
+  flujo") and a flow with zero steps shows a message instead of a blank board (seed: `/positions/2`). `KanbanColumn` =
+  title + tinted swimlane; its "Sin candidatos" placeholder stays mounted while a card hovers (only fades) so the
+  droppable's content does not change mid-drag. `CandidateCard` = name, initials avatar (`Avatar size="xs"`), step chip
+  (tinted like its column), score tag.
+- `tints.ts`: column tint cycles by position over `bg.secondary → bg.info → bg.attention → bg.success` (D14); the
+  chip dot uses the matching `border.*` token. Figma tints by task status; steps are dynamic so tint is positional only.
+- Typography mapping from the Figma board (which uses raw Inter, not the file's text styles — D10): Bold 24 → `title`,
+  Medium 16 → `bodyLgEmphasis`, Regular 12 → `bodySm`. Raw board colours without a semantic token map to the closest
+  one (D11): `#D6D8DB`→`border.subdue`, `#6C6C6C`/`#52565C`→`text.subdue`, `#000`→`text.primary`.
+- Drag & drop: `@hello-pangea/dnd`. `droppableId = String(step.id)`, `draggableId = String(applicationId)`;
+  `KanbanBoard.onDragEnd` ignores drops outside or in the same column (no manual order is persisted) and calls
+  `onMove(candidate, toStep)`. Within a column cards sort by `averageScore` desc, then `applicationId` asc.
+  Drag feedback: card `boxShadow="elevated"`, target column `borderColor="border.brand"`.
+- `Alert` is themed in `theme/components/alert.ts` (semantic tokens per colorScheme), so `Alert` and `useToast`
+  (default variant `subtle`, set in `App.js`) follow the theme without per-call styling. `BoardSkeleton` is the
+  loading state.
+- CTA buttons are theme variants in `theme/components/button.ts`: `variant="primary" | "secondary" | "danger"` (Figma
+  CTA/Primary, CTA/Secondary, critical). `Input`/`Select` get the token styling through their default `outline` variant
+  in `theme/components/input.ts`. Both carry `_focusVisible` (`shadows.focus`, a 2px ring on `border.brand`) and
+  `_disabled` (`bg.disabled`/`text.disabled`), so call sites never repeat bg/hover/active/focus props. The theme files
+  import part anatomies from `@chakra-ui/anatomy` (declared in `package.json`, `@chakra-ui/react` does not re-export it).
+- Token audit: `grep -nE '#[0-9a-fA-F]{3,6}|[0-9]+px' src/components/kanban src/pages src/hooks src/theme/components`
+  must only hit comments and `border="1px"`.
+- Browser-testing note: `@hello-pangea/dnd` needs `requestAnimationFrame`; with the Claude Browser pane hidden the tab
+  reports `document.hidden=true` and drags (mouse or keyboard) never lift. Show the pane before testing DnD.
+
+### Figma source (Figma MCP)
+- File key: `cfFXOqhi8z4mqlhXrYA5I9` ("Simple Kanban by Pratyush", duplicated into the MDIUW team).
+- Board frame: `1:1989` (`Simple Kanban`, inside `1:2457` `Team Kanban`). Columns are named `Column`, cards `Card`.
+- Component page `1:2` ("Kanban tiles"): `Card` master `1:25`, `Status` variant set `1:60`, `Assignee Tile` `1:12`, `Tag` `1:42`.
+- The file has **no variable collections**. Colors are **paint styles** named `Light/...` and `Dark/...` (the mode is a
+  name prefix, not a real Figma mode): semantic (`Background/*`, `Border/*`, `Text & icon/*`, `CTA/*`) over primitives
+  (`General UI/<hue>/<Primary|Secondary|Tertiary|Quaternary>`). Typography comes from text styles (IBM Plex Sans for
+  body, Proxima Nova for headings — proprietary, needs a substitute). One effect style `Shadow`. No spacing tokens —
+  define a scale (4/8/12/16/24). Raw export: `frontend/src/theme/figma-export.json`.
+- Always load the `figma:figma-design-to-code` skill before `get_design_context`, and `figma:figma-use` before `use_figma`.
