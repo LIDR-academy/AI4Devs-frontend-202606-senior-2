@@ -100,3 +100,13 @@ Herramienta: Claude Code (Opus / Fable) con MCP de Figma, Context7 y navegador i
 **Resultado:** `services/api.ts` + `positionService.ts`, `hooks/usePositionBoard.ts`, `theme/components/alert.ts`, `BoardSkeleton`, dnd en `KanbanBoard/Column/CandidateCard`, `PositionDetail` por estados (`/positions/3` y `/positions/abc` → "Posición no encontrada"), "Ver proceso" navega; `mock.ts` eliminado.
 
 ## Fase 6 · Entrega
+
+> Yo creo que hemos eliminado bootstrap de manera prematura, hay páginas que se han quedado sin estilo, por ejemplo la home
+
+> Yo aquí veo tres posibilidades. a) Poner y quitar Bootstrap dependiendo de la pantalla b) Migrar todo a Chakra c) Rehacer las pantallas nuevas con Bootstrap. Me inclino más por la última ya que Bootstrap estaba en el proyecto inicialmente. Por favor valora blast radius, pros y cons de cada una de ellas
+
+> Vamos con la b, empieza por la home
+
+**Hallazgos:** `/` y `/add-candidate` (384 líneas) quedaron sin estilo tras D5; recargar Bootstrap global rompe la geometría de las pantallas Chakra (reboot: `p { margin-bottom: 1rem }`); Bootstrap 5.3 permite theming por CSS vars pero con menos granularidad que `semanticTokens`.
+
+**Decisión:** (b) migrar a Chakra; primero la home (`pages/RecruiterDashboard.tsx`, tokens, `sizes.logo`), formulario de alta pendiente.
