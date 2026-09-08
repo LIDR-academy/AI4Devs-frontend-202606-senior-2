@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import RecruiterDashboard from './components/RecruiterDashboard';
+import RecruiterDashboard from './pages/RecruiterDashboard';
 import AddCandidate from './components/AddCandidateForm'; 
 import Positions from './pages/Positions';
 import Foundations from './pages/Foundations';
