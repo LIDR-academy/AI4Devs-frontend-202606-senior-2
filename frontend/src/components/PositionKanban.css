@@ -1,0 +1,19 @@
+.kanban-column {
+    width: 100%;
+}
+
+.kanban-column-body {
+    min-height: 120px;
+}
+
+.kanban-dot {
+    width: 10px;
+    height: 10px;
+}
+
+@media (min-width: 992px) {
+    .kanban-column {
+        width: 280px;
+        flex: 0 0 280px;
+    }
+}

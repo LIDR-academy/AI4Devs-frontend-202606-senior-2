@@ -25,4 +25,7 @@ yarn-error.log*
 .idea
 .vscode
 
+# web-inspector MCP browser profile/screenshots
+**/.mcp-web-inspector
+
 # .env
