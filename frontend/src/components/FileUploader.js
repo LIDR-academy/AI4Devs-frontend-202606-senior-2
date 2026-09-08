@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Button, InputGroup, FormControl, Spinner } from 'react-bootstrap';
+import { Button, HStack, Input, Spinner, Stack, Text } from '@chakra-ui/react';
+
+// Restyled from react-bootstrap to Chakra + theme tokens. State and the upload call are unchanged.
 
 const FileUploader = ({ onChange, onUpload }) => {
   const [file, setFile] = useState(null);
@@ -41,29 +43,45 @@ const FileUploader = ({ onChange, onUpload }) => {
   };
 
   return (
-    <div>
-      <InputGroup className="mb-3">
-        <FormControl
+    <Stack spacing={2} align="flex-start">
+      <HStack spacing={2} w="full">
+        <Input
           type="file"
           onChange={handleFileChange}
           aria-label="File"
-          aria-describedby="basic-addon2"
+          bg="bg.primary"
+          borderColor="border.subdue"
+          borderRadius="card"
+          textStyle="bodyMd"
+          color="text.primary"
+          pt={1}
         />
-        <Button variant="outline-secondary" onClick={handleFileUpload}>
+        <Button
+          variant="outline"
+          onClick={handleFileUpload}
+          bg="cta.secondary.base"
+          borderColor="border.brand"
+          color="text.brand"
+          _hover={{ bg: 'cta.secondary.hover' }}
+          _active={{ bg: 'cta.secondary.pressed' }}
+          borderRadius="card"
+          textStyle="bodyMdEmphasis"
+          flexShrink={0}
+        >
           {loading ? (
-            <Spinner animation="border" role="status" size="sm" />
+            <Spinner size="sm" />
           ) : (
             'Subir Archivo'
           )}
         </Button>
-      </InputGroup>
-      <p className="mb-0">Selected file: {fileName}</p>
+      </HStack>
+      <Text textStyle="bodySm" color="text.subdue">Selected file: {fileName}</Text>
       {fileData && (
-        <p className="mt-2">
+        <Text textStyle="bodySm" color="text.success">
           Archivo subido con éxito
-        </p>
+        </Text>
       )}
-    </div>
+    </Stack>
   );
 };
 
