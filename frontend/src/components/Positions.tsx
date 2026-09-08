@@ -1,17 +1,22 @@
 import React from 'react';
 import { Card, Container, Row, Col, Form, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 type Position = {
+    id: number;
     title: string;
     manager: string;
     deadline: string;
     status: 'Abierto' | 'Contratado' | 'Cerrado' | 'Borrador';
 };
 
+// ids 1 and 2 (and their titles) match the seeded positions in the DB, so
+// "Ver proceso" leads to a kanban board with real data. id 3 has no matching
+// position in the DB on purpose, to exercise the "position not found" state.
 const mockPositions: Position[] = [
-    { title: 'Senior Backend Engineer', manager: 'John Doe', deadline: '2024-12-31', status: 'Abierto' },
-    { title: 'Junior Android Engineer', manager: 'Jane Smith', deadline: '2024-11-15', status: 'Contratado' },
-    { title: 'Product Manager', manager: 'Alex Jones', deadline: '2024-07-31', status: 'Borrador' }
+    { id: 1, title: 'Senior Full-Stack Engineer', manager: 'John Doe', deadline: '2024-12-31', status: 'Abierto' },
+    { id: 2, title: 'Data Scientist', manager: 'Jane Smith', deadline: '2024-11-15', status: 'Contratado' },
+    { id: 3, title: 'Product Manager', manager: 'Alex Jones', deadline: '2024-07-31', status: 'Borrador' }
 ];
 
 const Positions: React.FC = () => {
@@ -44,8 +49,8 @@ const Positions: React.FC = () => {
                 </Col>
             </Row>
             <Row>
-                {mockPositions.map((position, index) => (
-                    <Col md={4} key={index} className="mb-4">
+                {mockPositions.map((position) => (
+                    <Col md={4} key={position.id} className="mb-4">
                         <Card className="shadow-sm">
                             <Card.Body>
                                 <Card.Title>{position.title}</Card.Title>
@@ -57,7 +62,7 @@ const Positions: React.FC = () => {
                                     {position.status}
                                 </span>
                                 <div className="d-flex justify-content-between mt-3">
-                                    <Button variant="primary">Ver proceso</Button>
+                                    <Link to={`/positions/${position.id}`} className="btn btn-primary">Ver proceso</Link>
                                     <Button variant="secondary">Editar</Button>
                                 </div>
                             </Card.Body>
