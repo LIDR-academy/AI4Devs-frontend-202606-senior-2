@@ -10,6 +10,16 @@ type CandidateCardProps = {
     columnId?: string;
 };
 
+const getScoreBadgeColor = (score: number) => {
+    if (score >= 4) {
+        return <Badge bg="success">{score.toFixed(1)}/5</Badge>;
+    }
+    if (score >= 3) {
+        return <Badge bg="warning">{score.toFixed(1)}/5</Badge>;
+    }
+    return <Badge bg="danger">{score.toFixed(1)}/5</Badge>;
+};
+
 const CandidateCard: React.FC<CandidateCardProps> = ({ id, fullName, averageScore, columnId }) => {
     const {
         attributes,
@@ -45,9 +55,7 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ id, fullName, averageScor
                         <h6 className="mb-1">{fullName}</h6>
                     </Col>
                     <Col xs={3} className="text-end">
-                        <Badge bg={averageScore >= 4 ? 'success' : averageScore >= 3 ? 'warning' : 'danger'}>
-                            {averageScore.toFixed(1)}/5
-                        </Badge>
+                        {getScoreBadgeColor(averageScore)}
                     </Col>
                 </Row>
             </Card.Body>

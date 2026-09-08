@@ -74,8 +74,8 @@ const CandidateStateView: React.FC = () => {
                 
                 // Fetch interview flow and candidates in parallel
                 const [interviewFlowData, candidatesData] = await Promise.all([
-                    getInterviewFlowByPosition(parseInt(positionId)),
-                    getCandidatesByPosition(parseInt(positionId))
+                    getInterviewFlowByPosition(Number.parseInt(positionId)),
+                    getCandidatesByPosition(Number.parseInt(positionId))
                 ]);
                 
                 const steps = interviewFlowData.interviewFlow?.interviewSteps || [];
@@ -125,7 +125,7 @@ const CandidateStateView: React.FC = () => {
             
             if (!fromColumn || !toColumn) return;
             
-            const candidateId = parseInt(active.id.toString());
+            const candidateId = Number.parseInt(active.id.toString());
             const candidate = fromColumn.candidates.find(c => c.id === candidateId);
             
             if (!candidate) return;

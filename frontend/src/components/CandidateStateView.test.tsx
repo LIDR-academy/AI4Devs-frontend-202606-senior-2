@@ -171,8 +171,11 @@ describe('CandidateStateView Component', () => {
 
         await waitFor(() => {
             const backButton = screen.getByRole('link');
-            fireEvent.click(backButton);
-            expect(mockNavigate).toHaveBeenCalledWith('/positions');
+            expect(backButton).toBeInTheDocument();
         });
+        
+        const backButton = screen.getByRole('link');
+        fireEvent.click(backButton);
+        expect(mockNavigate).toHaveBeenCalledWith('/positions');
     });
 });
