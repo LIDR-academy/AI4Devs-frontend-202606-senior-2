@@ -72,8 +72,11 @@ Tests live next to the code (`*.test.ts`) in `services/` and `controllers/`.
   Pages live in `src/pages/`, reusable pieces in `src/components/`.
 - **There is no `GET /positions` endpoint**, so the list in `pages/Positions.tsx` is a permanent mock: ids 1 and 2
   match the seeded DB, id 3 (`Product Manager`, Borrador) does not exist on purpose (error-state demo).
-- API calls go in `src/services/` using `axios` against `http://localhost:3010`. Note: `axios` is imported but **not
-  declared in `package.json`** — run `npm i axios` before relying on it.
+- API calls go in `src/services/`: `api.ts` is the shared axios instance (`REACT_APP_API_URL`, default
+  `http://localhost:3010`); `positionService.ts` wraps the three kanban endpoints (typed, unwraps the interviewflow
+  response). Legacy `candidateService.js` still hardcodes the URL — untouched.
+- `src/hooks/usePositionBoard.ts` owns the kanban data: `status` (`loading | ready | notFound | error`), steps,
+  candidates and `moveCandidate` (optimistic update, rollback + error toast on failed PUT).
 - `react-scripts@5` pins `typescript` peer dep to `^4`; do not upgrade to TS 5.
 
 ## API contract (real endpoints — the exercise brief has them wrong)
@@ -132,8 +135,17 @@ write the code**, review and run things for them.
 - Typography mapping from the Figma board (which uses raw Inter, not the file's text styles — D10): Bold 24 → `title`,
   Medium 16 → `bodyLgEmphasis`, Regular 12 → `bodySm`. Raw board colours without a semantic token map to the closest
   one (D11): `#D6D8DB`→`border.subdue`, `#6C6C6C`/`#52565C`→`text.subdue`, `#000`→`text.primary`.
-- Token audit: `grep -nE '#[0-9a-fA-F]{3,6}|[0-9]+px' src/components/kanban src/pages/PositionDetail.tsx` must only
-  hit comments and `border="1px"`.
+- Drag & drop: `@hello-pangea/dnd`. `droppableId = String(step.id)`, `draggableId = String(applicationId)`;
+  `KanbanBoard.onDragEnd` ignores drops outside or in the same column (no manual order is persisted) and calls
+  `onMove(candidate, toStep)`. Within a column cards sort by `averageScore` desc, then `applicationId` asc.
+  Drag feedback: card `boxShadow="elevated"`, target column `borderColor="border.brand"`.
+- `Alert` is themed in `theme/components/alert.ts` (semantic tokens per colorScheme), so `Alert` and `useToast`
+  (default variant `subtle`, set in `App.js`) follow the theme without per-call styling. `BoardSkeleton` is the
+  loading state.
+- Token audit: `grep -nE '#[0-9a-fA-F]{3,6}|[0-9]+px' src/components/kanban src/pages src/hooks src/theme/components`
+  must only hit comments and `border="1px"`.
+- Browser-testing note: `@hello-pangea/dnd` needs `requestAnimationFrame`; with the Claude Browser pane hidden the tab
+  reports `document.hidden=true` and drags (mouse or keyboard) never lift. Show the pane before testing DnD.
 
 ### Figma source (Figma MCP)
 - File key: `cfFXOqhi8z4mqlhXrYA5I9` ("Simple Kanban by Pratyush", duplicated into the MDIUW team).

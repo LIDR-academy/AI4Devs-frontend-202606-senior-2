@@ -87,4 +87,16 @@ Herramienta: Claude Code (Opus / Fable) con MCP de Figma, Context7 y navegador i
 
 ## Fase 5 · Implementación
 
+> sí, preséntame la fase 5
+
+> D21-a · D22- no se puede toast con nuestro theme? · D23-¿seguro que no hay un campo de la ddbb que podamos usar, tipo prioridad, fecha o algo asi? · D24.- ok
+
+> D22- c, D23- c. De esto aprendemos que en las decisiones déjame mejor preguntas abiertas, no busques tú opciones a menos que te lo pida explícitamente
+
+**Hallazgos:** desajuste nombre/id de fase entre `GET candidates` y `PUT`; `interviewflow` doblemente envuelto; `id=3` → 404; `@hello-pangea/dnd` (ids string, `placeholder`, teclado/táctil, StrictMode OK); sin campo de orden en `Application` → orden por `averageScore`; `Alert` es temable → toasts con tokens.
+
+**Decisiones:** Skeleton de carga; `Alert` temado con tokens (toast estándar); soltar en misma columna = no-op + orden por puntuación; optimista con rollback.
+
+**Resultado:** `services/api.ts` + `positionService.ts`, `hooks/usePositionBoard.ts`, `theme/components/alert.ts`, `BoardSkeleton`, dnd en `KanbanBoard/Column/CandidateCard`, `PositionDetail` por estados (`/positions/3` y `/positions/abc` → "Posición no encontrada"), "Ver proceso" navega; `mock.ts` eliminado.
+
 ## Fase 6 · Entrega
