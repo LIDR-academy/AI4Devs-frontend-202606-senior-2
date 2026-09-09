@@ -1,0 +1,27 @@
+schema: spec-driven
+context: |
+  Proyecto LTI existente: React 18, TypeScript, Bootstrap, Jest, Storybook 7.6 y Chromatic.
+  Escribir artefactos en español, conservando los encabezados estructurales de OpenSpec.
+  El ejercicio original es el detalle de posición con kanban y drag and drop persistente.
+  La especificación de referencia está en openspec/specs/position-kanban/spec.md.
+  kanban-seguro documenta retrospectivamente nuestra solución y sus protecciones; no inventar historial TDD.
+  kanban-solved y sesion-frontend/sesion parten del kanban sin búsqueda.
+  El ejercicio nuevo añade búsqueda por nombre en frontend; el backend local ya está preparado.
+  Flujo docente: Diseño → SDD con Atomic Design → TDD → Storybook → Chromatic → PR.
+  Átomos Bootstrap; moléculas CandidateSummary y MoveStatus; organismo KanbanBoard;
+  página PositionKanbanDetail dueña del estado, identidad y persistencia. CandidateSearch será controlada.
+  API real: GET /position, GET /position/:id/interviewflow, GET /position/:id/candidates,
+  PUT /candidates/:id con applicationId y currentInterviewStep numéricos.
+  El conjunto completo se filtra en cliente; no crear endpoint search ni cambiar backend durante clase.
+  Guion docente privado: nunca incorporarlo al repositorio; prompts públicos en docs/sesion/prompts.md.
+rules:
+  proposal:
+    - Separar alcance del enunciado original, protecciones añadidas y nueva búsqueda.
+  design:
+    - Empezar por Atomic Design, contratos de props y dueño del estado antes de algoritmos.
+    - Conservar apariencia LTI y resolver identidad por applicationId, nunca por nombre o índice filtrado.
+  specs:
+    - Usar requisitos observables con SHALL y escenarios WHEN/THEN, incluyendo errores y móvil.
+  tasks:
+    - Enlazar evidencia real; distinguir mocks, integración local y revisión humana de Chromatic.
+    - Mantener pendientes la publicación actual y aceptación visual; no archivar automáticamente.
