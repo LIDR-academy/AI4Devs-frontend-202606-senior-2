@@ -561,3 +561,12 @@ Si surge una nueva idea, escribir un criterio y decidir si pertenece a esta sesi
 - [PR de búsqueda](https://github.com/LIDR-academy/AI4Devs-frontend-202606-senior-2/pull/11)
 - [Builds Chromatic](https://www.chromatic.com/builds?appId=6aa15ada6842c110d4d8a475)
 
+
+
+## Estado de los materiales para ensayar
+
+El código aplica Atomic Design en ambos recorridos: KanbanBoard en la base y CandidateSearch en la solución. Los 12 tests de la base, 16 de búsqueda y 7 escenarios Chrome pasan tras la extracción. La regresión del kanban falla en KB-03 (11 pasan); el checkpoint rojo de búsqueda mantiene 4 fallos nuevos y 12 pruebas existentes pasando.
+
+[PR #12 del ejemplo resuelto](https://github.com/LIDR-academy/AI4Devs-frontend-202606-senior-2/pull/12) y [PR #11 de búsqueda](https://github.com/LIDR-academy/AI4Devs-frontend-202606-senior-2/pull/11) están en borrador. El PR #12 compara contra main e incluye la historia heredada del PR #5; explicarlo al revisar la autoría y el alcance. El PR #11 compara únicamente el incremento respecto a kanban-solved.
+
+Los builds Chromatic 1 y 2 se publicaron antes de extraer KanbanBoard y CandidateSearch. Muestran el diseño previo que debe conservarse, pero no verifican todavía los commits del refactor ni las nuevas stories aisladas de CandidateSearch. Abrir estas stories localmente hasta completar la nueva publicación. No presentar el build anterior como evidencia del nuevo commit.

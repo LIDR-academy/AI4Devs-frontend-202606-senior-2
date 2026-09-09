@@ -61,3 +61,10 @@ El contenedor es desechable, sin volumen persistente, y solo expone el puerto en
 - [Storybook de la solución](https://6aa15ada6842c110d4d8a475-orcpjvoyhn.chromatic.com/).
 
 En clase abrir Verify changes: revisar SearchReady, SearchMatch y SearchNoResults en 375 y 1280 px, y comparar Loaded, Empty, LongName y los estados del movimiento. Aceptar solo lo intencional. El build corresponde al commit indicado; esta documentación posterior no modifica la interfaz publicada.
+
+
+## Atomic Design aplicado en ambos recorridos
+
+La base incorpora KanbanBoard como organismo y conserva CandidateSummary y MoveStatus como moléculas. La solución implementa CandidateSearch controlado y sus cuatro stories aisladas. La página conserva ruta, datos y persistencia. Verificación tras el refactor: base 12 pruebas; búsqueda 16; Chrome 7; tipos y lint pasan. Demo roja del kanban: 1 fallo y 11 pruebas pasando. Checkpoint rojo de búsqueda: 4 fallos y 12 pruebas pasando.
+
+La republicación de Chromatic después de estas extracciones está pendiente. Los builds 1 y 2 corresponden al código anterior. El guion distingue esa limitación y enlaza los PRs #12 (referencia) y #11 (incremento).
