@@ -10,7 +10,9 @@
         "test": "jest",
         "prisma:init": "npx prisma init",
         "prisma:generate": "npx prisma generate",
-        "start:prod": "npm run build && npm start"
+        "start:prod": "npm run build && npm start",
+        "session:setup": "node scripts/session-local.cjs setup",
+        "session:start": "node scripts/session-local.cjs start"
     },
     "keywords": [],
     "author": "",
