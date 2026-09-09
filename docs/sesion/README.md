@@ -15,7 +15,8 @@
 | kanban-ejercicio/03-tdd-rojo | Cuatro pruebas nuevas fallan; 12 existentes pasan |
 | kanban-ejercicio/04-tdd-verde | Búsqueda implementada; 16 pruebas pasan |
 | kanban-ejercicio/05-storybook | Stories de búsqueda y 7 escenarios Chrome |
-| kanban-ejercicio/06-chromatic-pr | Guía de comparación visual y revisión del cambio |
+| kanban-ejercicio/06-chromatic | Publicación y revisión visual preparadas; build actual pendiente |
+| kanban-ejercicio/07-pr | Revisión del incremento, enlaces y evidencia de API |
 
 Los checkpoints son acumulativos y quedan como referencias. Para cambiar de rama, guardar primero el trabajo con commit. Crear ramas locales de seguimiento desde origin si todavía no existen. No se modifica main ni una rama de alumno.
 
@@ -35,10 +36,28 @@ La nueva característica permite buscar candidatos por nombre, contar coincidenc
 
 Diseño propio basado en LTI: https://www.figma.com/design/MAYDxDOTFpBPFeK0HqHbvQ . El archivo muestra el resultado que construiremos, no una función ya disponible en kanban-solved.
 
-00–20: revisión de PRs y diseño. 20–40: SDD con IA. 40–60: tests rojos y corrección. 60–70: descanso. 70–90: Storybook y navegador. 90–100: Chromatic. 100–120: PR, preguntas y cierre.
+00–15: revisión de PRs. 15–40: kanban resuelto y Atomic Design. 40–60: diseño y SDD de búsqueda. 60–70: descanso. 70–100: implementación, tests, Storybook y Chromatic. 100–120: PR y cierre.
 
 La IA debe leer el repo y el contrato antes de editar, demostrar el fallo y enlazar cada criterio con evidencia. Chromatic requiere un proyecto autorizado y revisión humana de baselines. Backend real e integración quedan pendientes. Las herramientas y skills apoyan cada paso, sin decidir el alcance por su cuenta.
 
-## Prompts de trabajo
 
-[Prompts por etapa para los dos recorridos](prompts.md). Incluyen contexto, diseño, SDD con Atomic Design, TDD, implementación, Storybook, Chromatic y PR.
+## Recuperar un paso
+
+Cada checkpoint contiene el resultado de esa etapa. Para rehacer una etapa, partir del checkpoint anterior; para saltar una etapa bloqueada, partir del suyo. 03-tdd-rojo falla intencionalmente (4 nuevos fallos, 12 pruebas existentes pasando); 04-tdd-verde pasa las 16 pruebas.
+
+Antes de cambiar de rama, detener los servidores de desarrollo y revisar git status. Guardar los cambios elegidos en un commit en la rama de trabajo. No borrar trabajo ni usar reset --hard para recuperar.
+
+Ejemplo para continuar desde la implementación resuelta en una rama nueva:
+
+```sh
+git fetch origin
+git switch -c recuperacion/04-tdd-verde origin/kanban-ejercicio/04-tdd-verde
+cd frontend
+npm ci
+npm run test:session
+npm run storybook
+```
+
+Si ese nombre local ya existe, elegir otro nombre de recuperación, sin sobrescribirlo. Mantener sesion-frontend/sesion como inicio de clase y los checkpoints como referencias.
+
+La rama histórica 06-chromatic-pr se conserva porque es la cabecera del PR #11. Los checkpoints para recorrer el proceso son ahora 06-chromatic y 07-pr por separado. Cambiar de rama no restaura Figma, datos de backend, builds ni aprobaciones externas. Seguir los enlaces de evidencia para esos sistemas.
