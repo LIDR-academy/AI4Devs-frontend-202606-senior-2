@@ -65,3 +65,7 @@ La rama histórica 06-chromatic-pr se conserva porque es la cabecera del PR #11.
 ## Aplicación completa antes de clase
 
 Preparar el backend con [backend-local.md](backend-local.md). La sesión parte con API y datos listos; la búsqueda se implementa enteramente en frontend. `npm run test:app` verifica el tablero real contra PostgreSQL.
+
+## OpenSpec
+
+Ver [configuración y comandos de OpenSpec](openspec.md). El contrato del ejercicio original está en openspec/specs/position-kanban/spec.md.
