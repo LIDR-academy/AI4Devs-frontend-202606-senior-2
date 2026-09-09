@@ -1,0 +1,10 @@
+import React from 'react';
+import {MemoryRouter} from 'react-router-dom';
+import Positions from './Positions';
+import {positionResponse} from './catalog-fixtures';
+export default {title:'LTI/Pages/Positions',component:Positions,tags:['autodocs'],decorators:[Story=><MemoryRouter><Story/></MemoryRouter>],args:{services:{list:async()=>positionResponse}},argTypes:{services:{control:false}},parameters:{docs:{description:{component:'Página propietaria de carga y navegación. Las stories inyectan respuestas locales; la aplicación usa API real.'}}}};
+export const Loaded={};
+export const Empty={args:{services:{list:async()=>({data:[]})}}};
+export const Loading={args:{services:{list:()=>new Promise(()=>{})}}};
+export const Error={args:{services:{list:async()=>{throw new globalThis.Error('offline');}}}};
+export const LongTitle={args:{services:{list:async()=>({data:[{...positionResponse.data[0],title:'Frontend '+ 'desarrollo '.repeat(12)}]})}}};

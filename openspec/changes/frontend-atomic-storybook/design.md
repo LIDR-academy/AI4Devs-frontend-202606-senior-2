@@ -39,3 +39,7 @@ PositionKanbanDetail ya acepta servicios inyectables; su catálogo sigue bajo LI
 ## Migration Plan
 
 Diseño/inventario → TDD y extracción por pantalla → stories → revisión visual → PR. En cada etapa guardar un commit y crear una rama de recuperación dedicada bajo frontend-storybook; elegir nombres sin sobrescribir ramas existentes. No modificar los checkpoints del ejercicio de búsqueda con implementación de esta propuesta. Para volver atrás, guardar trabajo y cambiar a su checkpoint, sin borrar cambios. Mantener services por defecto para que la aplicación siga operativa fuera de Storybook.
+
+## Decisiones durante ejecución
+
+Se parte de d9ef43f, que ya contiene búsqueda implementada por otro trabajo; se conserva sin introducirla en este diff. Los cambios locales de la rama de sesión quedaron intactos en otra copia. El usuario autorizó ejecutar la propuesta; se conserva el mapa de responsabilidades revisado. Los componentes con JSX pasan de .js a .jsx para compatibilidad con Vite, sin migración de lenguaje.

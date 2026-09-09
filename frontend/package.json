@@ -36,7 +36,8 @@
     "test:stories": "playwright test -c playwright.storybook.config.ts",
     "typecheck": "tsc --noEmit",
     "lint:session": "eslint src/components/PositionKanbanDetail.tsx src/components/kanban --ext .ts,.tsx",
-    "test:app": "playwright test -c playwright.app.config.ts"
+    "test:app": "playwright test -c playwright.app.config.ts",
+    "test:catalog": "playwright test -c playwright.catalog.config.ts"
   },
   "eslintConfig": {
     "extends": [

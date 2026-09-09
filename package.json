@@ -12,7 +12,8 @@
     "test:app": "npm --prefix frontend run test:app",
     "backend:setup": "npm --prefix backend run session:setup",
     "backend:start": "npm --prefix backend run session:start",
-    "frontend:start": "npm --prefix frontend start"
+    "frontend:start": "npm --prefix frontend start",
+    "test:catalog": "npm --prefix frontend run test:catalog"
   },
   "devDependencies": {
     "@fission-ai/openspec": "1.12.0"
