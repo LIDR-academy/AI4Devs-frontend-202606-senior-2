@@ -238,3 +238,89 @@ describe('PositionKanbanDetail', () => {
     });
 
 });
+
+describe('Búsqueda de candidatos: contrato de clase', () => {
+    const candidates = [
+        { id: 1, applicationId: 10, fullName: 'Alex Demo', currentInterviewStep: 'Phone Screen', averageScore: 8 },
+        { id: 2, applicationId: 11, fullName: 'José García', currentInterviewStep: 'Phone Screen', averageScore: 9 },
+        { id: 3, applicationId: 12, fullName: 'Sam Ejemplo', currentInterviewStep: 'Technical Interview', averageScore: 7 },
+        { id: 4, applicationId: 13, fullName: 'José Pérez', currentInterviewStep: 'Technical Interview', averageScore: 6 },
+    ];
+    beforeEach(() => {
+        jest.resetAllMocks();
+        mockedGetInterviewFlow.mockResolvedValue({ positionName: 'Frontend Engineer', interviewSteps: steps });
+        mockedGetCandidatesByPosition.mockResolvedValue(candidates);
+        mockedUpdateCandidateStage.mockResolvedValue({});
+    });
+    const search = async () => {
+        await screen.findByTestId('kanban-column-1');
+        return screen.getByRole('searchbox', { name: 'Buscar candidatos' });
+    };
+    const move = (destinationIndex = 0) => act(async () => {
+        capturedOnDragEnd({ draggableId: 'candidate-11', source: { droppableId: '1', index: 0 }, destination: { droppableId: '2', index: destinationIndex } });
+    });
+    it('BS-01: normaliza, cuenta y no recarga datos al buscar o limpiar', async () => {
+        renderComponent(); const input = await search();
+        expect(screen.getByText('4 de 4 candidatos')).toBeInTheDocument();
+        await userEvent.type(input, ' JOSE ');
+        expect(screen.getByText('2 de 4 candidatos')).toBeInTheDocument();
+        expect(screen.queryByText('Alex Demo')).not.toBeInTheDocument();
+        expect(screen.getByText('José García')).toBeInTheDocument();
+        await userEvent.clear(input); await userEvent.type(input, '   ');
+        expect(screen.getByText('4 de 4 candidatos')).toBeInTheDocument();
+        expect(mockedGetCandidatesByPosition).toHaveBeenCalledTimes(1);
+        expect(mockedGetInterviewFlow).toHaveBeenCalledTimes(1);
+    });
+    it('BS-02: conserva columnas sin resultados y limpiar restaura foco y datos', async () => {
+        renderComponent(); const input = await search(); await userEvent.type(input, 'Lucía');
+        expect(screen.getByText('0 de 4 candidatos')).toBeInTheDocument();
+        expect(screen.getByText('No hay candidatos que coincidan con la búsqueda.')).toBeInTheDocument();
+        expect(screen.getAllByRole('heading', { level: 5 })).toHaveLength(3);
+        await userEvent.click(screen.getByRole('button', { name: 'Limpiar búsqueda' }));
+        expect(input).toHaveFocus(); expect(input).toHaveValue('');
+        expect(screen.getByText('4 de 4 candidatos')).toBeInTheDocument();
+        expect(mockedGetCandidatesByPosition).toHaveBeenCalledTimes(1);
+    });
+    it('BS-02: distingue una posición sin candidatos', async () => {
+        mockedGetCandidatesByPosition.mockResolvedValue([]); renderComponent();
+        await screen.findByText('Esta posición todavía no tiene candidatos.');
+        expect(screen.getByText('0 de 0 candidatos')).toBeInTheDocument();
+        expect(screen.queryByText('No hay candidatos que coincidan con la búsqueda.')).not.toBeInTheDocument();
+    });
+    it('BS-03: mueve la identidad visible e inserta antes del ancla conservando ocultos', async () => {
+        renderComponent(); await userEvent.type(await search(), 'jose'); await move();
+        expect(mockedUpdateCandidateStage).toHaveBeenCalledWith(2, 11, 2);
+        await userEvent.click(screen.getByRole('button', { name: 'Limpiar búsqueda' }));
+        expect(screen.getByTestId('kanban-column-1')).toHaveTextContent('Alex Demo');
+        const destination = screen.getByTestId('kanban-column-2');
+        expect(Array.from(destination.querySelectorAll('.kanban-card')).map(e => e.getAttribute('data-testid'))).toEqual(['kanban-card-12', 'kanban-card-11', 'kanban-card-13']);
+    });
+    it('BS-03: destino sin coincidencias añade al final sin borrar ocultos', async () => {
+        renderComponent(); await userEvent.type(await search(), 'garcia'); await move();
+        await userEvent.click(screen.getByRole('button', { name: 'Limpiar búsqueda' }));
+        expect(Array.from(screen.getByTestId('kanban-column-2').querySelectorAll('.kanban-card')).map(e => e.getAttribute('data-testid'))).toEqual(['kanban-card-12', 'kanban-card-13', 'kanban-card-11']);
+    });
+    it('BS-04: bloquea consulta y movimientos, revierte y conserva datos ocultos', async () => {
+        let rejectSave: (reason: Error) => void = () => {};
+        mockedUpdateCandidateStage.mockReturnValueOnce(new Promise((_, reject) => { rejectSave = reject; }));
+        renderComponent(); const input = await search(); await userEvent.type(input, 'garcia'); await move();
+        expect(input).toBeDisabled();
+        expect(screen.getByRole('button', { name: 'Limpiar búsqueda' })).toBeDisabled();
+        await move(); expect(mockedUpdateCandidateStage).toHaveBeenCalledTimes(1);
+        await act(async () => { rejectSave(new Error('offline')); });
+        expect(await screen.findByRole('alert')).toHaveTextContent('No se pudo actualizar');
+        expect(input).toBeEnabled(); expect(input).toHaveValue('garcia');
+        expect(screen.getByTestId('kanban-column-1')).toHaveTextContent('José García');
+        await userEvent.click(screen.getByRole('button', { name: 'Limpiar búsqueda' }));
+        expect(screen.getByText('4 de 4 candidatos')).toBeInTheDocument();
+        expect(screen.getByTestId('kanban-column-1')).toHaveTextContent('Alex Demo');
+        expect(screen.getByTestId('kanban-column-2')).toHaveTextContent('Sam Ejemplo');
+    });
+    it('BS-05: etiqueta y conteo accesibles sin mover foco al escribir', async () => {
+        renderComponent(); const input = await search(); await userEvent.type(input, 'jose');
+        const count = screen.getByText('2 de 4 candidatos');
+        expect(count).toHaveAttribute('aria-live', 'polite');
+        expect(input).toHaveAttribute('aria-describedby', count.id);
+        expect(input).toHaveFocus();
+    });
+});

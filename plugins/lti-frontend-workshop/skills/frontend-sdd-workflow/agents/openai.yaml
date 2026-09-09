@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend SDD Workflow"
+  short_description: "Ejecuta diseño, SDD, TDD, Storybook, Chromatic y PR"
+  default_prompt: "Usa $frontend-sdd-workflow para desarrollar esta característica siguiendo el diseño, OpenSpec, Atomic Design, TDD, Storybook, Chromatic y PR, con checkpoints por etapa."

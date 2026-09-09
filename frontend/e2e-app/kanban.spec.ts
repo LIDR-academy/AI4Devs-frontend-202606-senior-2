@@ -6,7 +6,7 @@ test('aplicación: IDs reales, arrastre, persistencia tras recargar y rollback',
   const positionId = page.url().split('/').pop();
   const api = 'http://localhost:3010';
   const candidates = await (await request.get(`${api}/position/${positionId}/candidates`)).json();
-  const alex = candidates.find((c: { fullName: string }) => c.fullName === 'Alex Demo');
+  const alex = candidates.find((c: { fullName: string }) => c.fullName === 'José García');
   expect(alex).toBeTruthy();
   const { interviewFlow } = await (await request.get(`${api}/position/${positionId}/interviewflow`)).json();
   const steps = interviewFlow.interviewFlow.interviewSteps;
@@ -15,6 +15,8 @@ test('aplicación: IDs reales, arrastre, persistencia tras recargar y rollback',
   const card = page.getByTestId(`kanban-card-${alex.applicationId}`);
   await expect(card).toBeVisible();
   try {
+    await page.getByRole('searchbox', { name: 'Buscar candidatos' }).fill('jose');
+    await expect(page.getByText('1 de 3 candidatos')).toBeVisible();
     const a = (await card.boundingBox())!;
     const b = (await page.getByTestId(`kanban-column-${destination.id}`).boundingBox())!;
     await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
@@ -25,8 +27,10 @@ test('aplicación: IDs reales, arrastre, persistencia tras recargar y rollback',
     const saved = page.waitForResponse(r => r.request().method() === 'PUT');
     await page.mouse.up();
     expect((await saved).status()).toBe(200);
+    await page.getByRole('button', { name: 'Limpiar búsqueda' }).click();
+    await expect(page.getByText('Alex Demo')).toBeVisible();
     await page.reload();
-    await expect(page.getByTestId(`kanban-column-${destination.id}`)).toContainText('Alex Demo');
+    await expect(page.getByTestId(`kanban-column-${destination.id}`)).toContainText('José García');
     const persisted = await (await request.get(`${api}/position/${positionId}/candidates`)).json();
     expect(persisted.find((c: { applicationId: number }) => c.applicationId === alex.applicationId).currentInterviewStep).toBe(destination.name);
     await page.route('**/candidates/*', route => route.request().method() === 'PUT' ? route.fulfill({ status: 500, body: '{}' }) : route.continue());
@@ -35,7 +39,7 @@ test('aplicación: IDs reales, arrastre, persistencia tras recargar y rollback',
     await page.keyboard.press(destination.id > source.id ? 'ArrowLeft' : 'ArrowRight');
     await page.keyboard.press('Space');
     await expect(page.getByRole('alert')).toContainText('No se pudo actualizar');
-    await expect(page.getByTestId(`kanban-column-${destination.id}`)).toContainText('Alex Demo');
+    await expect(page.getByTestId(`kanban-column-${destination.id}`)).toContainText('José García');
   } finally {
     const restored = await request.put(`${api}/candidates/${alex.id}`, { data: { applicationId: alex.applicationId, currentInterviewStep: source.id } });
     expect(restored.ok()).toBeTruthy();

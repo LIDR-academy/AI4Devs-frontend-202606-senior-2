@@ -1,6 +1,6 @@
 {
   "name": "lti-frontend-workshop",
-  "version": "0.1.0",
+  "version": "0.1.0+codex.20260909173214",
   "description": "Flujo LTI de OpenSpec, Atomic Design, Storybook y Chromatic para el taller frontend.",
   "author": {
     "name": "LTI Workshop"
