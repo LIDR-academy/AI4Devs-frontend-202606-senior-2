@@ -22,13 +22,15 @@
 - [x] 4.3 Añadir story directa del organismo kanban y reutilizar sus stories actuales; comprobar que los IDs históricos se mantienen.
 - [x] 4.4 Añadir matriz de formulario y archivo definida en design.md con fixtures locales; verificar los estados uno por uno sin subir archivos reales.
 - [x] 4.5 Documentar props, eventos, responsabilidad Atomic Design y límites en autodocs; comprobar que cada componente nuevo tiene documentación navegable.
-- [ ] 4.6 Añadir pruebas de navegador sobre stories con API bloqueada, reinicio entre stories, teclado y 375/1280; demostrar que no se intenta acceder al backend.
+- [x] 4.6 Añadir pruebas de navegador sobre stories con API bloqueada, reinicio entre stories, teclado y 375/1280; demostrar que no se intenta acceder al backend.
 
 ## 5. Chromatic
-- [ ] 5.1 Generar build del commit del incremento en proyecto autorizado; registrar enlace, commit, stories y viewports, o bloqueo explícito si no se puede publicar.
+- [x] 5.1 Generar build del commit del incremento en proyecto autorizado; registrar enlace, commit, stories y viewports, o bloqueo explícito si no se puede publicar.
 - [ ] 5.2 Comparar capturas con referencias del paso 1, revisar cambios humanos y registrar aceptación o defectos; no aceptar baselines automáticamente.
 
 ## 6. PR y cierre
-- [ ] 6.1 Ejecutar validación OpenSpec, typecheck, tests afectados, build de Storybook y smoke de aplicación; enlazar evidencia y separar simulación de persistencia real.
+- [x] 6.1 Ejecutar validación OpenSpec, typecheck, tests afectados, build de Storybook y smoke de aplicación; enlazar evidencia y separar simulación de persistencia real.
 - [ ] 6.2 Crear PR con matriz SB-01 a SB-07, componentes extraídos, enlaces y pendientes; verificar que no incluye backend, búsqueda nueva ni guion docente.
 - [ ] 6.3 Actualizar tareas solo con evidencia y sincronizar/archivar tras aceptación; comprobar que no quedan tareas visuales pendientes antes del cierre.
+
+Evidencia y bloqueo de publicación: docs/evidence/frontend-storybook/README.md. La tarea 5.1 permite documentar el bloqueo; no se ha publicado ni aprobado un build actual.
