@@ -35,7 +35,8 @@
     "test:session": "react-scripts test --watchAll=false --runInBand --testPathPattern=PositionKanbanDetail",
     "test:stories": "playwright test -c playwright.storybook.config.ts",
     "typecheck": "tsc --noEmit",
-    "lint:session": "eslint src/components/PositionKanbanDetail.tsx src/components/kanban --ext .ts,.tsx"
+    "lint:session": "eslint src/components/PositionKanbanDetail.tsx src/components/kanban --ext .ts,.tsx",
+    "test:app": "playwright test -c playwright.app.config.ts"
   },
   "eslintConfig": {
     "extends": [
