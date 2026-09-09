@@ -1,10 +1,17 @@
 {
+  "name": "lti-workshop-tooling",
+  "private": true,
+  "scripts": {
+    "openspec": "openspec",
+    "spec:validate": "openspec validate --all --strict"
+  },
+  "devDependencies": {
+    "@fission-ai/openspec": "1.12.0"
+  },
   "dependencies": {
     "dotenv": "^16.4.5"
   },
   "prisma": {
     "schema": "backend/prisma/schema.prisma"
-  },
-  "devDependencies": {
   }
 }
