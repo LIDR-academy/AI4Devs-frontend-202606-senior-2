@@ -73,3 +73,17 @@ Trabajar en `sesion-frontend/sesion`, que comienza como `kanban-solved`, sin bú
 ## C. Evolución del contrato
 
 > Ante un cambio pedido durante el desarrollo, clasifica si conserva la conducta o introduce un requisito. Si es refactor, conserva pruebas y compara capturas. Si cambia conducta, actualiza diseño, criterio, prueba, implementación, story y revisión antes de cerrar la tarea. Explica los efectos sobre componentes y servicios. Mantén la trazabilidad y no amplíes silenciosamente la feature.
+
+## D. Práctica de skills
+
+### D1. Atomic Design antes del SDD
+
+> Lee .agents/skills/lti-atomic-design/SKILL.md y aplícala al estado real de esta rama. Devuelve inventario existente/propuesto, contratos de props, propietario del estado y relación con criterios y pruebas. Explica qué componente no debe conocer HTTP ni DnD. No implementes todavía ni crees wrappers solo para completar niveles. Indica qué decisión del resultado procede de la skill y cuál de la spec de la feature.
+
+### D2. Storybook después del contrato
+
+> Lee .agents/skills/storybook/SKILL.md, frontend/package.json y las stories existentes antes de proponer cambios. Respeta las versiones instaladas. Para CandidateSearch propone Ready, Match, NoResults y Saving, diferenciando args de presentación de cálculos que debe probar la página. Si CandidateSearch todavía no existe, entrega el plan; si existe y te pido implementarlo, añade o revisa las stories y ejecuta build-storybook. No actualices paquetes ni publiques por el mero hecho de usar la skill.
+
+### D3. Revisar la salida de una skill
+
+> Contrasta el resultado con la spec y el código. Detecta responsabilidades mezcladas, estado derivado duplicado, ejemplos incompatibles con la versión de Storybook y stories que aparenten verificar lógica solo por recibir args fijos. Explica qué aceptas, qué corriges y qué prueba demuestra la corrección. Una skill guía la ejecución; no sustituye evidencia ni aceptación humana.
