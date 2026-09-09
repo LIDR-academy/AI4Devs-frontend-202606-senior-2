@@ -38,7 +38,7 @@ Diseño propio basado en LTI: https://www.figma.com/design/MAYDxDOTFpBPFeK0HqHbv
 
 00–15: revisión de PRs. 15–40: kanban resuelto y Atomic Design. 40–60: diseño y SDD de búsqueda. 60–70: descanso. 70–100: implementación, tests, Storybook y Chromatic. 100–120: PR y cierre.
 
-La IA debe leer el repo y el contrato antes de editar, demostrar el fallo y enlazar cada criterio con evidencia. Chromatic requiere un proyecto autorizado y revisión humana de baselines. Backend real e integración quedan pendientes. Las herramientas y skills apoyan cada paso, sin decidir el alcance por su cuenta.
+La IA debe leer el repo y el contrato antes de editar, demostrar el fallo y enlazar cada criterio con evidencia. Chromatic requiere un proyecto autorizado y revisión humana de baselines. El arranque local y la prueba de aplicación están documentados en backend-local.md. Las herramientas y skills apoyan cada paso, sin decidir el alcance por su cuenta.
 
 
 ## Recuperar un paso
@@ -61,3 +61,7 @@ npm run storybook
 Si ese nombre local ya existe, elegir otro nombre de recuperación, sin sobrescribirlo. Mantener sesion-frontend/sesion como inicio de clase y los checkpoints como referencias.
 
 La rama histórica 06-chromatic-pr se conserva porque es la cabecera del PR #11. Los checkpoints para recorrer el proceso son ahora 06-chromatic y 07-pr por separado. Cambiar de rama no restaura Figma, datos de backend, builds ni aprobaciones externas. Seguir los enlaces de evidencia para esos sistemas.
+
+## Aplicación completa antes de clase
+
+Preparar el backend con [backend-local.md](backend-local.md). La sesión parte con API y datos listos; la búsqueda se implementa enteramente en frontend. `npm run test:app` verifica el tablero real contra PostgreSQL.
