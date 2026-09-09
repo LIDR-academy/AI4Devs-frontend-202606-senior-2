@@ -18,10 +18,10 @@
 
 ## 4. Storybook e integración
 
-- [ ] 4.1 Leer skills storybook y storybook-component-documentation y añadir Ready, Match, NoResults y Saving de la molécula; comprobar documentación de props y build-storybook sin actualizar versiones.
-- [ ] 4.2 Añadir stories integradas para consulta vacía, coincidencia, cero resultados, error/rollback y móvil; verificar conteo calculado, foco y teclado mediante pruebas de navegador, diferenciando args fijos de integración.
+- [x] 4.1 Leer skills storybook y storybook-component-documentation y añadir Ready, Match, NoResults y Saving de la molécula; comprobar documentación de props y build-storybook sin actualizar versiones.
+- [x] 4.2 Añadir stories integradas para consulta vacía, coincidencia, cero resultados, error/rollback y móvil; verificar conteo calculado, foco y teclado mediante pruebas de navegador, diferenciando args fijos de integración.
 - [x] 4.3 Probar BS-03 desde la aplicación real con backend ya iniciado: buscar jose, mover José, limpiar para comprobar Alex/Sam y recargar para verificar persistencia. Registrar resultado y restaurar datos ficticios al terminar.
-- [ ] 4.4 Verificar 375px sin desbordamiento y controles desactivados durante guardado; guardar checkpoint Storybook con resultados y relación escenario/story/test.
+- [x] 4.4 Verificar 375px sin desbordamiento y controles desactivados durante guardado; guardar checkpoint Storybook con resultados y relación escenario/story/test.
 
 ## 5. Chromatic
 
@@ -40,3 +40,5 @@ Base de implementación: 8693e5a. Inicio autorizado tras revisar la propuesta. C
 TDD rojo: 7 fallos nuevos por buscador/estado vacío ausentes; 12 pruebas originales pasan. Checkpoint buscar-candidatos-clase/03-tdd-rojo.
 
 TDD verde: 19/19 pruebas, typecheck y lint:session aprobados. test:app verifica búsqueda jose, arrastre de José, conservación de Alex al limpiar, persistencia tras recarga y rollback. Comprobación Chrome adicional a 375px: botón debajo, sin desbordamiento y foco recuperado. Checkpoint buscar-candidatos-clase/04-tdd-verde. Stories del nuevo componente y publicación actual pendientes.
+
+Storybook: cuatro stories aisladas CandidateSearch y cinco integradas SearchReady/Match/NoResults/Saving/Rollback. Build y tipos aprobados; 9 escenarios Chrome pasan tras reiniciar servidor. Checkpoint buscar-candidatos-clase/05-storybook. Chromatic aún pendiente.
