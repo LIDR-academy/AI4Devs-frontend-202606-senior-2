@@ -1,0 +1,10 @@
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react';
+import { CandidateSummary } from './CandidateSummary';
+import { candidates } from './fixtures';
+import '../PositionKanbanDetail.css';
+const meta = { title: 'LIDR/Molecules/CandidateSummary', component: CandidateSummary, tags: ['autodocs'], args: { candidate: candidates[0] }, decorators: [(Story: React.ComponentType) => <div className="kanban-session"><div className="kanban-card" style={{maxWidth:320}}><Story /></div></div>] } satisfies Meta<typeof CandidateSummary>;
+export default meta;
+type Story = StoryObj<typeof meta>;
+export const Default: Story = {};
+export const LongName: Story = { args: { candidate: { ...candidates[0], fullName: 'Candidatura con nombre largo para revisar el ajuste del contenido' } } };

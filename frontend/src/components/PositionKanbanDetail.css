@@ -42,3 +42,28 @@
         width: 100%;
     }
 }
+
+/* Docente: tokens acotados al tablero; Bootstrap permanece en la aplicación. */
+.kanban-session {
+    --kanban-bg: #0a0a0a;
+    --kanban-surface: #171717;
+    --kanban-card: #242424;
+    --kanban-text: #f5f5f5;
+    --kanban-muted: #b8b8b8;
+    --kanban-accent: #f6de82;
+    color: var(--kanban-text);
+    background: var(--kanban-bg);
+    padding: 24px;
+    border-radius: 12px;
+}
+.kanban-session .kanban-column { background: var(--kanban-surface); border: 1px solid #555; }
+.kanban-session .kanban-card { background: var(--kanban-card); border-color: #666; padding: 16px; }
+.kanban-session .kanban-card-score { color: var(--kanban-muted); }
+.kanban-session .kanban-card:focus-visible { outline: 3px solid var(--kanban-accent); outline-offset: 3px; }
+.kanban-session .btn-link { color: var(--kanban-accent); }
+.kanban-session .kanban-move-status { min-height: 32px; color: var(--kanban-accent); }
+.kanban-session .kanban-card-name { overflow-wrap: anywhere; }
+@media (max-width: 767.98px) {
+    .kanban-session .kanban-column { flex: 0 0 auto; }
+    .kanban-session { padding: 16px; }
+}

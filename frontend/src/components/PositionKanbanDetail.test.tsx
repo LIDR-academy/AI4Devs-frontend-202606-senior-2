@@ -213,4 +213,28 @@ describe('PositionKanbanDetail', () => {
 
         expect(mockedUpdateCandidateStage).not.toHaveBeenCalled();
     });
+    it('KB-03: bloquea movimientos solapados y libera el tablero tras rollback', async () => {
+        mockedGetInterviewFlow.mockResolvedValue({ positionName: 'Frontend Engineer', interviewSteps: steps });
+        mockedGetCandidatesByPosition.mockResolvedValue([
+            { id: 1, applicationId: 10, fullName: 'Alex Demo', currentInterviewStep: 'Phone Screen', averageScore: 8 },
+            { id: 2, applicationId: 11, fullName: 'Sam Ejemplo', currentInterviewStep: 'Phone Screen', averageScore: 9 },
+        ]);
+        let rejectFirst: (reason: Error) => void = () => {};
+        mockedUpdateCandidateStage.mockReturnValueOnce(new Promise((_, reject) => { rejectFirst = reject; }));
+        renderComponent();
+        await screen.findByTestId('kanban-card-10');
+        await act(async () => { capturedOnDragEnd({ source: { droppableId: '1', index: 0 }, destination: { droppableId: '2', index: 0 } }); });
+        expect(screen.getByRole('status')).toHaveTextContent('Guardando cambio');
+        await act(async () => { capturedOnDragEnd({ source: { droppableId: '1', index: 0 }, destination: { droppableId: '3', index: 0 } }); });
+        expect(mockedUpdateCandidateStage).toHaveBeenCalledTimes(1);
+        await act(async () => { rejectFirst(new Error('offline')); });
+        await screen.findByRole('alert');
+        expect(screen.getByTestId('kanban-column-1')).toHaveTextContent('Alex Demo');
+        expect(screen.getByTestId('kanban-column-1')).toHaveTextContent('Sam Ejemplo');
+        mockedUpdateCandidateStage.mockResolvedValueOnce({});
+        await act(async () => { capturedOnDragEnd({ source: { droppableId: '1', index: 1 }, destination: { droppableId: '3', index: 0 } }); });
+        await waitFor(() => expect(screen.getByTestId('kanban-column-3')).toHaveTextContent('Sam Ejemplo'));
+        expect(mockedUpdateCandidateStage).toHaveBeenCalledTimes(2);
+    });
+
 });

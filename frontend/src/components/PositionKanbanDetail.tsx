@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Alert, Button, Container, Spinner } from 'react-bootstrap';
 import { ArrowLeft } from 'react-bootstrap-icons';
@@ -6,11 +6,16 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import { getInterviewFlow, getCandidatesByPosition, InterviewStep, Candidate } from '../services/positionService';
 import { updateCandidateStage } from '../services/candidateService';
 import './PositionKanbanDetail.css';
+import { CandidateSummary } from './kanban/CandidateSummary';
+import { MoveStatus } from './kanban/MoveStatus';
 
 type RequestStatus = 'loading' | 'error' | 'loaded';
 type ColumnsState = Record<number, Candidate[]>;
 
-const PositionKanbanDetail: React.FC = () => {
+export const defaultKanbanServices = { getInterviewFlow, getCandidatesByPosition, updateCandidateStage };
+export type KanbanServices = typeof defaultKanbanServices;
+
+const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ services = defaultKanbanServices }) => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
@@ -20,12 +25,14 @@ const PositionKanbanDetail: React.FC = () => {
     const [columns, setColumns] = useState<ColumnsState>({});
     const [flowStatus, setFlowStatus] = useState<RequestStatus>('loading');
     const [candidatesStatus, setCandidatesStatus] = useState<RequestStatus>('loading');
+    const savingRef = useRef(false);
+    const [isSaving, setIsSaving] = useState(false);
     const [dragError, setDragError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!id) return;
 
-        getInterviewFlow(id)
+        services.getInterviewFlow(id)
             .then(({ positionName: name, interviewSteps }) => {
                 setPositionName(name);
                 setSteps(interviewSteps);
@@ -33,13 +40,13 @@ const PositionKanbanDetail: React.FC = () => {
             })
             .catch(() => setFlowStatus('error'));
 
-        getCandidatesByPosition(id)
+        services.getCandidatesByPosition(id)
             .then((candidates) => {
                 setRawCandidates(candidates);
                 setCandidatesStatus('loaded');
             })
             .catch(() => setCandidatesStatus('error'));
-    }, [id]);
+    }, [id, services]);
 
     useEffect(() => {
         if (flowStatus !== 'loaded') return;
@@ -68,6 +75,7 @@ const PositionKanbanDetail: React.FC = () => {
 
     const handleDragEnd = useCallback(
         (result: DropResult) => {
+            if (savingRef.current) return;
             const { source, destination } = result;
             if (!destination) return;
             if (destination.droppableId === source.droppableId) return;
@@ -82,6 +90,8 @@ const PositionKanbanDetail: React.FC = () => {
             const destList = [...(columns[destStepId] ?? [])];
             destList.splice(destination.index, 0, movedCandidate);
 
+            savingRef.current = true;
+            setIsSaving(true);
             const previousColumns = columns;
             setColumns({
                 ...columns,
@@ -90,32 +100,35 @@ const PositionKanbanDetail: React.FC = () => {
             });
             setDragError(null);
 
-            updateCandidateStage(movedCandidate.id, movedCandidate.applicationId, destStepId).catch(() => {
+            services.updateCandidateStage(movedCandidate.id, movedCandidate.applicationId, destStepId).catch(() => {
                 setColumns(previousColumns);
                 setDragError('No se pudo actualizar la fase del candidato. Inténtalo nuevamente.');
+            }).finally(() => {
+                savingRef.current = false;
+                setIsSaving(false);
             });
         },
-        [columns]
+        [columns, services]
     );
 
     if (flowStatus === 'loading' || candidatesStatus === 'loading') {
         return (
-            <Container className="mt-5 text-center">
-                <Spinner animation="border" role="status" />
+            <Container className="mt-5 text-center kanban-session">
+                <Spinner animation="border" role="status" aria-label="Cargando candidatos" />
             </Container>
         );
     }
 
     if (flowStatus === 'error') {
         return (
-            <Container className="mt-5">
+            <Container className="mt-5 kanban-session">
                 <Alert variant="danger">No se pudo cargar el proceso de esta posición.</Alert>
             </Container>
         );
     }
 
     return (
-        <Container className="mt-5">
+        <Container className="mt-5 kanban-session">
             <div className="d-flex align-items-center mb-4">
                 <Button
                     variant="link"
@@ -137,6 +150,7 @@ const PositionKanbanDetail: React.FC = () => {
                 </Alert>
             )}
 
+            <MoveStatus pending={isSaving} />
             <DragDropContext onDragEnd={handleDragEnd}>
                 <div className="kanban-board">
                     {steps.map((step) => (
@@ -153,6 +167,7 @@ const PositionKanbanDetail: React.FC = () => {
                                         <Draggable
                                             draggableId={`candidate-${candidate.applicationId}`}
                                             index={index}
+                                            isDragDisabled={isSaving}
                                             key={candidate.applicationId}
                                         >
                                             {(dragProvided) => (
@@ -163,10 +178,7 @@ const PositionKanbanDetail: React.FC = () => {
                                                     {...dragProvided.draggableProps}
                                                     {...dragProvided.dragHandleProps}
                                                 >
-                                                    <div className="kanban-card-name">{candidate.fullName}</div>
-                                                    <div className="kanban-card-score">
-                                                        Puntuación: {candidate.averageScore}
-                                                    </div>
+                                                    <CandidateSummary candidate={candidate} />
                                                 </div>
                                             )}
                                         </Draggable>

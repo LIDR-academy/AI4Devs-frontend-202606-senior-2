@@ -1,0 +1,21 @@
+# Font loading
+
+Derived from Chromatic's official LLM docs on 2026-04-17.
+Source URL: https://www.chromatic.com/docs/font-loading
+
+Use when:
+- text spacing, glyph shape, line wrapping, or tab widths change unexpectedly
+- fallback fonts appear in Chromatic
+- the same story settles after fonts load locally
+
+Primary fix paths:
+- add a web-safe fallback font to the stack
+- preload fonts in `.storybook/preview-head.html`
+- point `@font-face` declarations at local static files instead of a CDN
+- use `document.fonts` in a loader when you need an explicit font-ready check
+- as a last resort, use `font-display: optional` for the Chromatic environment
+
+Validation hints:
+- inspect `preview-head.html`, `.storybook`, and global CSS for preload and `@font-face`
+- check whether fonts come from remote CDNs or local static files
+- if layout measurements depend on text width, preload fonts before render

@@ -28,7 +28,14 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "chromatic": "chromatic",
+    "test:session": "react-scripts test --watchAll=false --runInBand --testPathPattern=PositionKanbanDetail",
+    "test:stories": "playwright test -c playwright.storybook.config.ts",
+    "typecheck": "tsc --noEmit",
+    "lint:session": "eslint src/components/PositionKanbanDetail.tsx src/components/kanban --ext .ts,.tsx"
   },
   "eslintConfig": {
     "extends": [
@@ -47,5 +54,18 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@storybook/addon-a11y": "^7.6.20",
+    "@storybook/addon-essentials": "^7.6.20",
+    "@storybook/addon-interactions": "^7.6.20",
+    "@storybook/jest": "^0.2.3",
+    "@storybook/react-vite": "^7.6.20",
+    "@storybook/testing-library": "^0.2.2",
+    "@testing-library/dom": "^8.20.1",
+    "chromatic": "^13.1.5",
+    "storybook": "^7.6.20",
+    "vite": "^4.5.14"
   }
 }
