@@ -38,3 +38,7 @@ Diseño propio basado en LTI: https://www.figma.com/design/MAYDxDOTFpBPFeK0HqHbv
 00–20: revisión de PRs y diseño. 20–40: SDD con IA. 40–60: tests rojos y corrección. 60–70: descanso. 70–90: Storybook y navegador. 90–100: Chromatic. 100–120: PR, preguntas y cierre.
 
 La IA debe leer el repo y el contrato antes de editar, demostrar el fallo y enlazar cada criterio con evidencia. Chromatic requiere un proyecto autorizado y revisión humana de baselines. Backend real e integración quedan pendientes. Las herramientas y skills apoyan cada paso, sin decidir el alcance por su cuenta.
+
+## Prompts de trabajo
+
+[Prompts por etapa para los dos recorridos](prompts.md). Incluyen contexto, diseño, SDD con Atomic Design, TDD, implementación, Storybook, Chromatic y PR.
