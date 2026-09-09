@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Alert, Button, Container, Spinner } from 'react-bootstrap';
+import { Alert, Button, Container, Form, Spinner } from 'react-bootstrap';
 import { ArrowLeft } from 'react-bootstrap-icons';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { getInterviewFlow, getCandidatesByPosition, InterviewStep, Candidate } from '../services/positionService';
@@ -8,6 +8,8 @@ import { updateCandidateStage } from '../services/candidateService';
 import './PositionKanbanDetail.css';
 import { CandidateSummary } from './kanban/CandidateSummary';
 import { MoveStatus } from './kanban/MoveStatus';
+
+const normalizeSearch = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLocaleLowerCase('es');
 
 type RequestStatus = 'loading' | 'error' | 'loaded';
 type ColumnsState = Record<number, Candidate[]>;
@@ -19,6 +21,8 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
+    const [query, setQuery] = useState('');
+    const searchRef = useRef<HTMLInputElement>(null);
     const [positionName, setPositionName] = useState('');
     const [steps, setSteps] = useState<InterviewStep[]>([]);
     const [rawCandidates, setRawCandidates] = useState<Candidate[]>([]);
@@ -73,6 +77,11 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
         setColumns(grouped);
     }, [flowStatus, steps, rawCandidates]);
 
+    const matches = (candidate: Candidate) => normalizeSearch(candidate.fullName).includes(normalizeSearch(query));
+    const visibleColumns = Object.fromEntries(Object.entries(columns).map(([key, list]) => [key, list.filter(matches)])) as ColumnsState;
+    const totalCount = Object.values(columns).reduce((sum, list) => sum + list.length, 0);
+    const visibleCount = Object.values(visibleColumns).reduce((sum, list) => sum + list.length, 0);
+
     const handleDragEnd = useCallback(
         (result: DropResult) => {
             if (savingRef.current) return;
@@ -84,11 +93,17 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
             const destStepId = Number(destination.droppableId);
 
             const sourceList = [...(columns[sourceStepId] ?? [])];
-            const [movedCandidate] = sourceList.splice(source.index, 1);
+            const visibleSource = sourceList.filter(candidate => normalizeSearch(candidate.fullName).includes(normalizeSearch(query)));
+            const sourceIndex = sourceList.findIndex(candidate => candidate.applicationId === visibleSource[source.index]?.applicationId);
+            if (sourceIndex < 0) return;
+            const [movedCandidate] = sourceList.splice(sourceIndex, 1);
             if (!movedCandidate) return;
 
             const destList = [...(columns[destStepId] ?? [])];
-            destList.splice(destination.index, 0, movedCandidate);
+            const visibleDest = destList.filter(candidate => normalizeSearch(candidate.fullName).includes(normalizeSearch(query)));
+            const before = visibleDest[destination.index];
+            const destIndex = before ? destList.findIndex(candidate => candidate.applicationId === before.applicationId) : destList.length;
+            destList.splice(destIndex, 0, movedCandidate);
 
             savingRef.current = true;
             setIsSaving(true);
@@ -108,7 +123,7 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
                 setIsSaving(false);
             });
         },
-        [columns, services]
+        [columns, services, query]
     );
 
     if (flowStatus === 'loading' || candidatesStatus === 'loading') {
@@ -150,6 +165,21 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
                 </Alert>
             )}
 
+            {candidatesStatus === 'loaded' && <div className="kanban-search mb-3">
+                <Form.Label htmlFor="candidate-search">Buscar candidatos</Form.Label>
+                <div className="d-flex gap-2">
+                    <Form.Control id="candidate-search" ref={searchRef} type="search" value={query}
+                        placeholder="Nombre del candidato" disabled={isSaving}
+                        onChange={event => setQuery(event.target.value)} aria-describedby="candidate-search-results" />
+                    <Button variant="outline-secondary" disabled={!query || isSaving}
+                        onClick={() => { setQuery(''); searchRef.current?.focus(); }}>Limpiar búsqueda</Button>
+                </div>
+                <div id="candidate-search-results" aria-label="Resultados de búsqueda" aria-live="polite" className="text-secondary mt-2">
+                    {visibleCount} de {totalCount} candidatos
+                </div>
+                {totalCount > 0 && visibleCount === 0 && <p className="mt-2 mb-0">No hay candidatos que coincidan con la búsqueda.</p>}
+                {totalCount === 0 && <p className="mt-2 mb-0">Esta posición todavía no tiene candidatos.</p>}
+            </div>}
             <MoveStatus pending={isSaving} />
             <DragDropContext onDragEnd={handleDragEnd}>
                 <div className="kanban-board">
@@ -163,7 +193,7 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
                                     {...provided.droppableProps}
                                 >
                                     <h5>{step.name}</h5>
-                                    {(columns[step.id] ?? []).map((candidate, index) => (
+                                    {(visibleColumns[step.id] ?? []).map((candidate, index) => (
                                         <Draggable
                                             draggableId={`candidate-${candidate.applicationId}`}
                                             index={index}
