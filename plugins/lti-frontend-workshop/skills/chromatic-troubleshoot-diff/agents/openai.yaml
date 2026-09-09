@@ -1,0 +1,9 @@
+interface:
+  display_name: "Troubleshoot Diff"
+  short_description: "Troubleshoot Chromatic visual diffs and stabilization issues"
+  icon_small: './assets/icon-small.svg'
+  icon_large: './assets/icon-large.png'
+  default_prompt: "Use $chromatic-troubleshoot-diff to diagnose this unexpected visual diff and return the standard diagnosis card."
+
+policy:
+  allow_implicit_invocation: false

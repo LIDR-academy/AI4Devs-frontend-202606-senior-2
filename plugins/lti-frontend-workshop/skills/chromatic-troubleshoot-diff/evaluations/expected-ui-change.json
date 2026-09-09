@@ -1,0 +1,15 @@
+{
+  "name": "Intentional UI change should be treated as an expected diff",
+  "skills": ["chromatic-troubleshoot-diff"],
+  "query": "Chromatic shows a diff for our updated button padding after the design refresh.",
+  "context": "The user says the component and story were intentionally changed, and the same updated rendering is visible in local Storybook.",
+  "expected_behavior": [
+    "Chooses `VD_EXPECTED_UI_CHANGE`",
+    "States that the diff matches an intentional UI change rather than unexplained rendering drift",
+    "Avoids recommending suppression or stabilization workarounds"
+  ],
+  "success_criteria": [
+    "The response does not propose `diffThreshold` or snapshot ignores as the first step",
+    "The response gives one exact next step"
+  ]
+}
