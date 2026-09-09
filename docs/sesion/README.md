@@ -30,7 +30,7 @@ Explorar Loaded, Empty, Loading, LoadError, CandidatesError y LongName. Después
 
 ## Diseños propios en Figma
 
-[Laboratorio Kanban en Figma](https://www.figma.com/design/MAYDxDOTFpBPFeK0HqHbvQ). Contiene dos marcos editables: escritorio con estados y anatomía, y móvil a 375 px. Son una referencia docente creada sobre el dominio del PR #5; no se presentan como el diseño original del alumnado ni como un prototipo interactivo.
+[Laboratorio Kanban en Figma](https://www.figma.com/design/MAYDxDOTFpBPFeK0HqHbvQ). Contiene dos marcos editables: escritorio con estados y anatomía, y móvil a 375 px. Usan la vista original de LTI del PR #5: Bootstrap, fondo blanco, columnas gris claro, tarjetas blancas y tipografía del sistema. Son una referencia docente creada sobre el dominio del PR #5; no se presentan como el diseño original del alumnado ni como un prototipo interactivo.
 
 ## Atomic Design aplicado
 

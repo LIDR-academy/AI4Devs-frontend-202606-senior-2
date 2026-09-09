@@ -5,7 +5,7 @@ const preview: Preview = {
     layout: 'padded',
     chromatic: { viewports: [375, 1280] },
     controls: { expanded: true },
-    backgrounds: { default: 'LIDR', values: [{ name: 'LIDR', value: '#0a0a0a' }] },
+    backgrounds: { default: 'LTI', values: [{ name: 'LTI', value: '#ffffff' }] },
   },
 };
 export default preview;
