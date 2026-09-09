@@ -38,3 +38,16 @@ async function keyboardMove(canvasElement: HTMLElement) {
 export const MoveSuccess: Story = { parameters: { chromatic: { viewports: [1280] } }, play: async ({ canvasElement }) => { await keyboardMove(canvasElement); await waitFor(() => expect(within(canvasElement).getByTestId('kanban-column-2')).toHaveTextContent('Alex Demo')); } };
 export const Saving: Story = { parameters: { chromatic: { viewports: [1280] } }, args: { services: { ...services, updateCandidateStage: () => new Promise(() => undefined) } }, play: async ({ canvasElement }) => { await keyboardMove(canvasElement); await waitFor(() => expect(within(canvasElement).getByRole('status')).toHaveTextContent('Guardando')); } };
 export const MoveError: Story = { parameters: { chromatic: { viewports: [1280] } }, args: { services: { ...services, updateCandidateStage: async () => { throw new Error('Error simulado'); } } }, play: async ({ canvasElement }) => { await keyboardMove(canvasElement); await waitFor(() => expect(within(canvasElement).getByRole('alert')).toHaveTextContent('No se pudo actualizar')); await expect(within(canvasElement).getByTestId('kanban-column-1')).toHaveTextContent('Alex Demo'); } };
+
+const searchServices: KanbanServices = { ...services, getCandidatesByPosition: async () => [candidates[0], { ...candidates[1], fullName: 'José Pérez', currentInterviewStep: 'Inscritos' }] };
+export const SearchReady: Story = { args: { services: searchServices } };
+export const SearchMatch: Story = { args: { services: searchServices }, play: async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+  fireEvent.change(await canvas.findByRole('searchbox'), { target: { value: 'jose' } });
+  await waitFor(() => expect(canvas.getByLabelText('Resultados de búsqueda')).toHaveTextContent('1 de 2 candidatos'));
+} };
+export const SearchNoResults: Story = { args: { services: searchServices }, play: async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+  fireEvent.change(await canvas.findByRole('searchbox'), { target: { value: 'Lucía' } });
+  await waitFor(() => expect(canvas.getByText('No hay candidatos que coincidan con la búsqueda.')).toBeVisible());
+} };
