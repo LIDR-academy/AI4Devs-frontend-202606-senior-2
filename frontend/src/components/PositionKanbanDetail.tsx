@@ -2,11 +2,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Alert, Button, Container, Spinner } from 'react-bootstrap';
 import { ArrowLeft } from 'react-bootstrap-icons';
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { DropResult } from '@hello-pangea/dnd';
 import { getInterviewFlow, getCandidatesByPosition, InterviewStep, Candidate } from '../services/positionService';
 import { updateCandidateStage } from '../services/candidateService';
 import './PositionKanbanDetail.css';
-import { CandidateSummary } from './kanban/CandidateSummary';
+import { KanbanBoard } from './kanban/KanbanBoard';
 import { MoveStatus } from './kanban/MoveStatus';
 
 type RequestStatus = 'loading' | 'error' | 'loaded';
@@ -151,45 +151,7 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
             )}
 
             <MoveStatus pending={isSaving} />
-            <DragDropContext onDragEnd={handleDragEnd}>
-                <div className="kanban-board">
-                    {steps.map((step) => (
-                        <Droppable droppableId={String(step.id)} key={step.id}>
-                            {(provided) => (
-                                <div
-                                    className="kanban-column"
-                                    data-testid={`kanban-column-${step.id}`}
-                                    ref={provided.innerRef}
-                                    {...provided.droppableProps}
-                                >
-                                    <h5>{step.name}</h5>
-                                    {(columns[step.id] ?? []).map((candidate, index) => (
-                                        <Draggable
-                                            draggableId={`candidate-${candidate.applicationId}`}
-                                            index={index}
-                                            isDragDisabled={isSaving}
-                                            key={candidate.applicationId}
-                                        >
-                                            {(dragProvided) => (
-                                                <div
-                                                    className="kanban-card"
-                                                    data-testid={`kanban-card-${candidate.applicationId}`}
-                                                    ref={dragProvided.innerRef}
-                                                    {...dragProvided.draggableProps}
-                                                    {...dragProvided.dragHandleProps}
-                                                >
-                                                    <CandidateSummary candidate={candidate} />
-                                                </div>
-                                            )}
-                                        </Draggable>
-                                    ))}
-                                    {provided.placeholder}
-                                </div>
-                            )}
-                        </Droppable>
-                    ))}
-                </div>
-            </DragDropContext>
+            <KanbanBoard steps={steps} columns={columns} disabled={isSaving} onDragEnd={handleDragEnd} />
         </Container>
     );
 };
