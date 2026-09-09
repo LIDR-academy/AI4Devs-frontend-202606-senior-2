@@ -1,0 +1,15 @@
+{
+  "name": "Unstable data produces inconsistent snapshots",
+  "skills": ["chromatic-troubleshoot-diff"],
+  "query": "The same story keeps changing avatar initials and timestamps between builds.",
+  "context": "The user mentions generated IDs, current time, and random avatars inside the story data.",
+  "expected_behavior": [
+    "Chooses `VD_NONDETERMINISTIC_DATA`",
+    "Explains that unstable data changes the rendered output between runs",
+    "Recommends making story data deterministic before trying suppression-style fixes"
+  ],
+  "success_criteria": [
+    "The response names deterministic data as the fix path",
+    "The response avoids broad ignore guidance"
+  ]
+}
