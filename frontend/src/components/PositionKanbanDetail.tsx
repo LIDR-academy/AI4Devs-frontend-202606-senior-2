@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Alert, Button, Container, Form, Spinner } from 'react-bootstrap';
+import { Alert, Button, Container, Spinner } from 'react-bootstrap';
 import { ArrowLeft } from 'react-bootstrap-icons';
 import { DropResult } from '@hello-pangea/dnd';
 import { getInterviewFlow, getCandidatesByPosition, InterviewStep, Candidate } from '../services/positionService';
 import { updateCandidateStage } from '../services/candidateService';
 import './PositionKanbanDetail.css';
+import { CandidateSearch } from './kanban/CandidateSearch';
 import { KanbanBoard } from './kanban/KanbanBoard';
 import { MoveStatus } from './kanban/MoveStatus';
 
@@ -22,7 +23,6 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
     const navigate = useNavigate();
 
     const [query, setQuery] = useState('');
-    const searchRef = useRef<HTMLInputElement>(null);
     const [positionName, setPositionName] = useState('');
     const [steps, setSteps] = useState<InterviewStep[]>([]);
     const [rawCandidates, setRawCandidates] = useState<Candidate[]>([]);
@@ -165,21 +165,8 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
                 </Alert>
             )}
 
-            {candidatesStatus === 'loaded' && <div className="kanban-search mb-3">
-                <Form.Label htmlFor="candidate-search">Buscar candidatos</Form.Label>
-                <div className="d-flex gap-2">
-                    <Form.Control id="candidate-search" ref={searchRef} type="search" value={query}
-                        placeholder="Nombre del candidato" disabled={isSaving}
-                        onChange={event => setQuery(event.target.value)} aria-describedby="candidate-search-results" />
-                    <Button variant="outline-secondary" disabled={!query || isSaving}
-                        onClick={() => { setQuery(''); searchRef.current?.focus(); }}>Limpiar búsqueda</Button>
-                </div>
-                <div id="candidate-search-results" aria-label="Resultados de búsqueda" aria-live="polite" className="text-secondary mt-2">
-                    {visibleCount} de {totalCount} candidatos
-                </div>
-                {totalCount > 0 && visibleCount === 0 && <p className="mt-2 mb-0">No hay candidatos que coincidan con la búsqueda.</p>}
-                {totalCount === 0 && <p className="mt-2 mb-0">Esta posición todavía no tiene candidatos.</p>}
-            </div>}
+            {candidatesStatus === 'loaded' && <CandidateSearch query={query} visibleCount={visibleCount}
+                totalCount={totalCount} disabled={isSaving} onQueryChange={setQuery} />}
             <MoveStatus pending={isSaving} />
             <KanbanBoard steps={steps} columns={visibleColumns} disabled={isSaving} onDragEnd={handleDragEnd} />
         </Container>

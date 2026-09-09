@@ -7,13 +7,13 @@ Partimos de nuestro kanban resuelto en `kanban-solved` y del diseño de LTI. Pri
 | Nivel | Pieza | Responsabilidad y contrato |
 | --- | --- | --- |
 | Átomos | Form.Label, Form.Control, Button y texto de conteo de Bootstrap | Etiqueta asociada, entrada controlada, acción de limpiar, estado disabled y anuncio accesible. Reutilizar las primitivas existentes. |
-| Molécula | CandidateSearch (composición propuesta) | Combinar etiqueta, campo, limpiar, conteo y vacío. Recibe query, visibleCount, totalCount, disabled y onQueryChange. Limpiar emite consulta vacía y devuelve el foco. No carga datos ni conoce DnD. |
+| Molécula | CandidateSearch | Combinar etiqueta, campo, limpiar, conteo y vacío. Recibe query, visibleCount, totalCount, disabled y onQueryChange. Limpiar emite consulta vacía y devuelve el foco. No carga datos ni conoce DnD. |
 | Moléculas existentes | CandidateSummary y MoveStatus | Presentar candidato y estado de guardado; conservar sus responsabilidades. |
-| Organismo | Tablero kanban | Componer columnas y tarjetas, traducir índices visibles a applicationId y coordinar movimiento/rollback. |
+| Organismo | KanbanBoard | Componer columnas y tarjetas, traducir índices visibles a applicationId y coordinar movimiento/rollback. |
 | Plantilla | Distribución del detalle de posición | Cabecera, búsqueda, mensajes y tablero; disposición móvil y escritorio sin datos concretos. No exige un componente nuevo. |
 | Página | PositionKanbanDetail | Resolver posición/ruta, cargar datos y mantener query, columnas completas y persistencia. Derivar resultados; no duplicar estado filtrado. |
 
-La molécula CandidateSearch describe el límite que usaremos para discutir y evolucionar la implementación en clase. En la solución publicada, esta composición aún está escrita dentro de PositionKanbanDetail: no existe todavía un archivo CandidateSearch independiente. Si decidimos extraerlo, primero acordar sus props y añadir pruebas de comportamiento; luego refactorizar manteniendo los escenarios de integración verdes.
+CandidateSearch existe como molécula controlada en frontend/src/components/kanban/CandidateSearch.tsx. La página compone esa molécula con KanbanBoard. Las pruebas verifican la conducta observable y conservan el arrastre por identidad después de la extracción.
 
 ## 2. Convertir composición en SDD
 
