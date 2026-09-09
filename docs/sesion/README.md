@@ -21,26 +21,25 @@ Explorar Loaded, Empty, Loading, LoadError, CandidatesError y LongName. Después
 | --- | --- |
 | 00–20 | Feedback PR #5/#7 y diseño LTI: estados, jerarquía, responsive y Atomic Design. |
 | 20–40 | SDD con IA: propuesta de feature, límites, decisiones y criterios KB-01 a KB-04. |
-| 40–50 | Storybook: representar el contrato con estados reproducibles y servicios deterministas. |
-| 50–60 | TDD: activar rojo y explicar el fallo KB-03 antes de corregirlo. |
+| 40–60 | TDD con IA: activar KB-03 rojo, implementar la protección, comprobar rollback y refactorizar en verde. |
 | 60–70 | Descanso. |
-| 70–90 | TDD con IA: implementar la protección, comprobar rollback y recuperar interacción. |
+| 70–90 | Storybook: representar estados con servicios deterministas y verificar teclado, rollback y móvil en navegador. |
 | 90–100 | Chromatic: comparar estados contra una referencia revisada; demo de publicación solo con proyecto autorizado. |
 | 100–110 | PR: reunir spec, tests, revisión visual, decisiones y pendientes de integración. |
 | 110–120 | Preguntas, retro y cierre. |
 
 ## Recorrido del ejercicio
 
-**Diseño → SDD → Storybook → TDD → Chromatic → PR.**
+**Diseño → SDD → TDD → Storybook → Chromatic → PR.**
 
 1. **Diseño:** partir del Figma propio y la vista original de LTI. Acordar estados de carga, error, guardado y móvil. Resultado: decisiones visuales y de interacción explícitas.
 2. **SDD:** convertir esas decisiones en la feature «mover una candidatura sin perder cambios», con límites y criterios KB-01 a KB-04. Resultado: propuesta, spec, diseño técnico y tareas versionados.
-3. **Storybook:** representar los estados del contrato con el componente real y datos ficticios. Resultado: ejemplos ejecutables revisables antes de integrar backend.
-4. **TDD:** activar el fallo KB-03, ejecutar el test, implementar la corrección y comprobar teclado y rollback. Resultado: evidencia roja y verde. Las stories acompañan este ciclo y no sustituyen las pruebas de comportamiento.
+3. **TDD:** activar el fallo KB-03, ejecutar el test y explicar el resultado esperado antes de implementar la protección. Comprobar rollback y recuperación, y refactorizar manteniendo verde. Resultado: evidencia roja y verde.
+4. **Storybook:** representar los estados del contrato con el componente real y datos ficticios. Revisar carga, vacío, error, guardado y móvil, y comprobar teclado en navegador. Resultado: ejemplos ejecutables que complementan las pruebas de comportamiento.
 5. **Chromatic:** comparar los estados y viewports contra una referencia aceptada por una persona. Resultado: diferencias explicadas. La publicación sigue pendiente de conectar un proyecto autorizado.
 6. **PR:** enlazar requisito, implementación, pruebas y revisión visual, dejando explícitos los pendientes de backend real. Resultado: cambio revisable dentro del mismo repositorio.
 
-La AI participa en cada paso con contexto del repo y skills pertinentes. La secuencia permite volver al diseño o al contrato cuando una prueba descubre una ambigüedad. Storybook antes de TDD significa preparar los ejemplos y el entorno, no implementar toda la lógica antes del test.
+La AI participa en cada paso con contexto del repo y skills pertinentes. La secuencia permite volver al diseño o al contrato cuando una prueba descubre una ambigüedad. TDD guía la implementación desde el contrato. Storybook permite después explorar y revisar los estados, y puede devolver hallazgos al ciclo de pruebas.
 
 ## Diseños propios en Figma
 
