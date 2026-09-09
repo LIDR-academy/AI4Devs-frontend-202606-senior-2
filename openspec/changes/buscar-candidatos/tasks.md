@@ -31,8 +31,8 @@
 
 ## 6. PR y cierre
 
-- [ ] 6.1 Revisar diff contra kanban-solved, enlazar Figma, spec, pruebas de aplicación, stories y build; verificar que no hay cambios backend, nuevas dependencias ni guion docente publicado.
-- [ ] 6.2 Crear o actualizar el PR del incremento con evidencia por BS-01 a BS-05, límites y ramas de recuperación; guardar checkpoint PR sin sobrescribir referencias existentes.
+- [x] 6.1 Revisar diff contra kanban-solved, enlazar Figma, spec, pruebas de aplicación, stories y build; verificar que no hay cambios backend, nuevas dependencias ni guion docente publicado.
+- [x] 6.2 Crear o actualizar el PR del incremento con evidencia por BS-01 a BS-05, límites y ramas de recuperación; guardar checkpoint PR sin sobrescribir referencias existentes.
 - [ ] 6.3 Sincronizar especificación y archivar solo tras aceptación funcional y visual; comprobar requisitos y tareas pendientes antes de ejecutar sync/archive.
 
 Base de implementación: 8693e5a. Inicio autorizado tras revisar la propuesta. Checkpoint de planificación: buscar-candidatos-clase/02-sdd.
@@ -44,3 +44,5 @@ TDD verde: 19/19 pruebas, typecheck y lint:session aprobados. test:app verifica 
 Storybook: cuatro stories aisladas CandidateSearch y cinco integradas SearchReady/Match/NoResults/Saving/Rollback. Build y tipos aprobados; 9 escenarios Chrome pasan tras reiniciar servidor. Checkpoint buscar-candidatos-clase/05-storybook. Chromatic aún pendiente.
 
 Chromatic build 3: commit 917065f, 22 stories, 4 componentes, 39 snapshots, 25 cambios visuales pendientes de revisión. Publicado con npx chromatic y --exit-zero-on-changes; éxito del comando no significa aceptación de cambios. https://www.chromatic.com/build?appId=6aa15ada6842c110d4d8a475&number=3 . Checkpoint buscar-candidatos-clase/06-chromatic contiene esta evidencia documental posterior al commit construido.
+
+PR #16 en borrador: https://github.com/LIDR-academy/AI4Devs-frontend-202606-senior-2/pull/16 . Base kanban-solved, head sesion-frontend/sesion. Checkpoint buscar-candidatos-clase/07-pr. Revisión visual y archivo siguen pendientes.
