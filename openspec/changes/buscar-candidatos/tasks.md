@@ -5,9 +5,9 @@
 
 ## 2. TDD rojo
 
-- [ ] 2.1 Añadir pruebas BS-01/02 de normalización, conteos, ausencia de nuevas peticiones, vacío y foco; ejecutar test:session y registrar fallos por búsqueda inexistente, no por imports rotos.
-- [ ] 2.2 Añadir pruebas BS-03 para José en índice visible cero, ancla destino con tarjetas ocultas y fase sin coincidencias; verificar identidad de payload y conservación de tarjetas, con fallo esperado en la base.
-- [ ] 2.3 Añadir pruebas BS-04 de bloqueo y rollback completo con consulta activa; demostrar el fallo y que las 12 pruebas previas del kanban siguen pasando. Guardar checkpoint rojo y salida de pruebas.
+- [x] 2.1 Añadir pruebas BS-01/02 de normalización, conteos, ausencia de nuevas peticiones, vacío y foco; ejecutar test:session y registrar fallos por búsqueda inexistente, no por imports rotos.
+- [x] 2.2 Añadir pruebas BS-03 para José en índice visible cero, ancla destino con tarjetas ocultas y fase sin coincidencias; verificar identidad de payload y conservación de tarjetas, con fallo esperado en la base.
+- [x] 2.3 Añadir pruebas BS-04 de bloqueo y rollback completo con consulta activa; demostrar el fallo y que las 12 pruebas previas del kanban siguen pasando. Guardar checkpoint rojo y salida de pruebas.
 
 ## 3. Implementación verde
 
@@ -36,3 +36,5 @@
 - [ ] 6.3 Sincronizar especificación y archivar solo tras aceptación funcional y visual; comprobar requisitos y tareas pendientes antes de ejecutar sync/archive.
 
 Base de implementación: 8693e5a. Inicio autorizado tras revisar la propuesta. Checkpoint de planificación: buscar-candidatos-clase/02-sdd.
+
+TDD rojo: 7 fallos nuevos por buscador/estado vacío ausentes; 12 pruebas originales pasan. Checkpoint buscar-candidatos-clase/03-tdd-rojo.
