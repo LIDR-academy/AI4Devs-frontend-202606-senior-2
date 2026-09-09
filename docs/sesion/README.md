@@ -23,6 +23,10 @@ Los checkpoints son acumulativos y quedan como referencias. Para cambiar de rama
 
 Node 22.6+ y Chrome. Desde frontend: `npm ci`, `npm run storybook`. Pruebas: `npm run test:session`, `npm run typecheck`, `npm run test:stories`. En el checkpoint rojo se esperan fallos de la característica nueva.
 
+## Dos recorridos de la clase
+
+Primero explicamos el kanban resuelto usando Diseño, SDD con Atomic Design, TDD, Storybook, Chromatic y PR. Después repetimos ese proceso para construir la búsqueda en directo. El ejemplo de referencia contiene KanbanBoard, CandidateSummary y MoveStatus; la solución de búsqueda añade CandidateSearch. Atomic Design se aplica en código, no solo en el diagrama.
+
 ## Recorrido
 
 Diseño → SDD → TDD → Storybook → Chromatic → PR.
