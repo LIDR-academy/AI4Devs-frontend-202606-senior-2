@@ -3,7 +3,16 @@
   "private": true,
   "scripts": {
     "openspec": "openspec",
-    "spec:validate": "openspec validate --all --strict"
+    "spec:validate": "openspec validate --all --strict",
+    "spec:status": "openspec status --change kanban-seguro",
+    "storybook": "npm --prefix frontend run storybook",
+    "storybook:build": "npm --prefix frontend run build-storybook",
+    "test:session": "npm --prefix frontend run test:session",
+    "test:stories": "npm --prefix frontend run test:stories",
+    "test:app": "npm --prefix frontend run test:app",
+    "backend:setup": "npm --prefix backend run session:setup",
+    "backend:start": "npm --prefix backend run session:start",
+    "frontend:start": "npm --prefix frontend start"
   },
   "devDependencies": {
     "@fission-ai/openspec": "1.12.0"

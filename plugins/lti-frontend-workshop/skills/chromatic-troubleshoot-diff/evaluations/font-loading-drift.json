@@ -1,0 +1,15 @@
+{
+  "name": "Font loading mismatch causes text drift",
+  "skills": ["chromatic-troubleshoot-diff"],
+  "query": "Our snapshot text spacing changed in Chromatic and it looks like fallback fonts.",
+  "context": "The user shared one diff screenshot and said the same story settles correctly after fonts load locally.",
+  "expected_behavior": [
+    "Chooses `VD_FONT_LOADING_DRIFT`",
+    "Explains that the rendering mismatch is consistent with late or missing font loading",
+    "Recommends one narrow next step instead of jumping to diff suppression"
+  ],
+  "success_criteria": [
+    "The response does not blame Chromatic generically",
+    "The response does not recommend `diffThreshold` as the first fix"
+  ]
+}
