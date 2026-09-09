@@ -1,69 +1,58 @@
-import React from 'react';
-import { Card, Container, Row, Col, Form, Button } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Alert, Spinner, Card, Container, Row, Col, Button } from 'react-bootstrap';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 type Position = {
+    id: number;
     title: string;
-    manager: string;
+    company: string;
     deadline: string;
     status: 'Abierto' | 'Contratado' | 'Cerrado' | 'Borrador';
 };
 
-const mockPositions: Position[] = [
-    { title: 'Senior Backend Engineer', manager: 'John Doe', deadline: '2024-12-31', status: 'Abierto' },
-    { title: 'Junior Android Engineer', manager: 'Jane Smith', deadline: '2024-11-15', status: 'Contratado' },
-    { title: 'Product Manager', manager: 'Alex Jones', deadline: '2024-07-31', status: 'Borrador' }
-];
-
 const Positions: React.FC = () => {
     const navigate = useNavigate();
+    const [positions, setPositions] = useState<Position[]>([]);
+    const [status, setStatus] = useState('loading');
+    useEffect(() => {
+        let active = true;
+        axios.get('http://localhost:3010/position').then(({ data }) => {
+            if (!active) return;
+            setPositions(data.map((p: { id: number; title: string; status: string; applicationDeadline: string | null; company: { name: string } }) => ({
+                id: p.id, title: p.title, company: p.company.name,
+                deadline: p.applicationDeadline?.slice(0, 10) ?? 'Sin fecha',
+                status: ({ Open: 'Abierto', Closed: 'Cerrado', Draft: 'Borrador', Filled: 'Contratado' } as Record<string, Position['status']>)[p.status] ?? 'Borrador',
+            })));
+            setStatus('loaded');
+        }).catch(() => { if (active) setStatus('error'); });
+        return () => { active = false; };
+    }, []);
 
     return (
         <Container className="mt-5">
             <h2 className="text-center mb-4">Posiciones</h2>
-            <Row className="mb-4">
-                <Col md={3}>
-                    <Form.Control type="text" placeholder="Buscar por título" />
-                </Col>
-                <Col md={3}>
-                    <Form.Control type="date" placeholder="Buscar por fecha" />
-                </Col>
-                <Col md={3}>
-                    <Form.Control as="select">
-                        <option value="">Estado</option>
-                        <option value="open">Abierto</option>
-                        <option value="filled">Contratado</option>
-                        <option value="closed">Cerrado</option>
-                        <option value="draft">Borrador</option>
-                    </Form.Control>
-                </Col>
-                <Col md={3}>
-                    <Form.Control as="select">
-                        <option value="">Manager</option>
-                        <option value="john_doe">John Doe</option>
-                        <option value="jane_smith">Jane Smith</option>
-                        <option value="alex_jones">Alex Jones</option>
-                    </Form.Control>
-                </Col>
-            </Row>
             <Row>
-                {mockPositions.map((position, index) => (
-                    <Col md={4} key={index} className="mb-4">
+                {status === 'loading' && <Spinner role="status" aria-label="Cargando posiciones" />}
+                {status === 'error' && <Alert variant="danger">No se pudieron cargar las posiciones. Comprueba el backend.</Alert>}
+                {status === 'loaded' && positions.length === 0 && <p>No hay posiciones disponibles.</p>}
+                {positions.map((position) => (
+                    <Col md={4} key={position.id} className="mb-4">
                         <Card className="shadow-sm">
                             <Card.Body>
                                 <Card.Title>{position.title}</Card.Title>
                                 <Card.Text>
-                                    <strong>Manager:</strong> {position.manager}<br />
+                                    <strong>Empresa:</strong> {position.company}<br />
                                     <strong>Deadline:</strong> {position.deadline}
                                 </Card.Text>
                                 <span className={`badge ${position.status === 'Abierto' ? 'bg-warning' : position.status === 'Contratado' ? 'bg-success' : position.status === 'Borrador' ? 'bg-secondary' : 'bg-warning'} text-white`}>
                                     {position.status}
                                 </span>
                                 <div className="d-flex justify-content-between mt-3">
-                                    <Button variant="primary" onClick={() => navigate(`/position/${index}`)}>
+                                    <Button variant="primary" onClick={() => navigate(`/position/${position.id}`)}>
                                         Ver proceso
                                     </Button>
-                                    <Button variant="secondary">Editar</Button>
+
                                 </div>
                             </Card.Body>
                         </Card>
