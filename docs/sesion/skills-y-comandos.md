@@ -47,7 +47,7 @@ Ejemplo: «Lee .agents/skills/lti-atomic-design/SKILL.md y .agents/skills/atomic
 
 ## Plugin
 
-El plugin `lti-frontend-workshop` está en `plugins/lti-frontend-workshop`, con manifiesto Codex y 14 skills. El catálogo local está en `.agents/plugins/marketplace.json`.
+El plugin `lti-frontend-workshop` está en `plugins/lti-frontend-workshop`, con manifiesto Codex y 15 skills. El catálogo local está en `.agents/plugins/marketplace.json`.
 
 Para instalar en otra máquina con Codex CLI compatible, desde este repo:
 
@@ -59,3 +59,7 @@ codex plugin add lti-frontend-workshop@personal
 El nombre del catálogo de este repo es `personal`. Si ese nombre ya está registrado con otro origen, resolver el conflicto antes de instalar; no reemplazar otro catálogo. En este Mac se utiliza el CLI incluido en `/Applications/ChatGPT.app/Contents/Resources/codex` porque el comando global de Homebrew está incompleto.
 
 Después de instalar el plugin, abrir una nueva tarea para cargar sus skills. Las copias del repositorio siguen disponibles sin el plugin. Los prompts públicos están en docs/sesion/prompts.md; el guion docente no forma parte del plugin.
+
+## Ejecutar el flujo completo
+
+Invoca `$frontend-sdd-workflow` con el diseño, característica y base. Ejemplo: «Usa $frontend-sdd-workflow para implementar esta característica desde Figma hasta PR, con checkpoints por etapa». También admite «solo propuesta», «hasta TDD rojo» y «continúa desde Storybook».

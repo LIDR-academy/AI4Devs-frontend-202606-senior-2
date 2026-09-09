@@ -1,6 +1,6 @@
 # LTI Frontend Workshop
 
-Plugin del repositorio para OpenSpec, Atomic Design, Storybook y Chromatic. Contiene 14 skills; no inicia servidores ni publica builds automáticamente.
+Plugin del repositorio para OpenSpec, Atomic Design, Storybook y Chromatic. Contiene 15 skills; no inicia servidores ni publica builds automáticamente.
 
 Las skills también están en `.agents/skills` para trabajar directamente en el repo. El plugin empaqueta una copia portátil. Antes de aplicar una recomendación genérica, leer `openspec/config.yaml` y `docs/sesion/prompts.md`: React 18, Bootstrap, Jest y Storybook 7.6, sin migraciones de framework. Backend preparado; búsqueda en frontend.
 
@@ -12,3 +12,5 @@ Las skills también están en `.agents/skills` para trabajar directamente en el 
 - storybook y las tres skills Chromatic: materiales ya instalados en el repositorio, conservados con sus referencias.
 
 Consultar `docs/sesion/skills-y-comandos.md` desde la raíz del repositorio para instalación y comandos. Las skills dan instrucciones a la IA; los comandos npm ejecutan herramientas. No hay un CLI independiente de Atomic Design.
+
+Skill de entrada: `$frontend-sdd-workflow`. Ejecuta el flujo completo o retoma una etapa según el alcance indicado.
