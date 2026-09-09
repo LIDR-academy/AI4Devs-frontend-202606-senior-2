@@ -1,0 +1,18 @@
+# Delay
+
+Derived from Chromatic's official LLM docs on 2026-04-17.
+Source URL: https://www.chromatic.com/docs/delay
+
+Use when:
+- the UI needs extra time to settle after an async action or animation
+- resource loading is understood, but the final state still appears after the default capture point
+
+Primary fix paths:
+- prefer assertions or `play`-function checks when you can prove the intended state directly
+- use `chromatic.delay` only when the rendering delay is real and reasonably bounded
+- for Playwright or Cypress, rely on framework assertions and timeouts before falling back to fixed waits
+- if a moving or third-party surface can never be stabilized, consider ignoring that region instead of raising `delay` endlessly
+
+Validation hints:
+- delay hides timing variability; it does not remove the underlying cause
+- use it after you understand whether the issue is async rendering, animation, or asset loading
