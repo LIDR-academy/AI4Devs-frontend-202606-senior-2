@@ -50,3 +50,7 @@
 @media (max-width: 767.98px) {
     .kanban-session .kanban-column { flex: 0 0 auto; }
 }
+
+.kanban-search .form-control { min-width: 0; }
+.kanban-search .btn { flex-shrink: 0; }
+@media (max-width: 480px) { .kanban-search .d-flex { flex-direction: column; } }

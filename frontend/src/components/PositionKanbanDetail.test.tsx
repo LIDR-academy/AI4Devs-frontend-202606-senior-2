@@ -237,4 +237,55 @@ describe('PositionKanbanDetail', () => {
         expect(mockedUpdateCandidateStage).toHaveBeenCalledTimes(2);
     });
 
+    describe('Búsqueda de candidatos (BS)', () => {
+        beforeEach(() => {
+            mockedGetInterviewFlow.mockResolvedValue({ positionName: 'Frontend Engineer', interviewSteps: steps });
+            mockedGetCandidatesByPosition.mockResolvedValue([
+                { id: 1, applicationId: 10, fullName: 'Alex Demo', currentInterviewStep: 'Phone Screen', averageScore: 8 },
+                { id: 2, applicationId: 11, fullName: 'José Pérez', currentInterviewStep: 'Phone Screen', averageScore: 9 },
+            ]);
+            mockedUpdateCandidateStage.mockResolvedValue({});
+        });
+        it('BS-01: busca ignorando mayúsculas, tildes y espacios exteriores sin volver a pedir datos', async () => {
+            renderComponent();
+            await screen.findByTestId('kanban-card-11');
+            userEvent.type(screen.getByRole('searchbox'), '  JOSE  ');
+            expect(screen.getByTestId('kanban-card-11')).toBeInTheDocument();
+            expect(screen.queryByTestId('kanban-card-10')).not.toBeInTheDocument();
+            expect(screen.getByLabelText('Resultados de búsqueda')).toHaveTextContent('1 de 2 candidatos');
+            expect(mockedGetCandidatesByPosition).toHaveBeenCalledTimes(1);
+        });
+        it('BS-02: distingue cero coincidencias y limpiar recupera las tarjetas y el foco', async () => {
+            renderComponent();
+            await screen.findByTestId('kanban-card-11');
+            userEvent.type(screen.getByRole('searchbox'), 'nadie');
+            expect(screen.getByText('No hay candidatos que coincidan con la búsqueda.')).toBeInTheDocument();
+            userEvent.click(screen.getByRole('button', { name: 'Limpiar búsqueda' }));
+            expect(screen.getAllByTestId(/kanban-card-/)).toHaveLength(2);
+            expect(screen.getByRole('searchbox')).toHaveFocus();
+        });
+        it('BS-03: mueve la candidatura visible aunque ocupe otro índice en los datos', async () => {
+            renderComponent();
+            await screen.findByTestId('kanban-card-11');
+            userEvent.type(screen.getByRole('searchbox'), 'José');
+            await act(async () => { capturedOnDragEnd({ source: { droppableId: '1', index: 0 }, destination: { droppableId: '2', index: 0 } }); });
+            expect(mockedUpdateCandidateStage).toHaveBeenCalledWith(2, 11, 2);
+            userEvent.click(screen.getByRole('button', { name: 'Limpiar búsqueda' }));
+            expect(screen.getByTestId('kanban-column-1')).toHaveTextContent('Alex Demo');
+            expect(screen.getByTestId('kanban-column-2')).toHaveTextContent('José Pérez');
+        });
+        it('BS-04: el rollback conserva la búsqueda y las tarjetas ocultas', async () => {
+            mockedUpdateCandidateStage.mockRejectedValue(new Error('offline'));
+            renderComponent();
+            await screen.findByTestId('kanban-card-11');
+            userEvent.type(screen.getByRole('searchbox'), 'José');
+            await act(async () => { capturedOnDragEnd({ source: { droppableId: '1', index: 0 }, destination: { droppableId: '2', index: 0 } }); });
+            expect(screen.getByRole('searchbox')).toHaveValue('José');
+            expect(screen.getByTestId('kanban-column-1')).toHaveTextContent('José Pérez');
+            userEvent.click(screen.getByRole('button', { name: 'Limpiar búsqueda' }));
+            expect(screen.getByTestId('kanban-column-1')).toHaveTextContent('Alex Demo');
+            expect(screen.getByTestId('kanban-column-1')).toHaveTextContent('José Pérez');
+        });
+    });
+
 });

@@ -6,8 +6,11 @@ import { DropResult } from '@hello-pangea/dnd';
 import { getInterviewFlow, getCandidatesByPosition, InterviewStep, Candidate } from '../services/positionService';
 import { updateCandidateStage } from '../services/candidateService';
 import './PositionKanbanDetail.css';
+import { CandidateSearch } from './kanban/CandidateSearch';
 import { KanbanBoard } from './kanban/KanbanBoard';
 import { MoveStatus } from './kanban/MoveStatus';
+
+const normalizeSearch = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLocaleLowerCase('es');
 
 type RequestStatus = 'loading' | 'error' | 'loaded';
 type ColumnsState = Record<number, Candidate[]>;
@@ -19,6 +22,7 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
+    const [query, setQuery] = useState('');
     const [positionName, setPositionName] = useState('');
     const [steps, setSteps] = useState<InterviewStep[]>([]);
     const [rawCandidates, setRawCandidates] = useState<Candidate[]>([]);
@@ -73,6 +77,11 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
         setColumns(grouped);
     }, [flowStatus, steps, rawCandidates]);
 
+    const matches = (candidate: Candidate) => normalizeSearch(candidate.fullName).includes(normalizeSearch(query));
+    const visibleColumns = Object.fromEntries(Object.entries(columns).map(([key, list]) => [key, list.filter(matches)])) as ColumnsState;
+    const totalCount = Object.values(columns).reduce((sum, list) => sum + list.length, 0);
+    const visibleCount = Object.values(visibleColumns).reduce((sum, list) => sum + list.length, 0);
+
     const handleDragEnd = useCallback(
         (result: DropResult) => {
             if (savingRef.current) return;
@@ -84,11 +93,17 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
             const destStepId = Number(destination.droppableId);
 
             const sourceList = [...(columns[sourceStepId] ?? [])];
-            const [movedCandidate] = sourceList.splice(source.index, 1);
+            const visibleSource = sourceList.filter(candidate => normalizeSearch(candidate.fullName).includes(normalizeSearch(query)));
+            const sourceIndex = sourceList.findIndex(candidate => candidate.applicationId === visibleSource[source.index]?.applicationId);
+            if (sourceIndex < 0) return;
+            const [movedCandidate] = sourceList.splice(sourceIndex, 1);
             if (!movedCandidate) return;
 
             const destList = [...(columns[destStepId] ?? [])];
-            destList.splice(destination.index, 0, movedCandidate);
+            const visibleDest = destList.filter(candidate => normalizeSearch(candidate.fullName).includes(normalizeSearch(query)));
+            const before = visibleDest[destination.index];
+            const destIndex = before ? destList.findIndex(candidate => candidate.applicationId === before.applicationId) : destList.length;
+            destList.splice(destIndex, 0, movedCandidate);
 
             savingRef.current = true;
             setIsSaving(true);
@@ -108,7 +123,7 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
                 setIsSaving(false);
             });
         },
-        [columns, services]
+        [columns, services, query]
     );
 
     if (flowStatus === 'loading' || candidatesStatus === 'loading') {
@@ -150,8 +165,10 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
                 </Alert>
             )}
 
+            {candidatesStatus === 'loaded' && <CandidateSearch query={query} visibleCount={visibleCount}
+                totalCount={totalCount} disabled={isSaving} onQueryChange={setQuery} />}
             <MoveStatus pending={isSaving} />
-            <KanbanBoard steps={steps} columns={columns} disabled={isSaving} onDragEnd={handleDragEnd} />
+            <KanbanBoard steps={steps} columns={visibleColumns} disabled={isSaving} onDragEnd={handleDragEnd} />
         </Container>
     );
 };

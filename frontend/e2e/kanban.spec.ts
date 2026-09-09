@@ -26,3 +26,35 @@ test('KB-04: nombre largo no desborda a 375px', async ({ page }) => {
   await expect(page.getByTestId('kanban-card-10')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
+
+test('BS-01 y BS-02: búsqueda normalizada, vacío y recuperación por teclado', async ({ page }) => {
+  await page.goto(story('search-ready'));
+  const input = page.getByRole('searchbox');
+  await input.fill('  JOSE  ');
+  await expect(page.getByTestId('kanban-card-11')).toBeVisible();
+  await expect(page.getByTestId('kanban-card-10')).toHaveCount(0);
+  await input.fill('nadie');
+  await expect(page.getByText('No hay candidatos que coincidan con la búsqueda.')).toBeVisible();
+  await input.press('Tab');
+  await page.keyboard.press('Enter');
+  await expect(input).toBeFocused();
+  await expect(page.getByTestId('kanban-card-10')).toBeVisible();
+});
+test('BS-03: arrastrar con filtro mueve a José y conserva a Alex', async ({ page }) => {
+  await page.goto(story('search-ready'));
+  await page.getByRole('searchbox').fill('jose');
+  await page.getByTestId('kanban-card-11').focus();
+  await page.keyboard.press('Space');
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('Space');
+  await expect(page.getByTestId('kanban-column-2')).toContainText('José Pérez');
+  await page.getByRole('button', { name: 'Limpiar búsqueda' }).click();
+  await expect(page.getByTestId('kanban-column-1')).toContainText('Alex Demo');
+});
+test('BS-05: buscador usable a 375 px', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.goto(story('search-ready'));
+  await page.getByRole('searchbox').fill('jose');
+  await expect(page.getByRole('button', { name: 'Limpiar búsqueda' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
