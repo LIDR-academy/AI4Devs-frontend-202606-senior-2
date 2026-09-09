@@ -2,7 +2,7 @@
 
 Este ejercicio vive en **AI4Devs-frontend-202606-senior-2**, sobre el código del [PR #5](https://github.com/LIDR-academy/AI4Devs-frontend-202606-senior-2/pull/5), commit `b5e3b255bfe640ff2079e1cef330a28e382e3e50`. Rama docente: `sesion-frontend/storybook-sdd-kanban`.
 
-## Preparación y primera demo
+## Preparación previa de entorno
 
 Node 22.6 o posterior y Google Chrome instalado. Desde `frontend`:
 
@@ -19,14 +19,28 @@ Explorar Loaded, Empty, Loading, LoadError, CandidatesError y LongName. Después
 
 | Minutos | Trabajo y evidencia |
 | --- | --- |
-| 00–15 | Storybook primero: estados reproducibles del tablero real y una operación fallida. |
-| 15–30 | AI y contexto: leer PR #5 y contrastar el proceso Figma/tokens del PR #7. Inspeccionar skills antes de activarlas. |
-| 30–45 | Atomic Design y diseño: estado de guardado, resumen de candidato y tablero; contratos, jerarquía y responsive. |
-| 45–60 | SDD macro: propuesta de feature, límites, riesgos y tres incrementos con criterios comprobables. |
+| 00–20 | Feedback PR #5/#7 y diseño LTI: estados, jerarquía, responsive y Atomic Design. |
+| 20–40 | SDD con IA: propuesta de feature, límites, decisiones y criterios KB-01 a KB-04. |
+| 40–50 | Storybook: representar el contrato con estados reproducibles y servicios deterministas. |
+| 50–60 | TDD: activar rojo y explicar el fallo KB-03 antes de corregirlo. |
 | 60–70 | Descanso. |
-| 70–95 | AI + TDD: reproducir KB-03, implementar bloqueo, comprobar rollback y recuperar interacción. |
-| 95–110 | Storybook + Chromatic: comparar estados, revisar diferencias y preparar evidencia de PR. |
-| 110–120 | Cierre, preguntas y retro: qué evidencia permite aceptar la feature. |
+| 70–90 | TDD con IA: implementar la protección, comprobar rollback y recuperar interacción. |
+| 90–100 | Chromatic: comparar estados contra una referencia revisada; demo de publicación solo con proyecto autorizado. |
+| 100–110 | PR: reunir spec, tests, revisión visual, decisiones y pendientes de integración. |
+| 110–120 | Preguntas, retro y cierre. |
+
+## Recorrido del ejercicio
+
+**Diseño → SDD → Storybook → TDD → Chromatic → PR.**
+
+1. **Diseño:** partir del Figma propio y la vista original de LTI. Acordar estados de carga, error, guardado y móvil. Resultado: decisiones visuales y de interacción explícitas.
+2. **SDD:** convertir esas decisiones en la feature «mover una candidatura sin perder cambios», con límites y criterios KB-01 a KB-04. Resultado: propuesta, spec, diseño técnico y tareas versionados.
+3. **Storybook:** representar los estados del contrato con el componente real y datos ficticios. Resultado: ejemplos ejecutables revisables antes de integrar backend.
+4. **TDD:** activar el fallo KB-03, ejecutar el test, implementar la corrección y comprobar teclado y rollback. Resultado: evidencia roja y verde. Las stories acompañan este ciclo y no sustituyen las pruebas de comportamiento.
+5. **Chromatic:** comparar los estados y viewports contra una referencia aceptada por una persona. Resultado: diferencias explicadas. La publicación sigue pendiente de conectar un proyecto autorizado.
+6. **PR:** enlazar requisito, implementación, pruebas y revisión visual, dejando explícitos los pendientes de backend real. Resultado: cambio revisable dentro del mismo repositorio.
+
+La AI participa en cada paso con contexto del repo y skills pertinentes. La secuencia permite volver al diseño o al contrato cuando una prueba descubre una ambigüedad. Storybook antes de TDD significa preparar los ejemplos y el entorno, no implementar toda la lógica antes del test.
 
 ## Diseños propios en Figma
 
