@@ -1,0 +1,20 @@
+# Resource loading
+
+Derived from Chromatic's official LLM docs on 2026-04-17.
+Source URL: https://www.chromatic.com/docs/resource-loading
+
+Use when:
+- images, fonts, videos, or styles sometimes fail to load
+- remote assets cause inconsistent snapshots
+- the UI settles only after delayed network activity
+
+Primary fix paths:
+- prefer local static assets for Storybook, Playwright, and Cypress
+- use reliable placeholder assets instead of unpredictable remote hosts
+- configure `assetDomains` only when external domains are unavoidable
+- if rendering is truly async, use `delay` only after the async path is understood
+
+Validation hints:
+- Chromatic retries resource loading, but captures after repeated failures
+- network variability from third-party hosts is a common source of false positives
+- trace-viewer network data is the fastest way to confirm missing or slow resources

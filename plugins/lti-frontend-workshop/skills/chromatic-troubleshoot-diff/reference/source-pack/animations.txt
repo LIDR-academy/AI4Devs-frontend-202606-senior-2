@@ -1,0 +1,20 @@
+# Animations
+
+Derived from Chromatic's official LLM docs on 2026-04-17.
+Source URL: https://www.chromatic.com/docs/animations
+
+Use when:
+- the captured frame is mid-transition or mid-animation
+- CSS animations pause at the wrong frame
+- JavaScript animation libraries behave differently in Chromatic
+
+Primary fix paths:
+- use `pauseAnimationAtEnd` to control whether CSS motion pauses at the first or last frame
+- disable JavaScript animation libraries in the Chromatic environment, for example with `isChromatic()`
+- for motion libraries that cannot be disabled, wait for completion with a `play` function or test assertion
+- use `delay` or ignore regions only when you cannot disable or reliably observe the motion
+
+Validation hints:
+- CSS motion is handled differently from JavaScript motion
+- videos and animated GIFs are paused automatically
+- if animations started behaving differently after infrastructure changes, verify the current `pauseAnimationAtEnd` default
