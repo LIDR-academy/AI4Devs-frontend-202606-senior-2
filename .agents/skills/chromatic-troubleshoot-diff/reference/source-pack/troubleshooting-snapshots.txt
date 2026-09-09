@@ -1,0 +1,23 @@
+# Troubleshooting Snapshots
+
+Derived from Chromatic's official LLM docs on 2026-04-17.
+Source URL: https://www.chromatic.com/docs/troubleshooting-snapshots
+
+Use when:
+- the diff changes between reruns
+- the best next step is not obvious
+- you need trace-viewer guidance, screenshot metadata, or a debugging workflow
+
+Primary fix paths:
+- rerun the build to separate real UI changes from rendering inconsistencies
+- use the Snapshot Trace Viewer to inspect network requests, console logs, DOM snapshots, and screenshot metadata
+- if fonts or styles are missing, confirm resource MIME types and consider serving them statically
+- if the issue is blank or clipped, inspect viewport metadata, clip rectangles, fixed positioning, and viewport-relative heights
+- improve consistency by removing randomness, stabilizing time-based values, serving assets statically, and preloading fonts
+
+Common scenarios covered:
+- missing images or fonts
+- `srcset` cache inconsistencies
+- iframe content outside the viewport
+- blank snapshots caused by animate-in effects or fixed-position layouts
+- browser differences, current time, and intentional randomness

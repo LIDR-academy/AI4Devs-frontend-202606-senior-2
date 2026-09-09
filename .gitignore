@@ -26,3 +26,6 @@ yarn-error.log*
 .vscode
 
 # .env
+frontend/storybook-static/
+frontend/test-results/
+frontend/playwright-report/
