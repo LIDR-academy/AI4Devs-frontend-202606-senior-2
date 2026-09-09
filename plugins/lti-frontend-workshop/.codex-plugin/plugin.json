@@ -1,0 +1,18 @@
+{
+  "name": "lti-frontend-workshop",
+  "version": "0.1.0",
+  "description": "Flujo LTI de OpenSpec, Atomic Design, Storybook y Chromatic para el taller frontend.",
+  "author": {
+    "name": "LTI Workshop"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "LTI Frontend Workshop",
+    "shortDescription": "SDD, Atomic Design, Storybook y Chromatic en LTI.",
+    "longDescription": "Skills del laboratorio y referencias de la comunidad para especificar, implementar y revisar componentes en el repositorio LTI.",
+    "developerName": "LTI Workshop",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Revisa el repositorio LTI y gu\u00eda el ejercicio con Dise\u00f1o, SDD, Atomic Design, TDD, Storybook, Chromatic y PR."
+  }
+}
