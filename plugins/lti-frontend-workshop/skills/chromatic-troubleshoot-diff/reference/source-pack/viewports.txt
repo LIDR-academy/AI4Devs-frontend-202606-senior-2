@@ -1,0 +1,21 @@
+# Viewports
+
+Derived from Chromatic's official LLM docs on 2026-04-17.
+Source URL: https://www.chromatic.com/docs/modes/viewports
+
+Use when:
+- layout changes only at certain widths or heights
+- the issue only appears in a named mode, default viewport, or global viewport override
+- screenshot metadata or clip dimensions suggest the wrong capture size
+
+Primary fix paths:
+- define viewports with the Modes API in `.storybook/modes.ts`
+- reuse Storybook viewport options by name inside modes
+- verify `globals.viewport`, `initialGlobals`, and `chromatic.modes` are not fighting each other
+- use `cropToViewport` only when the viewport height should clip the capture
+- avoid mixing legacy `chromatic.viewports` with modes in the same story
+
+Validation hints:
+- Chromatic defaults to `1200x900` when no viewport is specified
+- modes create separate snapshots and separate baselines
+- non-pixel globals can be ignored by Chromatic even if Storybook renders them locally
