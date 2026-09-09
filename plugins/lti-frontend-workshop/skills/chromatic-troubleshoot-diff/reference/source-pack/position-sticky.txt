@@ -1,0 +1,18 @@
+# Position sticky & fixed
+
+Derived from Chromatic's official LLM docs on 2026-04-17.
+Source URL: https://www.chromatic.com/docs/position-sticky
+
+Use when:
+- sticky or fixed elements pin in an unexpected place
+- blank or clipped snapshots involve `position: fixed`
+- the story renders differently when isolated from the app shell
+
+Primary fix paths:
+- remember that Chromatic captures sticky and fixed elements at their initial positions
+- for sticky elements inside `display: grid` or `display: flex` parents, wrap the story in a decorator and set the wrapper display back to `initial`
+- for fixed-position blank or missing elements, give the wrapper explicit width and height
+
+Validation hints:
+- compare the story's wrapper layout in Storybook with the real app shell
+- inspect viewport size and clip rectangle if the element appears to be outside the captured area

@@ -69,3 +69,7 @@ Preparar el backend con [backend-local.md](backend-local.md). La sesión parte c
 ## OpenSpec
 
 Ver [configuración y comandos de OpenSpec](openspec.md). El contrato del ejercicio original está en openspec/specs/position-kanban/spec.md.
+
+## Skills y plugin
+
+Ver [skills instaladas, plugin y comandos desde la raíz](skills-y-comandos.md).

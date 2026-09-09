@@ -1,0 +1,15 @@
+{
+  "name": "Issue already reproduces in local Storybook",
+  "skills": ["chromatic-troubleshoot-diff"],
+  "query": "Chromatic captured the wrong state for our button story.",
+  "context": "The user confirms the same incorrect state is visible in local Storybook before upload.",
+  "expected_behavior": [
+    "Chooses `VD_LOCAL_RENDER_DRIFT`",
+    "States that the root cause is already present before Chromatic capture",
+    "Focuses the next step on story, component, or preview code"
+  ],
+  "success_criteria": [
+    "The response does not treat Chromatic as the primary cause",
+    "The response gives one exact next step"
+  ]
+}
