@@ -25,9 +25,9 @@
 
 ## 5. Chromatic
 
-- [ ] 5.1 Revisar compatibilidad de skills Chromatic con Storybook 7.6; publicar en el proyecto autorizado el commit actual sin guardar tokens en el repo y registrar URL, commit, stories y viewports.
+- [x] 5.1 Revisar compatibilidad de skills Chromatic con Storybook 7.6; publicar en el proyecto autorizado el commit actual sin guardar tokens en el repo y registrar URL, commit, stories y viewports.
 - [ ] 5.2 Revisar diferencias desktop/móvil contra el diseño y documentar aceptación humana o incidencias; no usar builds históricos como prueba del commit nuevo ni aceptar baselines automáticamente.
-- [ ] 5.3 Guardar checkpoint Chromatic con enlaces y estado real de revisión; comprobar que los pendientes de publicación/aceptación permanecen abiertos si no se completan.
+- [x] 5.3 Guardar checkpoint Chromatic con enlaces y estado real de revisión; comprobar que los pendientes de publicación/aceptación permanecen abiertos si no se completan.
 
 ## 6. PR y cierre
 
@@ -42,3 +42,5 @@ TDD rojo: 7 fallos nuevos por buscador/estado vacío ausentes; 12 pruebas origin
 TDD verde: 19/19 pruebas, typecheck y lint:session aprobados. test:app verifica búsqueda jose, arrastre de José, conservación de Alex al limpiar, persistencia tras recarga y rollback. Comprobación Chrome adicional a 375px: botón debajo, sin desbordamiento y foco recuperado. Checkpoint buscar-candidatos-clase/04-tdd-verde. Stories del nuevo componente y publicación actual pendientes.
 
 Storybook: cuatro stories aisladas CandidateSearch y cinco integradas SearchReady/Match/NoResults/Saving/Rollback. Build y tipos aprobados; 9 escenarios Chrome pasan tras reiniciar servidor. Checkpoint buscar-candidatos-clase/05-storybook. Chromatic aún pendiente.
+
+Chromatic build 3: commit 917065f, 22 stories, 4 componentes, 39 snapshots, 25 cambios visuales pendientes de revisión. Publicado con npx chromatic y --exit-zero-on-changes; éxito del comando no significa aceptación de cambios. https://www.chromatic.com/build?appId=6aa15ada6842c110d4d8a475&number=3 . Checkpoint buscar-candidatos-clase/06-chromatic contiene esta evidencia documental posterior al commit construido.
