@@ -7,6 +7,7 @@ import { getInterviewFlow, getCandidatesByPosition, InterviewStep, Candidate } f
 import { updateCandidateStage } from '../services/candidateService';
 import './PositionKanbanDetail.css';
 import { KanbanBoard } from './kanban/KanbanBoard';
+import { CandidateSearch } from './kanban/CandidateSearch';
 import { MoveStatus } from './kanban/MoveStatus';
 
 type RequestStatus = 'loading' | 'error' | 'loaded';
@@ -27,6 +28,7 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
     const [candidatesStatus, setCandidatesStatus] = useState<RequestStatus>('loading');
     const savingRef = useRef(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [query, setQuery] = useState('');
     const [dragError, setDragError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -73,6 +75,15 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
         setColumns(grouped);
     }, [flowStatus, steps, rawCandidates]);
 
+    const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+    const normalizedQuery = normalize(query);
+    const visibleColumns: ColumnsState = Object.fromEntries(
+        Object.entries(columns).map(([step, candidates]) => [step,
+            candidates.filter(candidate => normalize(candidate.fullName).includes(normalizedQuery))])
+    );
+    const totalCount = Object.values(columns).reduce((count, candidates) => count + candidates.length, 0);
+    const visibleCount = Object.values(visibleColumns).reduce((count, candidates) => count + candidates.length, 0);
+
     const handleDragEnd = useCallback(
         (result: DropResult) => {
             if (savingRef.current) return;
@@ -83,12 +94,18 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
             const sourceStepId = Number(source.droppableId);
             const destStepId = Number(destination.droppableId);
 
+            const visibleCandidate = visibleColumns[sourceStepId]?.[source.index];
+            if (!visibleCandidate || (result.draggableId && result.draggableId !== `candidate-${visibleCandidate.applicationId}`)) return;
             const sourceList = [...(columns[sourceStepId] ?? [])];
-            const [movedCandidate] = sourceList.splice(source.index, 1);
+            const sourceIndex = sourceList.findIndex(candidate => candidate.applicationId === visibleCandidate.applicationId);
+            if (sourceIndex < 0 || !steps.some(step => step.id === destStepId)) return;
+            const [movedCandidate] = sourceList.splice(sourceIndex, 1);
             if (!movedCandidate) return;
 
             const destList = [...(columns[destStepId] ?? [])];
-            destList.splice(destination.index, 0, movedCandidate);
+            const anchor = visibleColumns[destStepId]?.[destination.index];
+            const anchorIndex = anchor ? destList.findIndex(candidate => candidate.applicationId === anchor.applicationId) : -1;
+            destList.splice(anchorIndex < 0 ? destList.length : anchorIndex, 0, movedCandidate);
 
             savingRef.current = true;
             setIsSaving(true);
@@ -108,7 +125,7 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
                 setIsSaving(false);
             });
         },
-        [columns, services]
+        [columns, visibleColumns, services, steps]
     );
 
     if (flowStatus === 'loading' || candidatesStatus === 'loading') {
@@ -150,8 +167,14 @@ const PositionKanbanDetail: React.FC<{ services?: KanbanServices }> = ({ service
                 </Alert>
             )}
 
+            {candidatesStatus === 'loaded' && <>
+                <CandidateSearch query={query} visibleCount={visibleCount} totalCount={totalCount}
+                    disabled={isSaving} onQueryChange={value => { if (!savingRef.current) setQuery(value); }} />
+                {totalCount === 0 ? <p>Esta posición todavía no tiene candidatos.</p>
+                    : visibleCount === 0 && <p>No hay candidatos que coincidan con la búsqueda.</p>}
+            </>}
             <MoveStatus pending={isSaving} />
-            <KanbanBoard steps={steps} columns={columns} disabled={isSaving} onDragEnd={handleDragEnd} />
+            <KanbanBoard steps={steps} columns={visibleColumns} disabled={isSaving} onDragEnd={handleDragEnd} />
         </Container>
     );
 };

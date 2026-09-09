@@ -50,3 +50,11 @@
 @media (max-width: 767.98px) {
     .kanban-session .kanban-column { flex: 0 0 auto; }
 }
+
+.candidate-search-controls { display: flex; gap: 0.75rem; }
+.candidate-search-controls .form-control { min-width: 0; }
+.candidate-search-controls .btn { flex-shrink: 0; }
+@media (max-width: 767.98px) {
+    .candidate-search-controls { flex-direction: column; }
+    .candidate-search-controls .btn { width: 100%; }
+}
