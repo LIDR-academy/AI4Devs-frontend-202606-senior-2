@@ -10,7 +10,7 @@
 
 ## Chromatic: ejecutar en clase
 
-Esta preparación no dispone de CHROMATIC_PROJECT_TOKEN. No hay build ni baseline remoto aprobado. Configurar el secreto en el entorno, nunca en Git.
+Ya se publicaron el baseline y la solución en el proyecto de LIDR. Usar CHROMATIC_PROJECT_TOKEN en el entorno para nuevas publicaciones, nunca en Git. La aceptación de los cambios del ejercicio queda para revisión en clase.
 
 1. En kanban-solved, ejecutar desde frontend: `npm run chromatic -- --branch-name=kanban-solved`. Revisar y aprobar visualmente la base en el proyecto autorizado.
 2. En la rama del ejercicio, ejecutar `npm run chromatic`. Abrir el build y comparar Loaded, SearchReady, SearchMatch y SearchNoResults; comprobar también teclado, foco y viewport móvil con las pruebas de navegador.
@@ -52,3 +52,12 @@ docker stop lidr-workshop-pg-20260909
 ```
 
 El contenedor es desechable, sin volumen persistente, y solo expone el puerto en loopback. El script rechaza otra dirección de base y no reutiliza un backend ya iniciado. Los datos desaparecen al detener ese contenedor.
+
+
+## Chromatic publicado
+
+- Base kanban-solved, commit baaed7c: [Build 1](https://www.chromatic.com/build?appId=6aa15ada6842c110d4d8a475&number=1), 13 stories y 23 capturas. Chromatic aceptó automáticamente el primer build como referencia.
+- Solución, commit 004b215: [Build 2](https://www.chromatic.com/build?appId=6aa15ada6842c110d4d8a475&number=2), 16 stories y 29 capturas; 15 cambios sin aceptar frente al Build 1. No confundir publicación correcta con aprobación visual.
+- [Storybook de la solución](https://6aa15ada6842c110d4d8a475-orcpjvoyhn.chromatic.com/).
+
+En clase abrir Verify changes: revisar SearchReady, SearchMatch y SearchNoResults en 375 y 1280 px, y comparar Loaded, Empty, LongName y los estados del movimiento. Aceptar solo lo intencional. El build corresponde al commit indicado; esta documentación posterior no modifica la interfaz publicada.
