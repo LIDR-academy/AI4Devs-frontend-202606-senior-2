@@ -1,0 +1,58 @@
+.kanban-board {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.kanban-column {
+  display: flex;
+  flex-direction: column;
+  background-color: #f4f5f7;
+  border-radius: 0.5rem;
+  width: 100%;
+}
+
+.kanban-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.kanban-column-body {
+  flex: 1;
+  min-height: 4rem;
+  padding: 0.75rem;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.kanban-column-body-over {
+  background-color: #e2e6ea;
+}
+
+.kanban-card {
+  cursor: grab;
+}
+
+.kanban-card-dragging {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.25);
+}
+
+/* A partir del punto de corte md de Bootstrap (768px), el tablero pasa a
+   disponer las columnas en fila, con scroll horizontal si no caben. */
+@media (min-width: 768px) {
+  .kanban-board {
+    flex-direction: row;
+    align-items: flex-start;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .kanban-column {
+    min-width: 18rem;
+    max-width: 18rem;
+    flex: 0 0 auto;
+  }
+}
