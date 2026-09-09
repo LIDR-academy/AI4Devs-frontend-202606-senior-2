@@ -30,7 +30,7 @@
 
 ## 6. PR y cierre
 - [x] 6.1 Ejecutar validación OpenSpec, typecheck, tests afectados, build de Storybook y smoke de aplicación; enlazar evidencia y separar simulación de persistencia real.
-- [ ] 6.2 Crear PR con matriz SB-01 a SB-07, componentes extraídos, enlaces y pendientes; verificar que no incluye backend, búsqueda nueva ni guion docente.
+- [x] 6.2 Crear PR con matriz SB-01 a SB-07, componentes extraídos, enlaces y pendientes; verificar que no incluye backend, búsqueda nueva ni guion docente.
 - [ ] 6.3 Actualizar tareas solo con evidencia y sincronizar/archivar tras aceptación; comprobar que no quedan tareas visuales pendientes antes del cierre.
 
 Evidencia y bloqueo de publicación: docs/evidence/frontend-storybook/README.md. La tarea 5.1 permite documentar el bloqueo; no se ha publicado ni aprobado un build actual.
