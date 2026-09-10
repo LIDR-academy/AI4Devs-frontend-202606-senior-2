@@ -1,108 +1,17 @@
-import React, { useState } from 'react';
-import { Form, Button, Alert, InputGroup, FormControl, Card, Container, Row, Col } from 'react-bootstrap';
+import React from 'react';
+import { Form, Button, Alert, FormControl, Card, Container, Row, Col } from 'react-bootstrap';
 import { Trash } from 'react-bootstrap-icons';
-import FileUploader from './FileUploader';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-
-const AddCandidateForm = () => {
-    const [candidate, setCandidate] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        address: '',
-        educations: [],
-        workExperiences: [],
-        cv: null
-    });
-    const [error, setError] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
-
-    const handleInputChange = (e, index, section) => {
-        const updatedSection = [...candidate[section]];
-        if (updatedSection[index]) {
-            updatedSection[index][e.target.name] = e.target.value;
-            setCandidate({ ...candidate, [section]: updatedSection });
-        }
-    };
-
-    const handleDateChange = (date, index, section, field) => {
-        const updatedSection = [...candidate[section]];
-        if (updatedSection[index]) {
-            updatedSection[index][field] = date;
-            setCandidate({ ...candidate, [section]: updatedSection });
-        }
-    };
-
-    const handleAddSection = (section) => {
-        const newSection = section === 'educations' ? { institution: '', title: '', startDate: '', endDate: '' } : { company: '', position: '', description: '', startDate: '', endDate: '' };
-        setCandidate({ ...candidate, [section]: [...candidate[section], newSection] });
-    };
-
-    const handleRemoveSection = (index, section) => {
-        const updatedSection = [...candidate[section]];
-        updatedSection.splice(index, 1);
-        setCandidate({ ...candidate, [section]: updatedSection });
-    };
-
-    const handleCVUpload = (fileData) => {
-        setCandidate({ ...candidate, cv: fileData });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const candidateData = {
-                ...candidate,
-                cv: candidate.cv ? {
-                    filePath: candidate.cv.filePath,
-                    fileType: candidate.cv.fileType
-                } : null
-            };
-
-            // Format date fields to YYYY-MM-DD before sending to the endpoint
-            candidateData.educations = candidateData.educations.map(education => ({
-                ...education,
-                startDate: education.startDate ? education.startDate.toISOString().slice(0, 10) : '',
-                endDate: education.endDate ? education.endDate.toISOString().slice(0, 10) : ''
-            }));
-            candidateData.workExperiences = candidateData.workExperiences.map(experience => ({
-                ...experience,
-                startDate: experience.startDate ? experience.startDate.toISOString().slice(0, 10) : '',
-                endDate: experience.endDate ? experience.endDate.toISOString().slice(0, 10) : ''
-            }));
-
-            const res = await fetch('http://localhost:3010/candidates', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(candidateData)
-            });
-
-            if (res.status === 201) {
-                setSuccessMessage('Candidato añadido con éxito');
-                setError('');
-            } else if (res.status === 400) {
-                const errorData = await res.json();
-                throw new Error('Datos inválidos: ' + errorData.message);
-            } else if (res.status === 500) {
-                throw new Error('Error interno del servidor');
-            } else {
-                throw new Error('Error al enviar datos del candidato');
-            }
-        } catch (error) {
-            setError('Error al añadir candidato: ' + error.message);
-            setSuccessMessage('');
-        }
-    };
-
+import './catalog.css';
+/** Controlled form organism. Owns no services or domain state. Upload is a composition slot. */
+export const CandidateFormView = ({candidate,onFieldChange,handleInputChange,handleDateChange,handleAddSection,handleRemoveSection,handleSubmit,error='',successMessage='',uploadField}) => {
     return (
         <Container className="mt-5">
             <h1 className="mb-4">Agregar Candidato</h1>
             <Card className="shadow p-4">
                 <Form onSubmit={handleSubmit}>
+                    <span id="start-date-label" className="visually-hidden">Fecha de Inicio</span><span id="end-date-label" className="visually-hidden">Fecha de Fin</span>
                     <Row>
                         <Col md={6}>
                             <Form.Group controlId="firstName">
@@ -110,8 +19,9 @@ const AddCandidateForm = () => {
                                 <Form.Control
                                     type="text"
                                     name="firstName"
+                                    value={candidate.firstName}
                                     required
-                                    onChange={(e) => setCandidate({ ...candidate, firstName: e.target.value })}
+                                    onChange={(e) => onFieldChange('firstName', e.target.value)}
                                     className="form-control shadow-sm"
                                 />
                             </Form.Group>
@@ -120,8 +30,9 @@ const AddCandidateForm = () => {
                                 <Form.Control
                                     type="text"
                                     name="lastName"
+                                    value={candidate.lastName}
                                     required
-                                    onChange={(e) => setCandidate({ ...candidate, lastName: e.target.value })}
+                                    onChange={(e) => onFieldChange('lastName', e.target.value)}
                                     className="form-control shadow-sm"
                                 />
                             </Form.Group>
@@ -130,8 +41,9 @@ const AddCandidateForm = () => {
                                 <Form.Control
                                     type="email"
                                     name="email"
+                                    value={candidate.email}
                                     required
-                                    onChange={(e) => setCandidate({ ...candidate, email: e.target.value })}
+                                    onChange={(e) => onFieldChange('email', e.target.value)}
                                     className="form-control shadow-sm"
                                 />
                             </Form.Group>
@@ -140,7 +52,8 @@ const AddCandidateForm = () => {
                                 <Form.Control
                                     type="tel"
                                     name="phone"
-                                    onChange={(e) => setCandidate({ ...candidate, phone: e.target.value })}
+                                    value={candidate.phone}
+                                    onChange={(e) => onFieldChange('phone', e.target.value)}
                                     className="form-control shadow-sm"
                                 />
                             </Form.Group>
@@ -149,7 +62,8 @@ const AddCandidateForm = () => {
                                 <Form.Control
                                     type="text"
                                     name="address"
-                                    onChange={(e) => setCandidate({ ...candidate, address: e.target.value })}
+                                    value={candidate.address}
+                                    onChange={(e) => onFieldChange('address', e.target.value)}
                                     className="form-control shadow-sm"
                                 />
                             </Form.Group>
@@ -157,11 +71,7 @@ const AddCandidateForm = () => {
                         <Col md={6}>
                             <Form.Group controlId="cv">
                                 <Form.Label>CV</Form.Label>
-                                <FileUploader
-                                    onChange={handleCVUpload}
-                                    onUpload={handleCVUpload}
-                                    className="shadow-sm"
-                                />
+                                {uploadField}
                             </Form.Group>
                             <Row className="mt-4">
                                 <Button onClick={() => handleAddSection('educations')} className="btn btn-primary btn-sm mr-2">Añadir Educación</Button>
@@ -171,7 +81,7 @@ const AddCandidateForm = () => {
                                     <Row className="mt-4">
                                         <Col md={6}>
                                             <FormControl
-                                                placeholder="Institución"
+                                                aria-label="Institución" placeholder="Institución"
                                                 name="institution"
                                                 value={education.institution}
                                                 onChange={(e) => handleInputChange(e, index, 'educations')}
@@ -182,7 +92,7 @@ const AddCandidateForm = () => {
                                     <Row className="mt-2">
                                         <Col md={6}>
                                             <FormControl
-                                                placeholder="Título"
+                                                aria-label="Título" placeholder="Título"
                                                 name="title"
                                                 value={education.title}
                                                 onChange={(e) => handleInputChange(e, index, 'educations')}
@@ -193,19 +103,19 @@ const AddCandidateForm = () => {
                                     <Row className="mt-2">
                                         <Col md={6}>
                                             <DatePicker
-                                                selected={education.startDate}
+                                                selected={education.startDate || null}
                                                 onChange={(date) => handleDateChange(date, index, 'educations', 'startDate')}
                                                 dateFormat="yyyy-MM-dd"
-                                                placeholderText="Fecha de Inicio"
+                                                ariaLabelledBy="start-date-label" placeholderText="Fecha de Inicio"
                                                 className="form-control shadow-sm"
                                             />
                                         </Col>
                                         <Col md={6}>
                                             <DatePicker
-                                                selected={education.endDate}
+                                                selected={education.endDate || null}
                                                 onChange={(date) => handleDateChange(date, index, 'educations', 'endDate')}
                                                 dateFormat="yyyy-MM-dd"
-                                                placeholderText="Fecha de Fin"
+                                                ariaLabelledBy="end-date-label" placeholderText="Fecha de Fin"
                                                 className="form-control shadow-sm"
                                             />
                                         </Col>
@@ -223,7 +133,7 @@ const AddCandidateForm = () => {
                                     <Row className="mt-4">
                                         <Col md={6}>
                                             <FormControl
-                                                placeholder="Empresa"
+                                                aria-label="Empresa" placeholder="Empresa"
                                                 name="company"
                                                 value={experience.company}
                                                 onChange={(e) => handleInputChange(e, index, 'workExperiences')}
@@ -234,7 +144,7 @@ const AddCandidateForm = () => {
                                     <Row className="mt-2">
                                         <Col md={6}>
                                             <FormControl
-                                                placeholder="Puesto"
+                                                aria-label="Puesto" placeholder="Puesto"
                                                 name="position"
                                                 value={experience.position}
                                                 onChange={(e) => handleInputChange(e, index, 'workExperiences')}
@@ -245,19 +155,19 @@ const AddCandidateForm = () => {
                                     <Row className="mt-2">
                                         <Col md={6}>
                                             <DatePicker
-                                                selected={experience.startDate}
+                                                selected={experience.startDate || null}
                                                 onChange={(date) => handleDateChange(date, index, 'workExperiences', 'startDate')}
                                                 dateFormat="yyyy-MM-dd"
-                                                placeholderText="Fecha de Inicio"
+                                                ariaLabelledBy="start-date-label" placeholderText="Fecha de Inicio"
                                                 className="form-control shadow-sm"
                                             />
                                         </Col>
                                         <Col md={6}>
                                             <DatePicker
-                                                selected={experience.endDate}
+                                                selected={experience.endDate || null}
                                                 onChange={(date) => handleDateChange(date, index, 'workExperiences', 'endDate')}
                                                 dateFormat="yyyy-MM-dd"
-                                                placeholderText="Fecha de Fin"
+                                                ariaLabelledBy="end-date-label" placeholderText="Fecha de Fin"
                                                 className="form-control shadow-sm"
                                             />
                                         </Col>
@@ -277,5 +187,3 @@ const AddCandidateForm = () => {
         </Container>
     );
 };
-
-export default AddCandidateForm;

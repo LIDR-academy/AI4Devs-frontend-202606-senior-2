@@ -1,0 +1,13 @@
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import RecruiterDashboard from './RecruiterDashboard';
+import AddCandidateForm from './AddCandidateForm';
+import Positions from './Positions';
+import axios from 'axios';
+jest.mock('axios');
+afterEach(()=>jest.restoreAllMocks());
+test('dashboard keeps both destinations',()=>{render(<MemoryRouter><RecruiterDashboard/></MemoryRouter>);expect(screen.getByRole('link',{name:'Añadir Nuevo Candidato'})).toHaveAttribute('href','/add-candidate');expect(screen.getByRole('link',{name:'Ir a Posiciones'})).toHaveAttribute('href','/positions');});
+test('positions represents loading, then empty',async()=>{let done;axios.get.mockImplementation(()=>new Promise(r=>{done=r;}));render(<MemoryRouter><Positions/></MemoryRouter>);expect(screen.getByRole('status')).toBeVisible();done({data:[]});expect(await screen.findByText('No hay posiciones disponibles.')).toBeVisible();});
+test('positions represents API failure',async()=>{axios.get.mockRejectedValue(new Error('offline'));render(<MemoryRouter><Positions/></MemoryRouter>);expect(await screen.findByRole('alert')).toHaveTextContent('No se pudieron cargar');});
+test('form retains fields, section removal and ISO date payload',async()=>{global.fetch=jest.fn().mockResolvedValue({status:201});render(<AddCandidateForm/>);for(const [label,value] of [['Nombre','Alex'],['Apellido','Demo'],['Correo Electrónico','alex@example.test']])fireEvent.change(screen.getByLabelText(label),{target:{value}});fireEvent.click(screen.getByText('Añadir Educación'));fireEvent.change(screen.getByPlaceholderText('Institución'),{target:{value:'Universidad demo'}});fireEvent.change(screen.getByPlaceholderText('Fecha de Inicio'),{target:{value:'2020-01-15'}});fireEvent.click(screen.getByText('Añadir Experiencia Laboral'));fireEvent.click(screen.getAllByText('Eliminar')[1]);fireEvent.submit(screen.getByText('Enviar').closest('form'));await waitFor(()=>expect(global.fetch).toHaveBeenCalled());const payload=JSON.parse(global.fetch.mock.calls[0][1].body);expect(payload).toMatchObject({firstName:'Alex',lastName:'Demo',email:'alex@example.test',cv:null,workExperiences:[],educations:[{institution:'Universidad demo',startDate:'2020-01-15',endDate:''}]});expect(await screen.findByText('Candidato añadido con éxito')).toBeVisible();});

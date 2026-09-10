@@ -1,0 +1,11 @@
+import AddCandidateForm from './AddCandidateForm';
+import {candidate,submit,upload} from './catalog-fixtures';
+import {within,fireEvent,waitFor} from '@storybook/testing-library';
+import {expect} from '@storybook/jest';
+export default {title:'LTI/Pages/AddCandidateForm',component:AddCandidateForm,tags:['autodocs'],args:{services:{submit,upload}},argTypes:{services:{control:false}},parameters:{docs:{description:{component:'Página con formulario real y servicios inyectados. No hace uploads ni crea candidatos en backend desde Storybook. Conserva formato de fechas y secciones.'}}}};
+export const Empty={};
+export const Prefilled={args:{initialCandidate:candidate}};
+const submitForm=async({canvasElement})=>{const canvas=within(canvasElement);fireEvent.click(canvas.getByRole('button',{name:'Enviar'}));await waitFor(()=>expect(canvas.getByRole('alert')).toBeVisible());};
+export const ValidationError={args:{initialCandidate:candidate,services:{upload,submit:async()=>({status:400,json:async()=>({message:'Correo inválido de ejemplo'})})}},play:submitForm};
+export const SubmitSuccess={args:{initialCandidate:candidate},play:submitForm};
+export const SubmitError={args:{initialCandidate:candidate,services:{upload,submit:async()=>({status:500})}},play:submitForm};
