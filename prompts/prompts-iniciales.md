@@ -238,3 +238,46 @@ Crear con OpenSpec (`/opsx:propose`) un cambio completo, con propuesta, specs, d
 - `openspec validate add-position-kanban-page --strict`: el cambio es válido. `openspec status`: 4/4 artefactos completos.
 - No se escribió código de la aplicación.
 - Pendiente: revisión del usuario y `/opsx:apply` para implementar. Quedan abiertas tres preguntas: devolver `currentInterviewStepId` desde el backend, corregir el seed y alinear las rutas del enunciado con las del backend.
+
+---
+
+## Prompt 5 — Implementar el cambio kanban
+
+- **Fecha:** 2026-09-15
+- **Rama:** `frontend-JP`
+
+### Prompt
+
+> /opsx:apply
+
+### Objetivo
+
+Implementar las tareas de `openspec/changes/add-position-kanban-page/tasks.md`: la página kanban `/positions/:id`, con su servicio de API, utilidades, componentes, estilos, rutas y tests, siguiendo la propuesta, la spec y el diseño.
+
+### Resultado
+
+- Las 27 tareas del cambio `add-position-kanban-page` quedaron completadas y marcadas en `tasks.md`.
+- Se consultó en Context7 la documentación de `@hello-pangea/dnd` (`DragDropContext`, `Droppable`, `Draggable` y `DropResult`).
+- **Archivos creados:**
+  - `frontend/src/services/positionService.ts`: llamadas a las rutas reales del backend, con errores `ApiError` y `NotFoundError`.
+  - `frontend/src/utils/kanban.ts`: `sortSteps`, `buildBoard`, `groupByStep`, `moveCandidate`, `revertMove` y `getMoveFromDropResult`.
+  - `frontend/src/components/PositionDetails/`: `PositionDetails.tsx`, `StageColumn.tsx`, `CandidateCard.tsx`, `ScoreDots.tsx` y `PositionDetails.css`.
+  - `frontend/src/setupTests.ts`: carga los matchers de `jest-dom`, que no existía.
+  - Tests: `kanban.test.ts`, `positionService.test.ts` y `PositionDetails.test.tsx`.
+- **Archivos modificados:**
+  - `frontend/package.json` y `package-lock.json`: dependencia `@hello-pangea/dnd` ^18.0.1.
+  - `frontend/src/App.js`: ruta `/positions/:id`.
+  - `frontend/src/components/Positions.tsx`: `id` en las posiciones mock y "Ver proceso" navega a `/positions/:id`.
+- **Tests:** 28 de 28 en verde con `npx react-scripts test --watchAll=false`.
+  - Un test falló primero porque `user-event` v13 usa otra copia de `@testing-library/dom` y su clic no pasa por `act`. Se corrigió esperando con `findByText`.
+- **Build:** `npm run build` compila sin errores. El único aviso de ESLint (`InputGroup` sin usar en `AddCandidateForm.js`) ya existía.
+- **Verificación manual con Playwright** (backend en 3010, frontend en 3000 y la base de datos del contenedor `ai4devs-qa-202606-senior-2-db-1`, que usa las mismas credenciales):
+  - `/positions/1`: título, flecha de vuelta, tres columnas en orden, tarjetas con puntos de puntuación y "Sin candidatos". El aspecto coincide con el ejemplo de diseño.
+  - Arrastre con teclado, ratón (con movimientos progresivos) y táctil (eventos táctiles de CDP a 390 px): en los tres casos se envió `PUT /candidates/3` con respuesta 200, el cambio quedó en la base de datos y persiste al recargar.
+    - `dragTo` de Playwright no mueve la tarjeta, porque hace un único movimiento de ratón y la librería necesita movimientos intermedios. No es un fallo de la aplicación.
+  - Fallo al guardar: se abortó el `PUT` con `page.route` para simular el backend caído. La tarjeta volvió a su columna y apareció el aviso "No se pudo mover a Carlos García de fase. Inténtalo de nuevo.", que se puede cerrar.
+  - `/positions/2` muestra el aviso de John Doe (fase ajena) y "Esta posición no tiene fases definidas". `/positions/3` y `/positions/abc` muestran "Posición no encontrada". "Ver proceso" navega correctamente.
+  - Móvil a 390 px: columnas apiladas a todo el ancho (366 px útiles) y sin scroll horizontal de la página.
+- Los datos modificados durante las pruebas se restauraron: la aplicación 4 volvió a la fase 1.
+- Backend y frontend quedan arrancados en segundo plano. No se hizo commit.
+- Pendiente: revisión del usuario y `/opsx:archive`.

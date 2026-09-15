@@ -1,0 +1,127 @@
+.position-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.position-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    color: #212529;
+}
+
+.position-back:hover {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+.position-back:focus-visible {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+.position-title {
+    margin: 0;
+    font-weight: 700;
+}
+
+/* Escritorio: columnas en fila con scroll horizontal propio si no caben */
+.kanban-board {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.stage-column {
+    flex: 0 0 280px;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background-color: #f1f2f4;
+}
+
+.stage-column-title {
+    margin-bottom: 1rem;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.stage-column-list {
+    min-height: 5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.stage-column-list.is-over {
+    background-color: #e2e6ea;
+}
+
+.stage-column-empty {
+    margin: 0;
+    padding: 0.5rem 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Margen en lugar de gap: la librería de drag and drop no tiene en cuenta el gap al calcular posiciones */
+.candidate-card {
+    margin-bottom: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: 0.5rem;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    cursor: grab;
+}
+
+.candidate-card.is-dragging {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    cursor: grabbing;
+}
+
+.candidate-card:focus-visible {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+.candidate-name {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.score-dots {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.score-dot {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #6be86b, #1a9e1a);
+}
+
+.score-empty {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* Móvil: fases apiladas en vertical ocupando todo el ancho */
+@media (max-width: 767.98px) {
+    .kanban-board {
+        flex-direction: column;
+        align-items: stretch;
+        overflow-x: visible;
+    }
+
+    .stage-column {
+        flex: 1 1 auto;
+        width: 100%;
+    }
+}
