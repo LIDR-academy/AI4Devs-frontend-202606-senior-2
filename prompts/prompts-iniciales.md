@@ -50,3 +50,191 @@ Dejar trazabilidad de todos los prompts del proyecto en un único archivo y conv
   - `.claude/skills/`: las 6 skills de OpenSpec correspondientes.
   - La configuración opcional (`config`) se omitió porque la inicialización fue no interactiva.
 - Pendiente: reiniciar el IDE para que aparezcan los comandos `/opsx:*`.
+
+---
+
+## Prompt 3 — Explorar la interfaz "position"
+
+- **Fecha:** 2026-09-15
+- **Rama:** `frontend-JP`
+
+### Prompt
+
+> /openspec-explore Voya tener que crear la interfaz "position", una página en la que poder visualizar y gestionar los diferentes candidatos de una posición específica.
+
+### Objetivo
+
+Explorar (sin implementar) qué implica crear una página de detalle de posición donde ver los candidatos de una posición concreta y gestionarlos (moverlos entre etapas del proceso de entrevistas), antes de crear una propuesta de cambio en OpenSpec.
+
+### Resultado
+
+- Modo exploración de OpenSpec: no se escribió código de la aplicación.
+- `openspec list --json` confirmó que no hay cambios activos.
+- Se revisaron `frontend/src/App.js`, `Positions.tsx`, `RecruiterDashboard.js`, `package.json`, `backend/src/routes/positionRoutes.ts`, `positionService.ts`, `candidateController.ts`, `candidateService.ts`, `Application.ts`, `schema.prisma` y `prisma/seed.ts`.
+- Hallazgos principales:
+  - El backend ya tiene lo necesario: `GET /position/:id/interviewflow` (columnas), `GET /position/:id/candidates` (tarjetas) y `PUT /candidates/:id` (mover de etapa).
+  - `candidates` devuelve la etapa por **nombre**, pero el `PUT` necesita el **id** de la etapa, así que hay que cruzarlos con el flujo.
+  - Las etapas no vienen ordenadas por `orderIndex`, y en el seed "Technical Interview" y "Manager Interview" comparten `orderIndex: 2`.
+  - No existe `GET /positions`: la lista de posiciones es mock y no tiene ids para enlazar a `/positions/:id`.
+  - En el seed, el flujo de "Data Scientist" no tiene etapas y su candidato está en una etapa de otro flujo.
+  - No hay librería de drag and drop en el frontend.
+- Se plantearon opciones de interacción (arrastrar y soltar frente a botones o selector) y preguntas abiertas para el usuario.
+- Pendiente: decisiones del usuario y, después, `/opsx:propose`.
+
+---
+
+## Prompt 4 — Propuesta OpenSpec de la página kanban de posición
+
+- **Fecha:** 2026-09-15
+- **Rama:** `frontend-JP`
+
+### Prompt
+
+> /opsx:propose Tu misión en este ejercicio es crear la interfaz "position", una página en la que poder visualizar y gestionar los diferentes candidatos de una posición específica.
+>
+> Se ha decidido que la interfaz sea tipo kanban, mostrando los candidatos como tarjetas en diferentes columnas que representan las fases del proceso de contratación, y pudiendo actualizar la fase en la que se encuentra un candidato solo arrastrando su tarjeta.Aquí tienes un ejemplo de interfaz posible:
+>
+> Algunos de los requerimientos del equipo de diseño que se pueden ver en el ejemplo son:
+>
+> Se debe mostrar el título de la posición en la parte superior, para dar contexto
+>
+> Añadir una flecha a la izquierda del título que permita volver al listado de posiciones
+>
+> Deben mostrarse tantas columnas como fases haya en el proceso
+>
+> La tarjeta de cada candidato/a debe situarse en la fase correspondiente, y debe mostrar su nombre completo y su puntuación media
+>
+> Si es posible, debe mostrarse adecuadamente en móvil (las fases en vertical ocupando todo el ancho)
+>
+> Algunas observaciones:
+>
+> Asume que la página de posiciones la encuentras
+>
+> Asume que existe la estructura global de la página, la cual incluye los elementos comunes como menú superior y footer. Lo que estás creando es el contenido interno de la página.
+>
+> Para implementar la funcionalidad de la página cuentas con diversos endpoints API que ha preparado el equipo de backend:
+>
+> GET /positions/:id/interviewFlow
+> Este endpoint devuelve información sobre el proceso de contratación para una determinada posición:
+>
+> positionName: Título de la posición
+>
+> interviewSteps: id y nombre de las diferentes fases de las que consta el proceso de contratación
+>
+> ```json
+> {
+>       "positionName": "Senior backend engineer",
+>       "interviewFlow": {
+>
+>               "id": 1,
+>               "description": "Standard development interview process",
+>               "interviewSteps": [
+>                   {
+>                       "id": 1,
+>                       "interviewFlowId": 1,
+>                       "interviewTypeId": 1,
+>                       "name": "Initial Screening",
+>                       "orderIndex": 1
+>                   },
+>                   {
+>                       "id": 2,
+>                       "interviewFlowId": 1,
+>                       "interviewTypeId": 2,
+>                       "name": "Technical Interview",
+>                       "orderIndex": 2
+>                   },
+>                   {
+>                       "id": 3,
+>                       "interviewFlowId": 1,
+>                       "interviewTypeId": 3,
+>                       "name": "Manager Interview",
+>                       "orderIndex": 2
+>                   }
+>               ]
+>           }
+>   }
+> ```
+>
+> GET /positions/:id/candidates
+> Este endpoint devuelve todos los candidatos en proceso para una determinada posición, es decir, todas las aplicaciones para un determinado positionID. Proporciona la siguiente información:
+>
+> name: Nombre completo del candidato
+>
+> current_interview_step: en qué fase del proceso está el candidato.
+>
+> score: La puntuación media del candidato
+>
+> ```json
+> [
+>       {
+>            "fullName": "Jane Smith",
+>            "currentInterviewStep": "Technical Interview",
+>            "averageScore": 4
+>        },
+>        {
+>            "fullName": "Carlos García",
+>            "currentInterviewStep": "Initial Screening",
+>            "averageScore": 0
+>        },
+>        {
+>            "fullName": "John Doe",
+>            "currentInterviewStep": "Manager Interview",
+>            "averageScore": 5
+>       }
+>  ]
+> ```
+>
+> PUT /candidates/:id/stage
+> Este endpoint actualiza la etapa del candidato movido. Permite modificar la fase actual del proceso de entrevista en la que se encuentra un candidato específico, a través del parámetro "new_interview_step" y proporionando el interview_step_id correspondiente a la columna en la cual se encuentra ahora el candidato.
+>
+> ```json
+> {
+>      "applicationId": "1",
+>      "currentInterviewStep": "3"
+>  }
+> ```
+>
+> ```json
+> {
+>     "message": "Candidate stage updated successfully",
+>      "data": {
+>          "id": 1,
+>          "positionId": 1,
+>          "candidateId": 1,
+>          "applicationDate": "2024-06-04T13:34:58.304Z",
+>          "currentInterviewStep": 3,
+>          "notes": null,
+>          "interviews": []
+>      }
+>  }
+> ```
+
+Nota: el prompt incluía una imagen de ejemplo tras "ejemplo de interfaz posible:". Muestra el título "Senior Backend Engineer Position" y cuatro columnas grises ("Llamada telefónica", "Entrevista técnica", "Entrevista cultural", "Entrevista manager"). Cada columna tiene tarjetas blancas con el nombre del candidato y círculos verdes que representan su puntuación.
+
+### Objetivo
+
+Crear con OpenSpec (`/opsx:propose`) un cambio completo, con propuesta, specs, diseño y tareas, para implementar la página kanban de una posición. En ella, los candidatos se muestran como tarjetas en columnas por fase y se cambian de fase arrastrándolos.
+
+### Resultado
+
+- Se creó el cambio `add-position-kanban-page` (esquema `spec-driven`) con `openspec new change`.
+- Se comprobó el backend real, que difiere del enunciado:
+  - Las rutas reales son `GET /position/:id/interviewflow`, `GET /position/:id/candidates` y `PUT /candidates/:id` (sin `/stage`).
+  - `candidates` devuelve además `id` (candidateId) y `applicationId`.
+- Se verificó que `@hello-pangea/dnd` 18.0.1 es compatible con React 18 (`peerDependencies` `^18 || ^19`). `@dnd-kit/core` 6.3.1 queda como alternativa.
+- Artefactos creados en `openspec/changes/add-position-kanban-page/`:
+  - `proposal.md`: motivo, cambios, capacidad nueva `position-kanban` e impacto. Solo frontend.
+  - `specs/position-kanban/spec.md`: 7 requisitos con escenarios (acceso y ruta, carga y errores, cabecera con flecha, columnas por fase, tarjetas con puntuación, arrastre con actualización optimista, responsive).
+  - `design.md`: 8 decisiones con alternativas, riesgos, plan de despliegue y preguntas abiertas.
+  - `tasks.md`: 27 tareas en 6 grupos (preparación, capa de datos, componentes, rutas, tests y verificación manual).
+- Decisiones tomadas sin preguntar al usuario:
+  - Usar las rutas reales del backend, centralizadas en `positionService.ts`.
+  - No modificar el backend ni el seed.
+  - Resolver la fase del candidato por nombre y ordenar las fases por `orderIndex` y luego `id`.
+  - Usar `@hello-pangea/dnd` para tener soporte táctil y de teclado.
+  - Aplicar actualización optimista con reversión si falla el guardado.
+  - Escribir los componentes en TypeScript, en `components/PositionDetails/`.
+  - Añadir ids al mock de `Positions.tsx` para que "Ver proceso" navegue a la página.
+- `openspec validate add-position-kanban-page --strict`: el cambio es válido. `openspec status`: 4/4 artefactos completos.
+- No se escribió código de la aplicación.
+- Pendiente: revisión del usuario y `/opsx:apply` para implementar. Quedan abiertas tres preguntas: devolver `currentInterviewStepId` desde el backend, corregir el seed y alinear las rutas del enunciado con las del backend.
