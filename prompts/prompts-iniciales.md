@@ -281,3 +281,29 @@ Implementar las tareas de `openspec/changes/add-position-kanban-page/tasks.md`: 
 - Los datos modificados durante las pruebas se restauraron: la aplicación 4 volvió a la fase 1.
 - Backend y frontend quedan arrancados en segundo plano. No se hizo commit.
 - Pendiente: revisión del usuario y `/opsx:archive`.
+
+---
+
+## Prompt 6 — Archivar el cambio kanban
+
+- **Fecha:** 2026-09-15
+- **Rama:** `frontend-JP`
+
+### Prompt
+
+> /opsx:archive
+
+### Objetivo
+
+Archivar en OpenSpec el cambio completado `add-position-kanban-page`, sincronizando antes su spec delta con las specs principales de `openspec/specs/`.
+
+### Resultado
+
+- `openspec list` mostró un único cambio activo, `add-position-kanban-page` (27/27 tareas), así que no hubo que elegir entre varios.
+- `openspec status` confirmó los 4 artefactos en `done` y el modo `repo-local`.
+- El usuario eligió **sincronizar la spec antes de archivar**.
+- Sincronización (skill `openspec-sync-specs`):
+  - Se creó `openspec/specs/position-kanban/spec.md`, con una sección Purpose y los 7 requisitos añadidos por la spec delta, con todos sus escenarios.
+  - `openspec validate position-kanban --type spec --strict`: la spec es válida.
+- El cambio se movió a `openspec/changes/archive/2026-09-15-add-position-kanban-page/` (con `.openspec.yaml`, `proposal.md`, `design.md`, `specs/` y `tasks.md`). `openspec list` ya no muestra cambios activos.
+- No se hizo commit. Backend y frontend siguen arrancados en segundo plano.
