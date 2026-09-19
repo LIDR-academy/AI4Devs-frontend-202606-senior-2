@@ -1,0 +1,80 @@
+.position-header .back-arrow {
+    cursor: pointer;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+}
+
+.kanban-board {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+}
+
+.kanban-column {
+    background-color: #f4f5f7;
+    border-radius: 8px;
+    padding: 0.75rem;
+    min-width: 260px;
+    flex: 1 0 260px;
+    transition: background-color 0.15s ease;
+}
+
+.kanban-column.drag-over {
+    background-color: #dfe6ff;
+}
+
+.kanban-column-title {
+    text-align: center;
+    margin-bottom: 0.75rem;
+}
+
+.kanban-column-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: 60px;
+}
+
+.candidate-card {
+    background-color: #ffffff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    padding: 0.75rem;
+    cursor: grab;
+    touch-action: none;
+}
+
+.candidate-card:active,
+.candidate-card.dragging {
+    cursor: grabbing;
+    opacity: 0.6;
+}
+
+.candidate-name {
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+}
+
+.score-dots {
+    display: inline-flex;
+    gap: 0.2rem;
+}
+
+.score-dot {
+    color: #28a745;
+    font-size: 0.6rem;
+}
+
+@media (max-width: 768px) {
+    .kanban-board {
+        flex-direction: column;
+        overflow-x: visible;
+    }
+
+    .kanban-column {
+        min-width: 100%;
+        flex: 1 1 auto;
+    }
+}
